@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.chord path {
+  fill-opacity: .67;
+  stroke: #000;
+  stroke-width: .5px;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+  
+  var sms;
+  loadSMS();
+  function loadSMS() {
+    d3.csv("SMS_small.csv", function(error, data) {
+      sms = data;
+      console.log(sms);
+      
+      //if the call is incoming, switch the user & dest user ids
+      //so they can all appear as outgoing from correct caller's phone
+      for (var i = 0; i< sms.length; i++) {
+        if(sms[i]["incoming"] == "1") {
+          sms[i]["caller"] = sms[i]["dest_user_id"];
+          sms[i]["dest_user_id"] = sms[i]["user_id"];
+          sms[i]["user_id"] = sms[i]["caller"];
+          sms[i]["incoming"] = "0";
+        }
+      };
+      console.log(sms);
+      matrixmap(sms);
+    })
+  };
+  
+  function matrixmap(sms) {
+    var matrix = [];
+    var users = [];
+    
+    /*get all the unique users (both senders & receivers)
+    because that is going to be the number of arrays in the
+    square matrix.*/
+    
+    //first add all unique user IDs
+    for (var i = 0; i< sms.length; i++) {
+      var add = 1;
+      for (var u = 0; u < users.length; u++) {
+        if (sms[i]["user_id"] == users[u]) {
+          add = 0;
+        };
+      }
+      if (add == 1) {
+      users.push(sms[i]["user_id"]);
+      }
+    }
+    
+    //then add any unique dest_user_ids that weren't already added
+    for (var i = 0; i< sms.length; i++) {
+      var add = 1;
+      for (var u = 0; u < users.length; u++) {
+        if (sms[i]["dest_user_id"] == users[u]) {
+          add = 0;
+        };
+      }
+      if (add == 1) {
+      users.push(sms[i]["dest_user_id"]);
+      }
+    }
+    console.log(users);
+    
+    //intialize the square matrix and put 0s in
+    //so the values can be incremented later.
+    matrix.length = users.length;
+    for (var i = 0; i< matrix.length; i++) {
+      matrix[i] = [];
+      matrix[i].length = matrix.length;
+      for (var j = 0; j<matrix.length; j++) {
+        matrix[i][j] = 0;
+      }
+    };
+    console.log(matrix);
+    
+  //increment the values for each action to/from user
+    for (var u = 0; u<users.length; u++) {
+      console.log("user =" + u + ", val = " + users[u]);
+      for (var s = 0; s<sms.length; s++) {
+        //console.log("sms rec - " + s + ", user = " + sms[s]["user_id"]);
+        if (sms[s]["user_id"] == users[u]) {
+          //console.log("match on user");
+          //console.log("sms rec " + s + " user id = " + sms[s]["user_id"]);
+          for (var u2 = 0; u2<users.length; u2++) {
+            if (sms[s]["dest_user_id"] == users[u2]) {
+              //console.log("sms rec " + s + " dest id = " + sms[s]["dest_user_id"]);
+              matrix[u][u2] = matrix[u][u2]+1;
+            }
+          }
+        }
+      }
+    };
+    console.log(matrix);
+    createVis(matrix, users);
+  }
+  
+function createVis(matrix, users) {
+  
+  var chord = d3.layout.chord()
+      .padding(.05)
+      .sortSubgroups(d3.descending)
+      .matrix(matrix);
+  
+  var width = 960,
+      height = 500,
+      innerRadius = Math.min(width, height) * .41,
+      outerRadius = innerRadius * 1.1;
+  
+  var fill = d3.scale.ordinal()
+      .domain(d3.range(users.length))
+      .range(['rgb(127,201,127)','rgb(190,174,212)','rgb(253,192,134)','rgb(255,255,153)','rgb(56,108,176)','rgb(240,2,127)']);
+  
+  var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+    .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+  
+  var students = svg.append("g").selectAll("path")
+      .data(chord.groups)
+    .enter().append("path")
+      .attr("class", "groups")
+      .attr("id", function(d, i) {return "group-" + i;})
+      .style("fill", function(d) { return fill(d.index); })
+      .style("stroke", function(d) { return fill(d.index); })
+      .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
+      .on("mouseover", fade(.1))
+      .on("mouseout", fade(1))
+      
+students.append("svg:text")
+      .attr("x", 6)
+      .attr("dy", 15)
+      .attr("stroke", "black")
+      .append("svg:textPath")
+      .attr("xlink:href", function(d, i) { return "#group-" + i; })
+      .text(function(d, i) { return "user " + users[i]; })
+  
+  
+  var ticks = svg.append("g").selectAll("g")
+      .data(chord.groups)
+    .enter().append("g").selectAll("g")
+      .data(groupTicks)
+    .enter().append("g")
+      .attr("transform", function(d) {
+        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+            + "translate(" + outerRadius + ",0)";
+      });
+  
+  ticks.append("line")
+      .attr("x1", 1)
+      .attr("y1", 0)
+      .attr("x2", 5)
+      .attr("y2", 0)
+      .style("stroke", "#000");
+  
+  ticks.append("text")
+      .attr("x", 8)
+      .attr("dy", ".35em")
+      .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
+      .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
+      .text(function(d) { return d.label; });
+  
+  svg.append("g")
+      .attr("class", "chord")
+    .selectAll("path")
+      .data(chord.chords)
+    .enter().append("path")
+      .attr("d", d3.svg.chord().radius(innerRadius))
+      .style("fill", function(d) { return fill(d.target.index); })
+      .style("opacity", 1);
+  
+  // Returns an array of tick angles and labels, given a group.
+  function groupTicks(d) {
+    var k = (d.endAngle - d.startAngle) / d.value;
+    return d3.range(0, d.value, 1).map(function(v, i) {
+      return {
+        angle: v * k + d.startAngle,
+        label: i % 5 ? null : v / 1
+      };
+    });
+  }
+    
+  // Returns an event handler for fading a given chord group.
+  function fade(opacity) {
+    return function(g, i) {
+      svg.selectAll(".chord path")
+          .filter(function(d) { return d.source.index != i && d.target.index != i; })
+        .transition()
+          .style("opacity", opacity);
+    };
+  }
+}
+
+</script>

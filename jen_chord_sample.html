@@ -28,7 +28,7 @@ var matrix = [
 ];
 
 //array of users
-var users = ["16", "37", "57", "61", "unknown", "1"];
+var users = d3.scale.ordinal().range( ["16", "37", "57", "61", "unknown", "1"]);
 
 var chord = d3.layout.chord()
     .padding(.05)
@@ -50,7 +50,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-svg.append("g").selectAll("path")
+var students = svg.append("g").selectAll("path")
     .data(chord.groups)
   .enter().append("path")
     .attr("class", "groups")
@@ -60,13 +60,17 @@ svg.append("g").selectAll("path")
     .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
     .on("mouseover", fade(.1))
     .on("mouseout", fade(1))
-    svg.append("g").append("svg:text")
+   ;
+   
+
+
+students.append("svg:text")
       .attr("x", 6)
       .attr("dy", 15)
+      .attr("stroke", "black")
       .append("svg:textPath")
       .attr("xlink:href", function(d, i) { return "#group-" + i; })
-      .text(function(d, i) { return "user " + users[i]; });
-
+      .text(function(d, i) { return "user " + users(i+1); })
 
 var ticks = svg.append("g").selectAll("g")
     .data(chord.groups)
