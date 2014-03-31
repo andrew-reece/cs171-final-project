@@ -20,7 +20,7 @@ body {
   var sms;
   loadSMS();
   function loadSMS() {
-    d3.csv("SMS_small.csv", function(error, data) {
+    d3.csv("../data/SMS_small.csv", function(error, data) {
       sms = data;
       console.log(sms);
       
@@ -140,13 +140,13 @@ function createVis(matrix, users) {
       .on("mouseover", fade(.1))
       .on("mouseout", fade(1))
       
-students.append("svg:text")
+students.append("text")
       .attr("x", 6)
       .attr("dy", 15)
       .attr("stroke", "black")
-      .append("svg:textPath")
+      .append("textPath")
       .attr("xlink:href", function(d, i) { return "#group-" + i; })
-      .text(function(d, i) { return "user " + users[i]; })
+      .text(function(d, i) { return "user " + users[i]; });
   
   
   var ticks = svg.append("g").selectAll("g")
