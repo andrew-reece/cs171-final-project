@@ -21,16 +21,14 @@ body {
   var sms;
   loadSMS();
   function loadSMS() {
-    d3.csv("../data/SMS_June_2009.csv", function(error, data) {
+    d3.csv("../newdata/SMS_June_2009.csv", function(error, data) {
       sms = data;
-      console.log(sms);
       
-      for (var i = 0; i< sms.length; i++) {
-        if (sms[i]["dest_user_id"] == '') {
-          sms[i]["dest_user_id"] = "0";
+      for (var i = sms.length-1; i>=0; i--) {
+        if (sms[i]["dest_user_id"] == "") {
+          sms.splice(i, 1);
         }
       };
-      console.log(sms);
       
       
       //if the call is incoming, switch the user & dest user ids
