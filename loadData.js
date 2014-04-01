@@ -1,16 +1,64 @@
 var YmParser = d3.time.format("%Y.%m").parse;
 var YmdParser = d3.time.format("%Y-%m-%d").parse;
 var YmdXParser = d3.time.format("%Y-%m-%d %X").parse;
-var formatPercent = d3.format(".0%");
 
 var subjects, activities, calls, flusymptoms, health, musicgenreawareness, musicgenreimmersion, musicgenrepreference, politics, proximity,
     relationshipsfromsurveys, sms, wlan2;
 
+var width = 960,
+    height = 500,
+    twoPi = 2 * Math.PI,
+    progress = 0,
+    total = 1308573, // must be hard-coded if server doesn't report Content-Length
+    formatPercent = d3.format(".0%");
+
+var arc = d3.svg.arc()
+    .startAngle(0)
+    .innerRadius(180)
+    .outerRadius(240);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var meter = svg.append("g")
+    .attr("class", "progress-meter");
+
+meter.append("path")
+    .attr("class", "background")
+    .attr("d", arc.endAngle(twoPi));
+
+var foreground = meter.append("path")
+    .attr("class", "foreground");
+
+var text = meter.append("text")
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em");
+    
+/*
+var myXhr = d3.csv("data/WLAN2.csv")
+    .on("progress", function() {
+      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
+      d3.transition().tween("progress", function() {
+        return function(t) {
+          progress = i(t);
+          foreground.attr("d", arc.endAngle(twoPi * progress));
+          text.text(formatPercent(progress));
+        };
+      });
+    })
+    .get(function(error, data) {
+      meter.transition().delay(250).attr("transform", "scale(0)");
+    });
+*/
     
 // Formating the function signature like this so parts can easily be commented out.
 // Need to be commented out in queue() and initVis.
 var transformData = function(
                       error
+/*
                       ,subjects
                       ,activities
                       ,calls
@@ -20,9 +68,10 @@ var transformData = function(
                       ,musicgenreimmersion
                       ,musicgenrepreference
                       ,politics
-//                      ,proximity
+                      ,proximity
                       ,relationshipsfromsurveys
                       ,sms
+*/
                       ,wlan2
                       ) {
   if(error) {
@@ -30,8 +79,12 @@ var transformData = function(
     return;
   }
   
+
+    
+
 // Various transformations to our data
 
+/*
 //  console.log("Subjects", subjects);
   console.log("Transforming Activities...");
   activities.map(function(d) {
@@ -74,13 +127,11 @@ var transformData = function(
     d["survey.month"] = YmParser(d["survey.month"]);
   })
 //  console.log("Politics", politics);
- /*
- console.log("Transforming Proximity...");
+  console.log("Transforming Proximity...");
   proximity.map(function(d) {
     d["time"] = YmdXParser(d["time"]);
   });
   console.log("Proximity", proximity);
-*/
   console.log("Transforming RelationshipsFromSurveys...");
   relationshipsfromsurveys.map(function(d) {
     d["survey.date"] = YmdParser(d["survey.date"]);
@@ -91,6 +142,7 @@ var transformData = function(
     d["time"] = YmdXParser(d["time"]);
   })
 //  console.log("SMS", sms);
+*/
   console.log("Transforming WLAN2...");
   wlan2.map(function(d) {
     d["time"] = YmdXParser(d["time"]);
@@ -131,6 +183,7 @@ function loadProximity() {
 function loadData() {
   
    queue()
+/*
   .defer(d3.csv("data/Subjects.csv")
          .on("progress", function() { console.log("Loading data/Subjects.csv: ",this.parent, formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
@@ -158,11 +211,9 @@ function loadData() {
   .defer(d3.csv("data/Politics.csv")
          .on("progress", function() { console.log("Loading data/Politics.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
-/*
   .defer(d3.csv("data/Proximity.csv")
          .on("progress", function() { console.log("Loading data/Proximity.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
-*/
   .defer(d3.csv("data/RelationshipsFromSurveys.csv")
          .on("progress", function() { console.log("Loading data/RelationshipsFromSurveys.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
@@ -172,7 +223,23 @@ function loadData() {
 
   .defer(d3.csv("data/WLAN2.csv")
          .on("progress", function() { console.log("Loading data/WLAN2.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                            
-         .get)
+         .get) */
+         
+.defer(d3.csv("data/WLAN2.csv")
+    .on("progress", function() {
+      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
+      d3.transition().tween("progress", function() {
+        return function(t) {
+          progress = i(t);
+          foreground.attr("d", arc.endAngle(twoPi * progress));
+          text.text(formatPercent(progress));
+        };
+      });
+    })
+    .get(function(error, data) {
+      meter.transition().delay(250).attr("transform", "scale(0)");
+    })
+    )
          
   .await(transformData);
 }
