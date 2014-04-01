@@ -1,4 +1,4 @@
-"user.id","time","incoming","dest.user.id.if.known","dest.phone.hash"
+"user_id","time","incoming","dest_user_id","dest.phone.hash"
 61,2008-01-01 15:00:25,0,1,"3502965008"
 61,2008-01-01 15:00:25,0,61,"3480933661"
 61,2008-01-01 15:00:25,1,1,"3502965008"
