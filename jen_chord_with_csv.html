@@ -139,11 +139,12 @@ function createVis(matrix, users) {
       .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
       .on("mouseover", fade(.1))
       .on("mouseout", fade(1))
-      
-students.append("text")
+
+  var text = svg.append("g").selectAll("text")
+      .data(chord.groups)
+      .enter().append("text")
       .attr("x", 6)
       .attr("dy", 15)
-      .attr("stroke", "black")
       .append("textPath")
       .attr("xlink:href", function(d, i) { return "#group-" + i; })
       .text(function(d, i) { return "user " + users[i]; });
