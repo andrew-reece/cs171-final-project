@@ -1,12 +1,12 @@
 var YmParser = d3.time.format("%Y.%m").parse;
 var YmdParser = d3.time.format("%Y-%m-%d").parse;
 var YmdXParser = d3.time.format("%Y-%m-%d %X").parse;
-var progressFormatter = d3.format(".0%");
+var formatPercent = d3.format(".0%");
 
 var subjects, activities, calls, flusymptoms, health, musicgenreawareness, musicgenreimmersion, musicgenrepreference, politics, proximity,
     relationshipsfromsurveys, sms, wlan2;
 
-
+    
 // Formating the function signature like this so parts can easily be commented out.
 // Need to be commented out in queue() and initVis.
 var transformData = function(
@@ -20,7 +20,7 @@ var transformData = function(
                       ,musicgenreimmersion
                       ,musicgenrepreference
                       ,politics
-                      ,proximity
+//                      ,proximity
                       ,relationshipsfromsurveys
                       ,sms
                       ,wlan2
@@ -29,7 +29,7 @@ var transformData = function(
     console.warn("Error", error);
     return;
   }
-
+  
 // Various transformations to our data
 
 //  console.log("Subjects", subjects);
@@ -37,6 +37,7 @@ var transformData = function(
   activities.map(function(d) {
       d["survey.month"] = YmParser(d["survey.month"]);
   });
+//  console.log(activities);
 //  console.log("Activities", activities);
   console.log("Transforming Calls...");
   calls.map(function(d) {
@@ -73,11 +74,13 @@ var transformData = function(
     d["survey.month"] = YmParser(d["survey.month"]);
   })
 //  console.log("Politics", politics);
-  console.log("Transforming Proximity...");
+ /*
+ console.log("Transforming Proximity...");
   proximity.map(function(d) {
     d["time"] = YmdXParser(d["time"]);
   });
   console.log("Proximity", proximity);
+*/
   console.log("Transforming RelationshipsFromSurveys...");
   relationshipsfromsurveys.map(function(d) {
     d["survey.date"] = YmdParser(d["survey.date"]);
@@ -92,11 +95,14 @@ var transformData = function(
   wlan2.map(function(d) {
     d["time"] = YmdXParser(d["time"]);
   })
-//  console.log("WLAN2", wlan2);
+  console.log("WLAN2", wlan2);
 
  // loadProximity();
 }
 
+// This is just a second function that can be used to load Proximity separately to see if the issue was the Queue.
+// It's not, whether pulling by itself or in the queue, or even making a program that only pulls Proximity into a CSV, it causes
+// the rest of the program to not function
 function loadProximity() {
   d3.csv("data/Proximity2.csv", function(error, data) {
     if (error) {
@@ -116,54 +122,58 @@ function loadProximity() {
     console.log("Proximity", proximity);
         
   }).on("progress", function(event) {
-      console.log("Loading data/Proximity.csv: ", progressFormatter(d3.event.loaded/d3.event.total));
+      console.log("Loading data/Proximity.csv: ", formatPercent(d3.event.loaded/d3.event.total));
   });
 }
 
 // load all of our data and show progress 
+// based on http://bl.ocks.org/mbostock/3750941
 function loadData() {
   
    queue()
   .defer(d3.csv("data/Subjects.csv")
-         .on("progress", function() { console.log("Loading data/Subjects.csv: ",this.parent, progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/Subjects.csv: ",this.parent, formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/Activities.csv")
-          .on("progress", function() { console.log("Loading data/Activities.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+          .on("progress", function() { console.log("Loading data/Activities.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/Calls.csv")
-         .on("progress", function() { console.log("Loading data/Calls.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/Calls.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/FluSymptoms.csv")
-         .on("progress", function() { console.log("Loading data/FluSymptoms.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/FluSymptoms.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/Health.csv")
-         .on("progress", function() { console.log("Loading data/Health.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/Health.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/MusicGenreAwareness.csv")
-         .on("progress", function() { console.log("Loading data/MusicGenreAwareness.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/MusicGenreAwareness.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/MusicGenreImmersion.csv")
-         .on("progress", function() { console.log("Loading data/MusicGenreImmersion.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/MusicGenreImmersion.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/MusicGenrePreference.csv")
-         .on("progress", function() { console.log("Loading data/MusicGenrePreference.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/MusicGenrePreference.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/Politics.csv")
-         .on("progress", function() { console.log("Loading data/Politics.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/Politics.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
-
+/*
   .defer(d3.csv("data/Proximity.csv")
-         .on("progress", function() { console.log("Loading data/Proximity.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/Proximity.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
+*/
   .defer(d3.csv("data/RelationshipsFromSurveys.csv")
-         .on("progress", function() { console.log("Loading data/RelationshipsFromSurveys.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
+         .on("progress", function() { console.log("Loading data/RelationshipsFromSurveys.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
          .get, "error")
   .defer(d3.csv("data/SMS.csv")
-         .on("progress", function() { console.log("Loading data/SMS.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
-         .get, "error")
+         .on("progress", function() { console.log("Loading data/SMS.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                           
+         .get, "error") 
+
   .defer(d3.csv("data/WLAN2.csv")
-         .on("progress", function() { console.log("Loading data/WLAN2.csv: ", progressFormatter(d3.event.loaded/d3.event.total)); })                                           
-         .get, "error")
+         .on("progress", function() { console.log("Loading data/WLAN2.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                            
+         .get)
+         
   .await(transformData);
 }
 
