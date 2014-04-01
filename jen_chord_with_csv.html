@@ -15,14 +15,23 @@ body {
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/colorbrewer.v1.min.js"></script>
 <script>
   
   var sms;
   loadSMS();
   function loadSMS() {
-    d3.csv("SMS_small.csv", function(error, data) {
+    d3.csv("../data/SMS_June_2009.csv", function(error, data) {
       sms = data;
       console.log(sms);
+      
+      for (var i = 0; i< sms.length; i++) {
+        if (sms[i]["dest_user_id"] == '') {
+          sms[i]["dest_user_id"] = "0";
+        }
+      };
+      console.log(sms);
+      
       
       //if the call is incoming, switch the user & dest user ids
       //so they can all appear as outgoing from correct caller's phone
@@ -84,11 +93,11 @@ body {
         matrix[i][j] = 0;
       }
     };
-    console.log(matrix);
+    //console.log(matrix);
     
   //increment the values for each action to/from user
     for (var u = 0; u<users.length; u++) {
-      console.log("user =" + u + ", val = " + users[u]);
+      //console.log("user =" + u + ", val = " + users[u]);
       for (var s = 0; s<sms.length; s++) {
         //console.log("sms rec - " + s + ", user = " + sms[s]["user_id"]);
         if (sms[s]["user_id"] == users[u]) {
@@ -121,7 +130,7 @@ function createVis(matrix, users) {
   
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
-      .range(['rgb(127,201,127)','rgb(190,174,212)','rgb(253,192,134)','rgb(255,255,153)','rgb(56,108,176)','rgb(240,2,127)']);
+      .range(colorbrewer.Set3[12]);
   
   var svg = d3.select("body").append("svg")
       .attr("width", width)
@@ -139,14 +148,17 @@ function createVis(matrix, users) {
       .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
       .on("mouseover", fade(.1))
       .on("mouseout", fade(1))
-      
-students.append("svg:text")
+
+  var text = svg.append("g").selectAll("text")
+      .data(chord.groups)
+      .enter().append("text")
       .attr("x", 6)
       .attr("dy", 15)
-      .attr("stroke", "black")
-      .append("svg:textPath")
+      .append("textPath")
       .attr("xlink:href", function(d, i) { return "#group-" + i; })
-      .text(function(d, i) { return "user " + users[i]; })
+      .text(function(d, i) {
+        if (users[i] == "0") {return "unknown user";}
+        else {return "user " + users[i];} });
   
   
   var ticks = svg.append("g").selectAll("g")
