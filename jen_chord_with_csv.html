@@ -147,7 +147,9 @@ function createVis(matrix, users) {
       .attr("dy", 15)
       .append("textPath")
       .attr("xlink:href", function(d, i) { return "#group-" + i; })
-      .text(function(d, i) { return "user " + users[i]; });
+      .text(function(d, i) {
+        if (users[i] == "0") {return "unknown user";}
+        else {return "user " + users[i];} });
   
   
   var ticks = svg.append("g").selectAll("g")
