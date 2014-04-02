@@ -37,6 +37,22 @@ var text = meter.append("text")
     .attr("text-anchor", "middle")
     .attr("dy", ".35em");
     
+var fileLoading = meter.append("text")
+    .attr("class", "fileLoading")
+    .attr("text-anchor", "middle")
+    .style("font-family", "monospace")
+    .style("font-size", "small")
+    .style("font-weight", "normal")
+    .attr("dy", "2.0em");
+    
+var lastCompleted = meter.append("text")
+    .attr("class", "lastCompleted")
+    .attr("text-anchor", "middle")
+    .style("font-family", "monospace")
+    .style("font-size", "small")
+    .style("font-weight", "normal")
+    .attr("dy", "3.0em");
+    
 var totalComplete = 0;
     
 /*
@@ -182,271 +198,284 @@ function loadProximity() {
 // based on http://bl.ocks.org/mbostock/3750941
 function loadData() {
   
-   queue(1)
+   queue()
 
-.defer(function(f) { d3.csv("../data/Subjects.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-.defer(function(f) { d3.csv("../data/Activities.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-.defer(function(f) { d3.csv("../data/Calls.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-.defer(function(f) { d3.csv("../data/FluSymptoms.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-.defer(function(f) { d3.csv("../data/Health.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-.defer(function(f) { d3.csv("../data/MusicGenreAwareness.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})        
-
-.defer(function(f) { d3.csv("../data/MusicGenreImmersion.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-         
-.defer(function(f) { d3.csv("../data/MusicGenrePreference.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-.defer(function(f) { d3.csv("../data/Politics.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-/*
-.defer(function(f) { d3.csv("../data/Proximity.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-*/
-         
-.defer(function(f) { d3.csv("../data/RelationshipsFromSurveys.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-
-.defer(function(f) { d3.csv("../data/SMS.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=7;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-         
-.defer(function(f) { d3.csv("../data/WLAN2.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          background.attr("d", arc.endAngle(twoPi));
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-//      meter.transition().delay(250).attr("transform", "scale(0)");
-      totalComplete+=23;
-      console.log("Total:", totalComplete);
-      f(error, data);
-    })
-})
-    
-
-    
+  .defer(function(f) { d3.csv("../data/Subjects.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/Subjects.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        console.log("Total:", totalComplete);
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/Subjects.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  .defer(function(f) { d3.csv("../data/Activities.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/Activities.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        console.log("Total:", totalComplete);
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/Activities.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  .defer(function(f) { d3.csv("../data/Calls.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/Calls.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/Calls.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  .defer(function(f) { d3.csv("../data/FluSymptoms.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/FluSymptoms.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/FluSymptoms.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  .defer(function(f) { d3.csv("../data/Health.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/Health.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/Health.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  .defer(function(f) { d3.csv("../data/MusicGenreAwareness.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/MusicGenreAwareness.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/MusicGenreAwareness.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })        
+  
+  .defer(function(f) { d3.csv("../data/MusicGenreImmersion.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/MusicGenreImmersion.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/MusicGenreImmersion.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+           
+  .defer(function(f) { d3.csv("../data/MusicGenrePreference.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/MusicGenrePreference.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/MusicGenrePreference.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  .defer(function(f) { d3.csv("../data/Politics.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/Politics.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/Politics.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  /*
+  .defer(function(f) { d3.csv("../data/Proximity.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/Proximity.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/Proximity.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }        
+      })
+  })
+  */
+           
+  .defer(function(f) { d3.csv("../data/RelationshipsFromSurveys.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/RelationshipsFromSurveys.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/RelationshipsFromSurveys.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);        
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }                
+      })
+  })
+  
+  .defer(function(f) { d3.csv("../data/SMS.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/SMS.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.07;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/SMS.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }        
+      })
+  })
+           
+  .defer(function(f) { d3.csv("../data/WLAN2.csv")
+      .on("progress", function() {
+        fileLoading.text("Loading ../data/WLAN2.csv");
+      })
+      .get(function(error, data) {
+        totalComplete+=.23;
+        d3.transition().tween("progress", function() {
+          return function(t) {
+            foreground.attr("d", arc.endAngle(twoPi * totalComplete));
+            text.text(formatPercent(totalComplete));
+            lastCompleted.text("../data/SMS.csv completed");
+          };
+        });
+        console.log("Total:", totalComplete);
+        f(error, data);
+        if(totalComplete >= 1.0) {
+          meter.transition().delay(250).attr("transform", "scale(0)");
+        }
+      })
+  })
          
   .await(transformData);
 }
