@@ -54,24 +54,7 @@ var lastCompleted = meter.append("text")
     .attr("dy", "3.0em");
     
 var totalComplete = 0;
-    
-/*
-var myXhr = d3.csv("../data/WLAN2.csv")
-    .on("progress", function() {
-      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
-      d3.transition().tween("progress", function() {
-        return function(t) {
-          progress = i(t);
-          foreground.attr("d", arc.endAngle(twoPi * progress));
-          text.text(formatPercent(progress));
-        };
-      });
-    })
-    .get(function(error, data) {
-      meter.transition().delay(250).attr("transform", "scale(0)");
-    });
-*/
-    
+        
 // Formating the function signature like this so parts can easily be commented out.
 // Need to be commented out in queue() and initVis.
 var transformData = function(
@@ -85,7 +68,7 @@ var transformData = function(
                       ,musicgenreimmersion
                       ,musicgenrepreference
                       ,politics
- //                     ,proximity
+/*                       ,proximity */
                       ,relationshipsfromsurveys
                       ,sms
                       ,wlan2
@@ -95,9 +78,6 @@ var transformData = function(
     return;
   }
   
-
-    
-
 // Various transformations to our data
 
 //  console.log("Subjects", subjects);
@@ -170,7 +150,7 @@ var transformData = function(
 
 // This is just a second function that can be used to load Proximity separately to see if the issue was the Queue.
 // It's not, whether pulling by itself or in the queue, or even making a program that only pulls Proximity into a CSV, it causes
-// the rest of the program to not function
+// the rest of the program to not function.  Still investigating this issue.
 function loadProximity() {
   d3.csv("../data/Proximity2.csv", function(error, data) {
     if (error) {
@@ -391,8 +371,8 @@ function loadData() {
       })
   })
   
-  /*
-  .defer(function(f) { d3.csv("../data/Proximity.csv")
+/*
+    .defer(function(f) { d3.csv("../data/Proximity.csv")
       .on("progress", function() {
         fileLoading.text("Loading ../data/Proximity.csv");
       })
@@ -412,8 +392,8 @@ function loadData() {
         }        
       })
   })
-  */
-           
+*/
+       
   .defer(function(f) { d3.csv("../data/RelationshipsFromSurveys.csv")
       .on("progress", function() {
         fileLoading.text("Loading ../data/RelationshipsFromSurveys.csv");
