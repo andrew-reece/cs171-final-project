@@ -225,6 +225,24 @@ function loadData() {
          .on("progress", function() { console.log("Loading data/WLAN2.csv: ", formatPercent(d3.event.loaded/d3.event.total)); })                                            
          .get) */
          
+.defer(function(f) { d3.csv("data/WLAN2.csv")
+    .on("progress", function() {
+      var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
+      d3.transition().tween("progress", function() {
+        return function(t) {
+          progress = i(t);
+          foreground.attr("d", arc.endAngle(twoPi * progress));
+          text.text(formatPercent(progress));
+        };
+      });
+    })
+    .get(function(error, data) {
+      meter.transition().delay(250).attr("transform", "scale(0)");
+      f(error, data);
+    })
+})
+    
+/*
 .defer(d3.csv("data/WLAN2.csv")
     .on("progress", function() {
       var i = d3.interpolate(progress, d3.event.loaded / d3.event.total);
@@ -240,6 +258,10 @@ function loadData() {
       meter.transition().delay(250).attr("transform", "scale(0)");
     })
     )
+*/
+    
+    
+//   defer(function(f) { d3.csv(...).on(...).get(function(error, data) { meter...; f(error, data); }) })
          
   .await(transformData);
 }
