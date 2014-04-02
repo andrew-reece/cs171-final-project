@@ -37,6 +37,8 @@ var text = meter.append("text")
     .attr("text-anchor", "middle")
     .attr("dy", ".35em");
     
+var totalComplete = 0;
+    
 /*
 var myXhr = d3.csv("../data/WLAN2.csv")
     .on("progress", function() {
@@ -145,7 +147,7 @@ var transformData = function(
   wlan2.map(function(d) {
     d["time"] = YmdXParser(d["time"]);
   })
-  console.log("WLAN2", wlan2);
+//  console.log("WLAN2", wlan2);
 
  // loadProximity();
 }
@@ -196,6 +198,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -214,6 +218,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -232,6 +238,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -250,6 +258,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -268,6 +278,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -286,6 +298,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })        
@@ -304,6 +318,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -322,6 +338,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -340,6 +358,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -358,6 +378,8 @@ function loadData() {
     })
     .get(function(error, data) {
       meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -377,6 +399,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -395,6 +419,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=7;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
@@ -413,6 +439,8 @@ function loadData() {
     })
     .get(function(error, data) {
 //      meter.transition().delay(250).attr("transform", "scale(0)");
+      totalComplete+=23;
+      console.log("Total:", totalComplete);
       f(error, data);
     })
 })
