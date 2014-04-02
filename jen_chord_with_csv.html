@@ -21,7 +21,7 @@ body {
   var sms;
   loadSMS();
   function loadSMS() {
-    d3.csv("../newdata/SMS_June_2009.csv", function(error, data) {
+    d3.csv("../newdata/Calls_Oct_2008.csv", function(error, data) {
       sms = data;
       
       for (var i = sms.length-1; i>=0; i--) {
@@ -128,7 +128,7 @@ function createVis(matrix, users) {
   
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
-      .range(colorbrewer.Set3[12]);
+      .range(colorbrewer.Paired[12]);
   
   var svg = d3.select("body").append("svg")
       .attr("width", width)
