@@ -6,22 +6,24 @@ var timeScale, xScale, scoreScale;
 var width = 960;
 var genre = function(d) { return d.genre; };
 var svg;
+var mgiBox;
 var xAxis, yAxis;
 var xContainer, yContainer;
-var filterLevel;
 var maxScore = 0;
-
 
 var margin = {top: 20, right: 20, bottom: 150, left: 40},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
+
+// width and height for the musicGenreImmersion graph
+var mgi_width = 240, mgi_height = 125;
     
 d3.csv("../data/musicGenreImmersion.csv", function(data) {
         dataset=data;
-        if(!--remaining) { doSomething(); }    
+        if(!--remaining) { drawVis(); }    
 });
 
-function doSomething() {
+function drawVis() {
   dataset.map(function(d) {
     d.date = YmdParser(d.date);
   })
@@ -34,13 +36,13 @@ function doSomething() {
   timeScale = d3.scale.linear().domain([0,50]).range(dateExtent);
   
   // create xScale
-  xScale = d3.scale.ordinal().domain(dataset.map(genre)).rangeRoundBands([0,width], .1);
+  xScale = d3.scale.ordinal().domain(dataset.map(genre)).rangeRoundBands([0,mgi_width], .1);
 
   // scoreScale
   scoreScale = d3.scale.ordinal().domain(["","2 hours or less / week", "2-7 hours / week", "more than 7 hrs / week"]).range([0,1,2,3]);
   
   // yScale
-  yScale = d3.scale.linear().range([height,0]);
+  yScale = d3.scale.linear().range([mgi_height,0]);
   
   // xAxis
   xAxis = d3.svg.axis()
@@ -58,6 +60,10 @@ function doSomething() {
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      
+  mgiBox = svg.append("g")
+    .attr("transform", "translate(" + (width - mgi_width) + "," + margin.top + ")");
+
   
   // show range of dates
   // console.log(new Date(timeScale(0)), new Date(timeScale(10)), new Date(timeScale(30)), new Date(timeScale(50)));  
@@ -69,9 +75,9 @@ function doSomething() {
   // console.log(scoreScale(""),scoreScale("2 hours or less / week"), scoreScale("2-7 hours / week"), scoreScale("more than 7 hrs / week"));
   
   // container to hold xAxis
-  xContainer = svg.append("g")
+  xContainer = mgiBox.append("g")
     .attr("class", "x axis")
-    .attr("transform", "translate(0," + height + ")")
+    .attr("transform", "translate(0," + mgi_height + ")")
     .call(xAxis)
     .selectAll("text")  
     .style("text-anchor", "end")
@@ -82,7 +88,7 @@ function doSomething() {
     });
 
   // container to hold yAxis
-  yContainer = svg.append("g")
+  yContainer = mgiBox.append("g")
       .attr("class", "y axis");
       
   // update visualization
@@ -96,15 +102,15 @@ function doSomething() {
 function updateVis() {
 
   // Read our filter level from our slider
-  filterLevel = parseInt(document.forms[0].dateFilter.value);
+  var filterLevel = parseInt(document.forms[0].dateFilter.value);
 
   // Get filterDate from filterLevel
-  filterDate = new Date(timeScale(filterLevel));
+  var filterDate = new Date(timeScale(filterLevel));
   
   d3.select("#filterDate")
     .text(filterDate);
   
-  console.log(filterLevel, filterDate);
+  // console.log(filterLevel, filterDate);
   
   // initialize valueArray
   var valueArray = {};
@@ -139,21 +145,21 @@ function updateVis() {
   yContainer.call(yAxis);
     
   // show bars
-  svg.selectAll(".bar")
+  mgiBox.selectAll(".bar")
     .data(dataAggregated)
     .enter().append("rect")
     .attr("class", "bar")
     .attr("x", function(d) { return xScale(d.genre); })
     .attr("width", xScale.rangeBand())
     .attr("y", function(d) { return yScale(d.value); })
-    .attr("height", function(d) { return height - yScale(d.value); });
+    .attr("height", function(d) { return mgi_height - yScale(d.value); });
 
   // transition bars
-  svg.selectAll(".bar")
+  mgiBox.selectAll(".bar")
     .data(dataAggregated)
     .transition()
     .attr("y", function(d) { return yScale(d.value); })
-    .attr("height", function(d) { return height - yScale(d.value); });
+    .attr("height", function(d) { return mgi_height - yScale(d.value); });
     
     
 }
