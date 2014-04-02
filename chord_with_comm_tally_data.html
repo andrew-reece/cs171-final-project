@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.chord path {
+  fill-opacity: .67;
+  stroke: #000;
+  stroke-width: .5px;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/colorbrewer.v1.min.js"></script>
+<script>
+  
+  var comm;
+  var date = "2008-01-01 15:00:25";
+  
+  loadComm();
+  function loadComm() {
+    d3.csv("../andrew/communication-tally-by-pair-full.csv", function(error, data) {
+      
+      for (var  in data) {
+        comm[][date] = +data[][date];
+        comm[][source] = data[][source];
+        comm[][target] = data[][target];
+      }
+            
+      console.log(comm);
+      matrixmap(comm);
+    })
+  };
+  
+  function matrixmap(comm) {
+    var matrix = [];
+    var users = [];
+    
+    /*get all the unique users (both senders & receivers)
+    because that is going to be the number of arrays in the
+    square matrix.*/
+    
+    //first add all unique source IDs
+    for (var i = 0; i< comm.length; i++) {
+      if (comm[i][date] != 0)
+      var add = 1;
+      for (var u = 0; u < users.length; u++) {
+        if (comm[i]["source"] == users[u]) {
+          add = 0;
+        };
+      }
+      if (add == 1) {
+      users.push(comm[i]["source"]);
+      }
+    }
+    
+    //then add any unique Target IDs that weren't already added
+    for (var i = 0; i< comm.length; i++) {
+      var add = 1;
+      for (var u = 0; u < users.length; u++) {
+        if (comm[i]["target"] == users[u]) {
+          add = 0;
+        };
+      }
+      if (add == 1) {
+      users.push(comm[i]["target"]);
+      }
+    }
+    console.log(users);
+    
+    //intialize the square matrix and put 0s in
+    //so the values can be incremented later.
+    matrix.length = users.length;
+    for (var i = 0; i< matrix.length; i++) {
+      matrix[i] = [];
+      matrix[i].length = matrix.length;
+      for (var j = 0; j<matrix.length; j++) {
+        matrix[i][j] = 0;
+      }
+    };
+    //console.log(matrix);
+    
+  //populate the matrix with the value from the selected date column
+  //for the source/user combination
+    for (var u = 0; u<users.length; u++) {
+      for (var c = 0; c<comm.length; c++) {
+        if (comm[c]["source"] == users[u]) {
+          for (var u2 = 0; u2<users.length; u2++) {
+            if (comm[c]["target"] == users[u2]) {
+              matrix[u][u2] = comm[c][date];
+            }
+          }
+        }
+      }
+    };
+    console.log(matrix);
+    createVis(matrix, users);
+  }
+  
+function createVis(matrix, users) {
+  
+  var chord = d3.layout.chord()
+      .padding(.05)
+      .sortSubgroups(d3.descending)
+      .matrix(matrix);
+  
+  var width = 960,
+      height = 500,
+      innerRadius = Math.min(width, height) * .41,
+      outerRadius = innerRadius * 1.1;
+  
+  var fill = d3.scale.ordinal()
+      .domain(d3.range(users.length))
+      .range(colorbrewer.Paired[12]);
+  
+  var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+    .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+  
+  var students = svg.append("g").selectAll("path")
+      .data(chord.groups)
+    .enter().append("path")
+      .attr("class", "groups")
+      .attr("id", function(d, i) {return "group-" + i;})
+      .style("fill", function(d) { return fill(d.index); })
+      .style("stroke", function(d) { return fill(d.index); })
+      .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
+      .on("mouseover", fade(.1))
+      .on("mouseout", fade(1))
+
+      //add labels to the chord groups
+      //NOTE: the labels don't fit if the chord group is small.  Need alt solution.
+  var text = svg.append("g").selectAll("text")
+      .data(chord.groups)
+      .enter().append("text")
+      .attr("x", 6)
+      .attr("dy", 15)
+      .append("textPath")
+      .attr("xlink:href", function(d, i) { return "#group-" + i; })
+      .text(function(d, i) {
+        if (users[i] == "0") {return "unknown user";}
+        else {return "user " + users[i];} });
+  
+  
+  var ticks = svg.append("g").selectAll("g")
+      .data(chord.groups)
+    .enter().append("g").selectAll("g")
+      .data(groupTicks)
+    .enter().append("g")
+      .attr("transform", function(d) {
+        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+            + "translate(" + outerRadius + ",0)";
+      });
+  
+  ticks.append("line")
+      .attr("x1", 1)
+      .attr("y1", 0)
+      .attr("x2", 5)
+      .attr("y2", 0)
+      .style("stroke", "#000");
+  
+  ticks.append("text")
+      .attr("x", 8)
+      .attr("dy", ".35em")
+      .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
+      .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
+      .text(function(d) { return d.label; });
+  
+  svg.append("g")
+      .attr("class", "chord")
+    .selectAll("path")
+      .data(chord.chords)
+    .enter().append("path")
+      .attr("d", d3.svg.chord().radius(innerRadius))
+      .style("fill", function(d) { return fill(d.target.index); })
+      .style("opacity", 1);
+  
+  // Returns an array of tick angles and labels, given a group.
+  function groupTicks(d) {
+    var k = (d.endAngle - d.startAngle) / d.value;
+    return d3.range(0, d.value, 1).map(function(v, i) {
+      return {
+        angle: v * k + d.startAngle,
+        label: i % 5 ? null : v / 1
+      };
+    });
+  }
+    
+  // Returns an event handler for fading a given chord group.
+  function fade(opacity) {
+    return function(g, i) {
+      svg.selectAll(".chord path")
+          .filter(function(d) { return d.source.index != i && d.target.index != i; })
+        .transition()
+          .style("opacity", opacity);
+    };
+  }
+}
+
+</script>
