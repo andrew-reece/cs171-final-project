@@ -5,7 +5,7 @@ var subjs_loc = []
 var floors = []
 var r = 6
 
-d3.csv("Subjects.csv", function(error, data) {
+d3.csv("../data/Subjects.csv", function(error, data) {
 	data.forEach( function(d,i) {
 		subjs_loc.push( 
 					{ 	uid: d.user_id , 
