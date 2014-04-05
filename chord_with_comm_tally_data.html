@@ -18,21 +18,29 @@ body {
 <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
 <script>
   
-  var comm;
-  var date = "2008-01-01 15:00:25";
+  var comm = [];
+  var date = "2009-03-24 15:00:25";
   
   loadComm();
   function loadComm() {
     d3.csv("../andrew/communication-tally-by-pair-full.csv", function(error, data) {
+      console.log(data);
       
-      for (var  in data) {
-        comm[][date] = +data[][date];
-        comm[][source] = data[][source];
-        comm[][target] = data[][target];
-      }
-            
-      console.log(comm);
-      matrixmap(comm);
+      for (var i = 0; i<data.length; i++) {
+        var dataobject = data[i];
+        comm[i] = {};
+        for (var key in dataobject) {
+          if (key == date) {
+            //console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
+            comm[i]["source"] = +dataobject["source"];
+            comm[i]["target"] = +dataobject["target"];
+            comm[i]["freq"] = +dataobject[key];
+          }
+        }
+      };
+      
+    console.log(comm);
+    matrixmap(comm);
     })
   };
   
@@ -46,28 +54,31 @@ body {
     
     //first add all unique source IDs
     for (var i = 0; i< comm.length; i++) {
-      if (comm[i][date] != 0)
-      var add = 1;
-      for (var u = 0; u < users.length; u++) {
-        if (comm[i]["source"] == users[u]) {
-          add = 0;
-        };
-      }
-      if (add == 1) {
-      users.push(comm[i]["source"]);
+      if (comm[i]["freq"] != 0) {
+        var add = 1;
+        for (var u = 0; u < users.length; u++) {
+          if (comm[i]["source"] == users[u]) {
+            add = 0;
+          };
+        }
+        if (add == 1) {
+        users.push(+comm[i]["source"]);
+        }
       }
     }
     
     //then add any unique Target IDs that weren't already added
     for (var i = 0; i< comm.length; i++) {
-      var add = 1;
-      for (var u = 0; u < users.length; u++) {
-        if (comm[i]["target"] == users[u]) {
-          add = 0;
-        };
-      }
-      if (add == 1) {
-      users.push(comm[i]["target"]);
+      if (comm[i]["freq"] != 0) {
+        var add = 1;
+        for (var u = 0; u < users.length; u++) {
+          if (comm[i]["target"] == users[u]) {
+            add = 0;
+          };
+        }
+        if (add == 1) {
+        users.push(comm[i]["target"]);
+        }
       }
     }
     console.log(users);
@@ -84,14 +95,14 @@ body {
     };
     //console.log(matrix);
     
-  //populate the matrix with the value from the selected date column
+  //populate the matrix with the frequency value
   //for the source/user combination
     for (var u = 0; u<users.length; u++) {
       for (var c = 0; c<comm.length; c++) {
         if (comm[c]["source"] == users[u]) {
           for (var u2 = 0; u2<users.length; u2++) {
             if (comm[c]["target"] == users[u2]) {
-              matrix[u][u2] = comm[c][date];
+              matrix[u][u2] = comm[c]["freq"];
             }
           }
         }
