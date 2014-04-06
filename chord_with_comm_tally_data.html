@@ -253,13 +253,13 @@ function updateVis(matrix, users) {
 /*
   chordPath.transition()
      .duration(1500)
-     .attrTween("d", chordTween(last_chord))
+     .attrTween("d", chordTween(last_chord));
      .each("end", function(d,i) {
        if (i == last) {
            drawTicks(chord,svg);
        }
-     });  
-*/
+     });
+*/  
        
   last_chord = chord;
 }
