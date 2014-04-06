@@ -194,9 +194,10 @@ function updateVis(matrix, users) {
       .domain(d3.range(users.length))
       .range(colorbrewer.Paired[12]);
         
+  // exit, enter, update for students
   var students = students_g.selectAll("path")
       .data(chord.groups);
-      
+
   students.exit().remove();
   students.enter().append("path")
       .attr("class", "groups")
@@ -214,9 +215,10 @@ function updateVis(matrix, users) {
 
   //add labels to the chord groups
   //NOTE: the labels don't fit if the chord group is small.  Need alt solution.
+  // exit, enter for text
   var text = text_g.selectAll("text")
       .data(chord.groups);
-      
+
   text.exit().remove();
   text.enter().append("text")
       .attr("x", 6)
@@ -227,6 +229,7 @@ function updateVis(matrix, users) {
         if (users[i] == "0") {return "unknown user";}
         else {return "user " + users[i];} });
   
+  // exit, enter for ticks
   var ticks = ticks_g.selectAll("g")
       .data(chord.groups)
       .enter().append("g").selectAll("g")
@@ -255,13 +258,13 @@ function updateVis(matrix, users) {
   
   var chord = chord_g.selectAll("path")
       .data(chord.chords);
-  
+
+  // exit, enter, update for chord  
   chord.exit().remove();
   chord.enter().append("path")
       .attr("d", d3.svg.chord().radius(innerRadius))
       .style("fill", function(d) { return fill(d.target.index); })
       .style("opacity", 1);
-  
   chord.attr("d", d3.svg.chord().radius(innerRadius))
        .style("fill", function(d) { return fill(d.target.index); });
   
