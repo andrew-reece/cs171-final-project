@@ -210,13 +210,14 @@ function updateVis(matrix, users) {
       .on("mouseover", fade(.1))
       .on("mouseout", fade(1));
       
+/*
   students.transition()
      .duration(1500)
      .attrTween("d", arcTween(last_chord));
-/*
+*/
+
   students.transition().duration(500)
       .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius));
-*/
 
   //add labels to the chord groups
   //NOTE: the labels don't fit if the chord group is small.  Need alt solution.
