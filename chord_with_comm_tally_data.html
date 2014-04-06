@@ -180,7 +180,7 @@ function createVis() {
   // create our containers 
   students_g =  svg.append("g").attr("class", "students");
   text_g = svg.append("g").attr("class", "text");
-  ticks_g = svg.append("g").attr("class", "ticks");
+//  ticks_g = svg.append("g").attr("class", "ticks");
   chord_g = svg.append("g").attr("class", "chord");
 }  
 
@@ -230,35 +230,36 @@ function updateVis(matrix, users) {
         if (users[i] == "0") {return "unknown user";}
         else {return "user " + users[i];} });
     
-  // exit, enter for ticks
-  var ticksChord = ticks_g.selectAll("g")
-      .data(chord.groups);
-      
-  // ticksChord.exit().remove();
-  var ticksGroupTicks = ticksChord.enter().append("g").selectAll("g")
-      .data(groupTicks);
+  d3.selectAll(".ticks").remove();
   
-  // ticksGroupTicks.exit().remove();    
-  ticksGroupTicks.enter().append("g")
+  var ticks = svg.append("g").attr("class", "ticks").attr("opacity", 0.1).selectAll("g")
+      .data(chord.groups)
+    .enter().append("g").selectAll("g")
+      .data(groupTicks)
+    .enter().append("g")
       .attr("transform", function(d) {
         return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
             + "translate(" + outerRadius + ",0)";
       });
-      
-  ticksGroupTicks.append("line")
+  
+  svg.selectAll(".ticks")
+     .transition()
+     .duration(700)
+     .attr("opacity", 1)
+  
+  ticks.append("line")
       .attr("x1", 1)
       .attr("y1", 0)
       .attr("x2", 5)
       .attr("y2", 0)
       .style("stroke", "#000");
   
-  var ticksText = ticksGroupTicks.append("text");  
-  ticksText.attr("x", 8)
+  ticks.append("text")
+      .attr("x", 8)
       .attr("dy", ".35em")
       .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
       .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
       .text(function(d) { return d.label; });
-
         
   // exit, enter, update for chord  
   var chord = chord_g.selectAll("path")
