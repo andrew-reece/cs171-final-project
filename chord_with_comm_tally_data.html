@@ -33,6 +33,8 @@ body {
       innerRadius = Math.min(width, height) * .41,
       outerRadius = innerRadius * 1.1;
   var svg, students_g, text_g, ticks_g;
+  var last_chord = {};
+
   
   loadComm();
   function loadComm() {
@@ -180,10 +182,10 @@ function createVis() {
   // create our containers 
   students_g =  svg.append("g").attr("class", "students");
   text_g = svg.append("g").attr("class", "text");
-//  ticks_g = svg.append("g").attr("class", "ticks");
   chord_g = svg.append("g").attr("class", "chord");
 }  
 
+// some ideas pulled from http://fleetinbeing.net/d3e/chord.html
 function updateVis(matrix, users) {
   var chord = d3.layout.chord()
       .padding(.05)
@@ -193,7 +195,7 @@ function updateVis(matrix, users) {
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
       .range(colorbrewer.Paired[12]);
-        
+
   // exit, enter, update for students
   var students = students_g.selectAll("path")
       .data(chord.groups);
@@ -207,12 +209,14 @@ function updateVis(matrix, users) {
       .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
       .on("mouseover", fade(.1))
       .on("mouseout", fade(1));
+      
+  students.transition()
+     .duration(1500)
+     .attrTween("d", arcTween(last_chord));
+/*
   students.transition().duration(500)
-      .attr("id", function(d, i) {return "group-" + i;})
-      .style("fill", function(d) { return fill(d.index); })
-      .style("stroke", function(d) { return fill(d.index); })
       .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius));
-
+*/
 
   //add labels to the chord groups
   //NOTE: the labels don't fit if the chord group is small.  Need alt solution.
@@ -231,16 +235,64 @@ function updateVis(matrix, users) {
         else {return "user " + users[i];} });
     
   d3.selectAll(".ticks").remove();
-  
+  drawTicks(chord);
+       
+  // exit, enter, update for chord  
+  var chordPath = chord_g.selectAll("path")
+      .data(chord.chords);
+
+  chordPath.exit().remove();
+  chordPath.enter().append("path")
+      .attr("d", d3.svg.chord().radius(innerRadius))
+      .style("fill", function(d) { return fill(d.target.index); })
+      .style("opacity", 1);
+  chordPath.transition().duration(500)
+       .attr("d", d3.svg.chord().radius(innerRadius))
+       .style("fill", function(d) { return fill(d.target.index); });
+/*
+  chordPath.transition()
+     .duration(1500)
+     .attrTween("d", chordTween(last_chord))
+     .each("end", function(d,i) {
+       if (i == last) {
+           drawTicks(chord,svg);
+       }
+     });  
+*/
+       
+  last_chord = chord;
+}
+
+function arcTween(chord) {
+  return function(d,i) {
+    var i = d3.interpolate(chord.groups()[i], d);
+
+    return function(t) {
+      return arc(i(t));
+    }
+  }
+}
+
+function chordTween(chord) {
+  return function(d,i) {
+    var i = d3.interpolate(chord.chords()[i], d);
+
+    return function(t) {
+      return chordl(i(t));
+    }
+  }
+}
+
+function drawTicks(chord) {
   var ticks = svg.append("g").attr("class", "ticks").attr("opacity", 0.1).selectAll("g")
-      .data(chord.groups)
+    .data(chord.groups)
     .enter().append("g").selectAll("g")
-      .data(groupTicks)
+    .data(groupTicks)
     .enter().append("g")
-      .attr("transform", function(d) {
-        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
-            + "translate(" + outerRadius + ",0)";
-      });
+    .attr("transform", function(d) {
+      return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+        + "translate(" + outerRadius + ",0)";
+    });
   
   svg.selectAll(".ticks")
      .transition()
@@ -260,40 +312,30 @@ function updateVis(matrix, users) {
       .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
       .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
       .text(function(d) { return d.label; });
-        
-  // exit, enter, update for chord  
-  var chordPath = chord_g.selectAll("path")
-      .data(chord.chords);
-
-  chordPath.exit().remove();
-  chordPath.enter().append("path")
-      .attr("d", d3.svg.chord().radius(innerRadius))
-      .style("fill", function(d) { return fill(d.target.index); })
-      .style("opacity", 1);
-  chordPath.transition().duration(500)
-       .attr("d", d3.svg.chord().radius(innerRadius))
-       .style("fill", function(d) { return fill(d.target.index); });
-  
-  // Returns an array of tick angles and labels, given a group.
-  function groupTicks(d) {
-    var k = (d.endAngle - d.startAngle) / d.value;
-    return d3.range(0, d.value, 1).map(function(v, i) {
-      return {
-        angle: v * k + d.startAngle,
-        label: i % 5 ? null : v / 1
-      };
-    });
-  }
-    
-  // Returns an event handler for fading a given chord group.
-  function fade(opacity) {
-    return function(g, i) {
-      svg.selectAll(".chord path")
-          .filter(function(d) { return d.source.index != i && d.target.index != i; })
-        .transition()
-          .style("opacity", opacity);
-    };
-  }
+      
+  return ticks;
 }
+  
+// Returns an array of tick angles and labels, given a group.
+function groupTicks(d) {
+  var k = (d.endAngle - d.startAngle) / d.value;
+  return d3.range(0, d.value, 1).map(function(v, i) {
+    return {
+      angle: v * k + d.startAngle,
+      label: i % 5 ? null : v / 1
+    };
+  });
+}
+  
+// Returns an event handler for fading a given chord group.
+function fade(opacity) {
+  return function(g, i) {
+    svg.selectAll(".chord path")
+        .filter(function(d) { return d.source.index != i && d.target.index != i; })
+      .transition()
+        .style("opacity", opacity);
+  };
+}
+
 
 </script>
