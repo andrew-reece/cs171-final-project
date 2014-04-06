@@ -16,21 +16,79 @@ body {
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
+<form name="sort">
+  <input type="range" name="dateFilter" min="0" max="50" step="1" value="50">
+</form>  
+<div id="filterDate"></div>
 <script>
   
   var comm = [];
   var date = "2009-06-16 15:00:25";
+  var remaining = 1;
+  var YmdXParser = d3.time.format("%Y-%m-%d %X").parse;
+  var dateRange = [];
+  var timeScale = d3.scale.quantize();
+  var width = 960,
+      height = 500,
+      innerRadius = Math.min(width, height) * .41,
+      outerRadius = innerRadius * 1.1;
+  var svg, students_g, text_g, ticks_g;
   
   loadComm();
   function loadComm() {
     d3.csv("../newdata/communication-tally-by-pair-full-small.csv", function(error, data) {
       console.log(data);
-      
-      for (var i = 0; i<data.length; i++) {
+      if(!--remaining) { setRange(data); }  
+    })
+  };
+  
+  function setRange(data) {
+  
+    // get a list of all the dates, since all objects are the same just look at the first one
+    for(var key in data[0]) {
+      if(YmdXParser(key)) { dateRange.push(YmdXParser(key)); }
+    }
+    
+    // The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
+    dateRange.sort(function(a,b) {
+      return a - b;
+    })
+    console.log("dateRange:", dateRange);
+    
+    // create our timeScale
+    timeScale.domain([0,dateRange.length - 1]).range(dateRange)
+    
+    // set our slider to correct values
+    document.forms[0].dateFilter.max = dateRange.length - 1;
+    document.forms[0].dateFilter.value = dateRange.length - 1;
+    
+    createVis();
+        
+    // update visualization
+    d3.selectAll("input[name=dateFilter]")
+    .on("mouseup", function () { filterComm(data); });
+  }
+  
+  // filter our data based on the slider
+  function filterComm(data) {
+  
+    // Read our filter level from our slider
+    var filterLevel = parseInt(document.forms[0].dateFilter.value);
+
+    // Get filterDate from filterLevel
+    var filterDate = new Date(timeScale(filterLevel));
+  
+    // Display the date selected
+    d3.select("#filterDate")
+    .text(filterDate);
+         
+    for (var i = 0; i<data.length; i++) {
         var dataobject = data[i];
         comm[i] = {};
         for (var key in dataobject) {
-          if (key == date) {
+          console.log(YmdXParser(key), filterDate);
+          if (YmdXParser(key) == filterDate) {
+  //        if (key == date) {
             //console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
             comm[i]["source"] = +dataobject["source"];
             comm[i]["target"] = +dataobject["target"];
@@ -41,8 +99,7 @@ body {
       
     console.log(comm);
     matrixmap(comm);
-    })
-  };
+  }
   
   function matrixmap(comm) {
     var matrix = [];
@@ -109,34 +166,39 @@ body {
       }
     };
     console.log(matrix);
-    createVis(matrix, users);
+    updateVis(matrix, users);
   }
+
+function createVis() {
+  svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
   
-function createVis(matrix, users) {
-  
+  // create our containers 
+  students_g =  svg.append("g").attr("class", "students");
+  text_g = svg.append("g").attr("class", "text");
+  ticks_g = svg.append("g").attr("class", "ticks");
+  chord_g = svg.append("g").attr("class", "chord");
+}  
+
+function updateVis(matrix, users) {
   var chord = d3.layout.chord()
       .padding(.05)
       .sortSubgroups(d3.descending)
       .matrix(matrix);
-  
-  var width = 960,
-      height = 500,
-      innerRadius = Math.min(width, height) * .41,
-      outerRadius = innerRadius * 1.1;
-  
+         
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
       .range(colorbrewer.Paired[12]);
-  
-  var svg = d3.select("body").append("svg")
-      .attr("width", width)
-      .attr("height", height)
-    .append("g")
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-  
-  var students = svg.append("g").selectAll("path")
-      .data(chord.groups)
-    .enter().append("path")
+        
+  var students = students_g.selectAll("path")
+      .data(chord.groups);
+      
+  students.exit().remove();
+      
+  students.enter().append("path")
       .attr("class", "groups")
       .attr("id", function(d, i) {return "group-" + i;})
       .style("fill", function(d) { return fill(d.index); })
@@ -145,11 +207,14 @@ function createVis(matrix, users) {
       .on("mouseover", fade(.1))
       .on("mouseout", fade(1))
 
-      //add labels to the chord groups
-      //NOTE: the labels don't fit if the chord group is small.  Need alt solution.
-  var text = svg.append("g").selectAll("text")
-      .data(chord.groups)
-      .enter().append("text")
+  //add labels to the chord groups
+  //NOTE: the labels don't fit if the chord group is small.  Need alt solution.
+  var text = text_g.selectAll("text")
+      .data(chord.groups);
+      
+  text.exit().remove();
+       
+  text.enter().append("text")
       .attr("x", 6)
       .attr("dy", 15)
       .append("textPath")
@@ -158,12 +223,14 @@ function createVis(matrix, users) {
         if (users[i] == "0") {return "unknown user";}
         else {return "user " + users[i];} });
   
-  
-  var ticks = svg.append("g").selectAll("g")
+  var ticks = ticks_g.selectAll("g")
       .data(chord.groups)
-    .enter().append("g").selectAll("g")
-      .data(groupTicks)
-    .enter().append("g")
+      .enter().append("g").selectAll("g")
+      .data(groupTicks);
+      
+  ticks.exit().remove();
+  
+  ticks.enter().append("g")
       .attr("transform", function(d) {
         return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
             + "translate(" + outerRadius + ",0)";
@@ -183,11 +250,12 @@ function createVis(matrix, users) {
       .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
       .text(function(d) { return d.label; });
   
-  svg.append("g")
-      .attr("class", "chord")
-    .selectAll("path")
-      .data(chord.chords)
-    .enter().append("path")
+  var chord = chord_g.selectAll("path")
+      .data(chord.chords);
+  
+  chord.exit().remove();
+  
+  chord.enter().append("path")
       .attr("d", d3.svg.chord().radius(innerRadius))
       .style("fill", function(d) { return fill(d.target.index); })
       .style("opacity", 1);
