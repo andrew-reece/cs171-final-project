@@ -28,15 +28,12 @@ body {
       
       for (var i = 0; i<data.length; i++) {
         var dataobject = data[i];
-        comm[i] = {};
-        for (var key in dataobject) {
-          if (key == date) {
+        comm[i] = {};  
+          key = date
             //console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
             comm[i]["source"] = +dataobject["source"];
             comm[i]["target"] = +dataobject["target"];
             comm[i]["freq"] = +dataobject[key];
-          }
-        }
       };
       
     console.log(comm);
