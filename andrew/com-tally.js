@@ -14,7 +14,7 @@ var color = d3.scale.linear()
 			  .interpolate(d3.interpolateRgb)
 			  .range(["#fee0d2", "#de2d26"]) // light-dark red via colorbrewer2.org
 			  
-d3.csv("com-pairs-time-series.csv", function(error, data) {
+d3.csv("com-pairs.csv", function(error, data) {
 
 	
 		data.forEach( function(d) { 
