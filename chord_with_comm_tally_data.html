@@ -6,13 +6,6 @@ body {
   font: 10px sans-serif;
 }
 
-.chord path {
-  fill-opacity: .67;
-  stroke: #000;
-  stroke-width: .5px;
-}
-
-
 #circle circle {
     fill: none;
     pointer-events: all;
@@ -59,13 +52,15 @@ var arc = d3.svg.arc()
 var path = d3.svg.chord()
     .radius(innerRadius);
 
+// uncomment for simple set
+/*
   var YmdXParser = d3.time.format("%Y-%m-%d %X").parse;
   var file = "../newdata/communication-tally-by-pair-full-small.csv";
-/*
-  var YmdXParser = d3.time.format("%Y-%m-%d").parse;
-  var file = "../andrew/communication-tally-by-pair-full.csv";
-  
 */
+
+  var YmdXParser = d3.time.format("%Y-%m-%d").parse;
+  var file = "../andrew/com-pairs.csv";
+  
   loadComm();
   function loadComm() {
   
@@ -161,13 +156,13 @@ var path = d3.svg.chord()
         }
         if (add == 1) {
         users.push(+comm[i]["source"]);
-        }
+       }
 //      }
     }
     
     //then add any unique Target IDs that weren't already added
     for (var i = 0; i< comm.length; i++) {
-//      if (comm[i]["freq"] != 0) {
+//     if (comm[i]["freq"] != 0) {
         var add = 1;
         for (var u = 0; u < users.length; u++) {
           if (comm[i]["target"] == users[u]) {
@@ -179,7 +174,7 @@ var path = d3.svg.chord()
         }
 //      }
     }
-//    console.log(users);
+    console.log(users);
     
     //intialize the square matrix and put 0s in
     //so the values can be incremented later.
@@ -242,9 +237,9 @@ function updateVis(matrix, users) {
       .range(colorbrewer.Paired[12]);
 
 /* Create/update "group" elements */
-    var groupG = svg.selectAll("g.group")
+    var groupG = svg.selectAll("g.group") 
         .data(layout.groups(), function (d) {
-            return d.index; 
+            return d.index;
             //use a key function in case the 
             //groups are sorted differently between updates
         });
@@ -281,7 +276,6 @@ function updateVis(matrix, users) {
         })
         .style("fill", function(d) { return fill(d.index); });
         
-  // ******* THERE IS AN ISSUE WITH THIS UPDATE BELOW, TROUBLESHOOTING ***********
   //update the paths to match the layout
    groupG.select("path") 
         .transition()
@@ -290,7 +284,6 @@ function updateVis(matrix, users) {
         .attrTween("d", arcTween( last_layout ))
         .transition().duration(100).attr("opacity", 1); //reset opacity
         
-                
    //create the group labels
     newGroups.append("svg:text")
         .attr("xlink:href", function (d) {
