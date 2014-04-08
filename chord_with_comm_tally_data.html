@@ -108,29 +108,33 @@ var path = d3.svg.chord()
     
      // Drop down selector to show choices for users
      var userDropDown = d3.select("#selector")
-    .append("select")
-    .on("change", function() {
-      user = this.options[this.selectedIndex].value;
-    });
+       .append("select")
+       .on("change", function() {
+         user = this.options[this.selectedIndex].value;
+       });
     
     // Options for years, we just build it manually from 1960 to 2014 which is the years for World Bank Data
     var userOptions = userDropDown.selectAll("option")
-    .data(function() {  var tempArray = [];
+      .data(function() {  var tempArray = [];
+                        tempArray.push("all");
                         for(i=1;i<=80;i++) { 
                           tempArray.push(i);
                         }
                         return tempArray;
                     })
-    .enter()
-    .append("option")
-      .text(function (d) { return d; })
-      .attr("value", function (d) { return d; });
-  
-    user =  userDropDown.node().value;  
+      .enter()
+      .append("option")
+        .text(function (d) { return d; })
+        .attr("value", function (d) { return d; });
+    
+    // in case no dropDown event is trigged and they just leave it as default
+    user =  userDropDown.node().value;
+
     
   }
   
   function updateDate() {
+
     // Read our filter level from our slider
     filterLevel = parseInt(document.forms[0].dateFilter.value);
 
@@ -155,7 +159,7 @@ var path = d3.svg.chord()
     console.log("User is: ", user);
     
     for (var i = 0; i<data.length; i++) {
-      if(+data[i]["source"] == user || +data[i]["target"] == user) {
+      if(+data[i]["source"] == +user || +data[i]["target"] == +user || user == "all") {
         var dataobject = data[i];
         comm[i] = {};
         console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
