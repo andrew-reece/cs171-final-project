@@ -13,8 +13,81 @@ var color = d3.scale.linear()
 			  .domain([5, 40])
 			  .interpolate(d3.interpolateRgb)
 			  .range(["#fee0d2", "#de2d26"]) // light-dark red via colorbrewer2.org
+
+//height of each row in the heatmap
+//width of each column in the heatmap
+var hm_gridSize = 30,
+	h = hm_gridSize,
+	w = hm_gridSize,
+	rectPadding = 60;
+
+var color_low = "blue", color_med = "yellow", color_high = "orangered";
+
+var hm_margin = {top: 20, right: 80, bottom: 30, left: 50},
+	hm_width = 640 - hm_margin.left - hm_margin.right,
+	hm_height = 280 - hm_margin.top - hm_margin.bottom;
+
+var heatmapColorScale = d3.scale.linear()
+	 .domain([0, 5, 10])
+	  .interpolate(d3.interpolateRgb)
+	  .range([color_low, color_med, color_high])
+var libcon = ["CON3", "CON2", "CON1", "NEUT", "LIB1", "LIB2", "LIB3"]
+var libcon_range = [1,2,3,4,5,6,7]
+var yScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range)
+var xScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range)
+var hmap_data, hmap_area, heatmap
+
+d3.csv("data/libcon-heatmap.csv", function(error, data) {
+
+	hmap_data = data
+	
+	hmap_area = d3.select("#heatmap").append("svg")
+		.attr("width", hm_width + hm_margin.left + hm_margin.right)
+		.attr("height", hm_height + hm_margin.top + hm_margin.bottom)
+	  .append("g")
+		.attr("transform", "translate(" + hm_margin.left + "," + hm_margin.top + ")");
+
+	
+	hmap_area.append("text")
+		.attr("transform", "translate(35,"+(hm_height+hm_margin.top+10)+")")
+	  	.style("font-size", "12pt")
+		.text("CON")
+	hmap_area.append("text")
+		.attr("transform", "translate(215,"+(hm_height+hm_margin.top+10)+")")
+	  	.style("font-size", "12pt")
+		.text("LIB")
+	hmap_area.append("text")
+		.attr("transform", "translate(-10,"+(hm_height+hm_margin.top-10)+")")
+	  	.style("font-size", "12pt")
+		.text("CON")
+	hmap_area.append("text")
+		.attr("transform", "translate(-5,"+(hm_margin.top+20)+")")
+	  	.style("font-size", "12pt")
+		.text(" LIB")
+	heatmap = hmap_area.selectAll(".heatmap")
+		.data(data)
+	 	 .enter()
+	 	 .append("rect")
+			.attr("x", function(d) { 
+				//console.log(d)
+				var val = d.pairname.split("-")[0]
+				return xScale(val)*hm_gridSize; })
+			.attr("y", function(d) { 
+				var val = d.pairname.split("-")[1]
+				return yScale(val)*hm_gridSize; })
+			.attr("width", function(d) { return w; })
+			.attr("height", function(d) { return h; })
+			.style("stroke-width", "1px")
+			.style("stroke", "black")
+			.style("fill", function(d) { 
+				var first_date = d3.entries(data[0])[1].key
+				return heatmapColorScale(d[first_date]); });
+})
+
+
+
 			  
-d3.csv("com-pairs-time-series.csv", function(error, data) {
+d3.csv("data/com-pairs.csv", function(error, data) {
 
 	
 		data.forEach( function(d) { 
@@ -78,7 +151,24 @@ d3.csv("com-pairs-time-series.csv", function(error, data) {
 					 .attr("class", "date-box")
 					 .attr("transform", "translate(100,100)")
 					 .html("Date")
-					 
+	
+	var start_button = svg.append("g")
+		.attr("transform", "translate(20,0)")
+	
+	start_button.append("rect")
+		.attr("width", 100)
+		.attr("height", 20)
+		.style("fill", "whitesmoke")
+		.style("stroke","steelblue")
+		.style("stroke-width", "1px")
+		.on("click", function() {return elapse(4)}) // 4 is the index of the first column of time series data				 
+	start_button.append("text")
+		.style("stroke-width","1px")
+		.style("fill", "rgb(110,110,110)")
+		.style("font-size", "12pt")
+		.attr("transform","translate(3,15)")
+		.text("Click to start")
+		
 		// Use elliptical arc path segments to doubly-encode directionality.
 	function tick() {
 	  path.attr("d", linkArc);
@@ -114,6 +204,10 @@ d3.csv("com-pairs-time-series.csv", function(error, data) {
 					var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(1) : "July 2009 <br />[end of study]"
 					return "Date<br /><br />"+thisdate
 					})
+		heatmap
+			.style("fill", function(d) { 
+				return heatmapColorScale(d[keys[thiskey]]); });
+				
 		svg.transition()
 			.duration(300)
 			.each("end", function() {
@@ -128,5 +222,5 @@ d3.csv("com-pairs-time-series.csv", function(error, data) {
 	function end() {
 		console.log('all done')
 	}
-	elapse(3) // 4 is the index of the first column of time series data
+	
 })
