@@ -26,6 +26,8 @@ path.chord {
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
+
+<div id="selector"></div>
 <form name="sort">
   <input type="range" name="dateFilter" min="0" max="50" step="1" value="50">
 </form>  
@@ -45,6 +47,7 @@ path.chord {
   var svg, students_g, text_g, ticks_g;
   var filterLevel, filterDate;
   var last_layout; //store layout between updates
+  var user;
 
 //create the arc path data generator for the groups
 var arc = d3.svg.arc()
@@ -103,6 +106,28 @@ var path = d3.svg.chord()
     d3.selectAll("input[name=dateFilter]")
     .on("change", function () { updateDate(); });
     
+     // Drop down selector to show choices for users
+     var userDropDown = d3.select("#selector")
+    .append("select")
+    .on("change", function() {
+      user = this.options[this.selectedIndex].value;
+    });
+    
+    // Options for years, we just build it manually from 1960 to 2014 which is the years for World Bank Data
+    var userOptions = userDropDown.selectAll("option")
+    .data(function() {  var tempArray = [];
+                        for(i=1;i<=80;i++) { 
+                          tempArray.push(i);
+                        }
+                        return tempArray;
+                    })
+    .enter()
+    .append("option")
+      .text(function (d) { return d; })
+      .attr("value", function (d) { return d; });
+  
+    user =  userDropDown.node().value;  
+    
   }
   
   function updateDate() {
@@ -127,14 +152,18 @@ var path = d3.svg.chord()
     d3.select("#filterDate")
     .text(filterDate);
          
+    console.log("User is: ", user);
+    
     for (var i = 0; i<data.length; i++) {
+      if(+data[i]["source"] == user || +data[i]["target"] == user) {
         var dataobject = data[i];
         comm[i] = {};
-//      console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
+        console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
         comm[i]["source"] = +dataobject["source"];
         comm[i]["target"] = +dataobject["target"];
         comm[i]["freq"] = +dataobject[key];
-      };
+      }
+    };
       
 //    console.log(comm);
     matrixmap(comm);
