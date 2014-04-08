@@ -1,0 +1,60 @@
+index,user_id,year_school,floor,aerobic_per_week,preferred_party,liberal_or_conservative,sad_depressed,stressed,fav_music
+0,2,Freshman,f282.4,3.5,Member of another party,Liberal,0.4,0.2,heavy metal / hardcore
+1,4,Sophomore,f282.1,0.8,Democrat,Liberal,0.0,0.0,jazz
+2,5,Freshman,f282.3,0.8,Independent,Slightly liberal,0.0,0.0,classical
+3,6,Sophomore,f282.3,3.0,Democrat,Extremely liberal,0.5,0.8,techno / lounge / electronic
+4,7,Junior,f282.1,1.0,Democrat,Liberal,0.0,0.0,indie / alternative rock
+5,8,Freshman,f282.4,2.0,Democrat,Moderate middle of the road,0.0,0.0,classical
+6,9,Sophomore,f290.4,2.8,Member of another party,Extremely liberal,0.1,0.0,techno / lounge / electronic
+7,11,Senior,f282.1,2.0,Democrat,Moderate middle of the road,0.8,1.0,pop / top 40
+8,12,Senior,,2.6,Independent,Slightly liberal,0.1,0.1,country / folk
+9,15,GRT / Other,f290.2,2.6,Member of another party,Moderate middle of the road,0.0,0.0,showtunes
+10,18,Junior,f290.3,1.8,Democrat,Liberal,0.2,0.7,classic rock
+11,20,Sophomore,f282.3,1.5,Democrat,Liberal,0.0,0.0,classic rock
+12,21,Sophomore,f282.1,1.0,Republican,Slightly conservative,0.1,0.1,indie / alternative rock
+13,22,Senior,f290.3,0.0,Republican,Extremely conservative,0.1,0.1,showtunes
+14,23,Sophomore,f282.4,3.3,Independent,Slightly liberal,0.0,0.1,country / folk
+15,24,Senior,,1.0,Democrat,Liberal,0.1,0.1,indie / alternative rock
+16,26,Junior,f290.3,0.5,Democrat,Extremely liberal,0.2,0.2,other
+17,27,Sophomore,f282.1,1.8,Independent,Liberal,0.0,0.6,heavy metal / hardcore
+18,28,GRT / Other,f282.3,0.5,Independent,Liberal,0.4,0.8,techno / lounge / electronic
+19,29,Senior,f290.3,0.7,Independent,Moderate middle of the road,0.0,0.0,classic rock
+20,30,Sophomore,f282.3,3.5,Democrat,Liberal,0.0,0.2,jazz
+21,31,Junior,f282.1,2.2,Democrat,Slightly liberal,0.5,0.3,country / folk
+22,32,Freshman,f290.3,0.3,Democrat,Moderate middle of the road,0.0,0.1,classic rock
+23,33,Senior,f282.1,0.0,Democrat,Liberal,0.1,0.4,indie / alternative rock
+24,34,Senior,f282.4,1.0,Independent,Slightly liberal,0.0,0.7,techno / lounge / electronic
+25,35,Freshman,f290.4,3.0,Democrat,Slightly liberal,0.0,0.2,classic rock
+26,36,Sophomore,f282.3,2.6,Republican,Conservative,0.0,0.1,techno / lounge / electronic
+27,37,GRT / Other,f290.4,4.3,Democrat,Extremely liberal,0.0,0.0,indie / alternative rock
+28,38,Freshman,f282.4,1.0,Independent,Slightly conservative,0.3,0.2,indie / alternative rock
+29,40,Freshman,f290.3,0.2,Democrat,Liberal,0.1,0.3,indie / alternative rock
+30,42,Sophomore,f282.3,5.0,Independent,Moderate middle of the road,0.0,0.0,classical
+31,43,Freshman,f282.2,1.8,Independent,Extremely liberal,0.0,0.1,classic rock
+32,44,Sophomore,f282.2,2.0,Democrat,Liberal,0.0,0.0,classic rock
+33,45,Freshman,f290.4,6.0,Independent,Liberal,0.1,0.5,classical
+34,46,Sophomore,f282.3,1.0,Democrat,Extremely liberal,0.0,0.0,classic rock
+35,47,Junior,f282.3,3.2,Independent,Moderate middle of the road,0.1,0.5,indie / alternative rock
+36,48,GRT / Other,f290.2,0.8,Democrat,Liberal,0.1,0.3,other
+37,49,Senior,f290.2,0.5,,Liberal,0.3,0.5,indie / alternative rock
+38,51,GRT / Other,f282.4,0.0,Independent,Moderate middle of the road,0.0,0.0,classical
+39,52,Freshman,f282.1,4.0,Democrat,Moderate middle of the road,0.1,0.1,heavy metal / hardcore
+40,54,Freshman,f290.3,2.7,Independent,Slightly liberal,0.0,0.0,indie / alternative rock
+41,55,GRT / Other,f282.4,1.0,Independent,Slightly conservative,0.0,0.0,techno / lounge / electronic
+42,56,Senior,f290.1,2.5,Democrat,Extremely liberal,0.0,0.1,indie / alternative rock
+43,57,Freshman,f282.1,1.0,Democrat,Liberal,0.0,0.0,indie / alternative rock
+44,58,Senior,f282.1,0.3,Democrat,Liberal,0.0,0.0,indie / alternative rock
+45,59,Freshman,f282.3,5.8,Independent,Slightly liberal,0.0,0.0,techno / lounge / electronic
+46,60,Sophomore,f290.3,7.0,Republican,Slightly conservative,0.0,0.0,other
+47,61,GRT / Other,f282.2,2.0,Democrat,Liberal,0.0,0.1,jazz
+48,62,Freshman,f290.2,2.5,Democrat,Liberal,0.0,0.0,classical
+49,63,Junior,f282.2,0.0,Republican,Slightly conservative,0.0,0.0,classical
+50,64,Freshman,f282.2,0.6,Democrat,Extremely liberal,0.2,0.1,country / folk
+51,65,Sophomore,f290.3,2.0,Democrat,Liberal,0.0,1.0,pop / top 40
+52,66,Freshman,f282.4,3.2,Democrat,Extremely liberal,0.0,0.0,classical
+53,67,Senior,f290.3,1.2,Democrat,Extremely liberal,0.0,0.5,showtunes
+54,68,Freshman,f290.3,4.8,Democrat,Extremely liberal,0.1,0.6,indie / alternative rock
+55,69,Sophomore,f290.4,1.7,Democrat,Liberal,0.0,0.0,techno / lounge / electronic
+56,70,Freshman,f282.2,6.5,Democrat,Liberal,0.0,0.0,jazz
+57,71,Sophomore,f282.3,2.7,Democrat,Liberal,0.0,0.0,jazz
+58,72,,,0.0,Democrat,Liberal,0.1,0.2,showtunes
