@@ -111,6 +111,7 @@ var path = d3.svg.chord()
        .append("select")
        .on("change", function() {
          user = this.options[this.selectedIndex].value;
+         filterComm(data);
        });
     
     // Options for years, we just build it manually from 1960 to 2014 which is the years for World Bank Data
@@ -158,14 +159,18 @@ var path = d3.svg.chord()
          
     console.log("User is: ", user);
     
+    comm = [];
+    
     for (var i = 0; i<data.length; i++) {
       if(+data[i]["source"] == +user || +data[i]["target"] == +user || user == "all") {
         var dataobject = data[i];
-        comm[i] = {};
+
+        commObject = {};
         console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
-        comm[i]["source"] = +dataobject["source"];
-        comm[i]["target"] = +dataobject["target"];
-        comm[i]["freq"] = +dataobject[key];
+        commObject["source"] = +dataobject["source"];
+        commObject["target"] = +dataobject["target"];
+        commObject["freq"] = +dataobject[key];
+        comm.push(commObject);
       }
     };
       
@@ -177,7 +182,7 @@ var path = d3.svg.chord()
     var matrix = [];
     var users = [];
     
-    console.log(comm);
+//    console.log(comm);
     
     /*get all the unique users (both senders & receivers)
     because that is going to be the number of arrays in the
