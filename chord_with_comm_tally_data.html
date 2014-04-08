@@ -242,8 +242,8 @@ function updateVis(matrix, users) {
            
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
-      .range(colorbrewer.Paired[12]);
-
+      .range(colorbrewer.Paired[12]);  
+      
 /* Create/update "group" elements */
     var groupG = svg.selectAll("g.group") 
         .data(layout.groups(), function (d) {
