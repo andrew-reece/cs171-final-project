@@ -1,0 +1,21 @@
+key code for master subjects dataset:
+
+year = ["Freshman", "Sophomore", "Junior", "Senior", "GRT / Other"]
+year_code = ["FR", "SO", "JR", "SR", "OTHER"]
+
+
+genres = ["indie / alternative rock", "classic rock", "heavy metal / hardcore",
+          "pop / top 40", "techno / lounge / electronic", "hip-hop / r&b",
+          "jazz", "classical", "country / folk", "showtunes", "other"]
+genre_code = ["INDIE", "CLSRCK", "METAL", "TOP40", "ELECTR", "HIPHOP", 
+               "JAZZ", "CLASS", "CNFLK", "SHOWTUN", "OTHER"]
+               
+'sad.depressed':'sad', 'open.stressed':'stressed'               
+
+
+party = ["Democrat", "Republican", "Independent", "Member of another party"]
+party_code = ["DEM", "REP", "IND", "OTHER"]
+
+libcon = ["Extremely conservative", "Conservative", "Slightly conservative",
+          "Moderate middle of the road", "Slightly liberal", "Liberal", "Extremely liberal"]
+libcon_code = ["CON3", "CON2", "CON1", "NEUT", "LIB1", "LIB2", "LIB3"]
