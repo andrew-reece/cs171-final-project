@@ -27,7 +27,10 @@ path.chord {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
 
-<div id="selector"></div>
+<table>
+<tr><td>User:</td><td><div id="selector"></div></td></tr>
+</table>
+
 <form name="sort">
   <input type="range" name="dateFilter" min="0" max="50" step="1" value="50">
 </form>  
@@ -128,8 +131,12 @@ var path = d3.svg.chord()
         .text(function (d) { return d; })
         .attr("value", function (d) { return d; });
     
-    // in case no dropDown event is trigged and they just leave it as default
+    // in case no dropDown event is trigged and they just leave it as default, will display "all" users
     user =  userDropDown.node().value;
+    
+    // call updateDate() and filterComm() on load so we have something to look at
+    updateDate();
+    filterComm(data);
 
     
   }
@@ -166,7 +173,7 @@ var path = d3.svg.chord()
         var dataobject = data[i];
 
         commObject = {};
-        console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
+        // console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
         commObject["source"] = +dataobject["source"];
         commObject["target"] = +dataobject["target"];
         commObject["freq"] = +dataobject[key];
@@ -221,7 +228,7 @@ var path = d3.svg.chord()
     users.sort(function(a,b) {
       return a - b;
     })
-    console.log(users);
+    // console.log(users);
     
     //intialize the square matrix and put 0s in
     //so the values can be incremented later.
