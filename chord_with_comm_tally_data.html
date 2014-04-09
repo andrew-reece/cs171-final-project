@@ -43,7 +43,7 @@ path.chord {
 
   var dateRange = [];
   var timeScale = d3.scale.quantize();
-  var width = 960,
+  var width = 1300,
       height = 700,
       innerRadius = Math.min(width, height) * .41,
       outerRadius = innerRadius * 1.1;
@@ -134,15 +134,19 @@ var path = d3.svg.chord()
     // in case no dropDown event is trigged and they just leave it as default, will display "all" users
     user =  userDropDown.node().value;
     
-    var zoomIn = d3.select("#zoomIn")
-    .append("button")
-    .text("zoomIn")
-    .on("click",function() {  });
-    
+    // zoom chord graph out
     var zoomOut = d3.select("#zoomOut")
     .append("button")
     .text("zoomOut")
-    .on("click",function() {  });
+    .on("click",function() { // d3.select("#circle").transition().delay(250).attr("transform", "scale(0)");
+                             d3.select("#circle").transition().delay(250).attr("transform", "translate(" + width * .90 + "," + height * .15 + ") scale(.25)");
+    });
+    
+    // zoom chord graph in
+    var zoomIn = d3.select("#zoomIn")
+    .append("button")
+    .text("zoomIn")
+    .on("click",function() { d3.select("#circle").transition().delay(250).attr("transform", "scale(1)").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"); });
     
     // call updateDate() and filterComm() on load so we have something to look at
     updateDate();
