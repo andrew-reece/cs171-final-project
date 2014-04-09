@@ -137,8 +137,6 @@ var path = d3.svg.chord()
     // call updateDate() and filterComm() on load so we have something to look at
     updateDate();
     filterComm(data);
-
-    
   }
   
   function updateDate() {
@@ -177,6 +175,7 @@ var path = d3.svg.chord()
         commObject["source"] = +dataobject["source"];
         commObject["target"] = +dataobject["target"];
         commObject["freq"] = +dataobject[key];
+   //     console.log(dataobject);
         comm.push(commObject);
       }
     };
@@ -197,7 +196,7 @@ var path = d3.svg.chord()
     
     //first add all unique source IDs
     for (var i = 0; i< comm.length; i++) {
-//      if (comm[i]["freq"] != 0) {
+      if (comm[i]["freq"] != 0) {
         var add = 1;
         for (var u = 0; u < users.length; u++) {
           if (comm[i]["source"] == users[u]) {
@@ -207,12 +206,12 @@ var path = d3.svg.chord()
         if (add == 1) {
         users.push(+comm[i]["source"]);
        }
-//      }
+      }
     }
     
     //then add any unique Target IDs that weren't already added
     for (var i = 0; i< comm.length; i++) {
-//     if (comm[i]["freq"] != 0) {
+     if (comm[i]["freq"] != 0) {
         var add = 1;
         for (var u = 0; u < users.length; u++) {
           if (comm[i]["target"] == users[u]) {
@@ -222,7 +221,7 @@ var path = d3.svg.chord()
         if (add == 1) {
         users.push(comm[i]["target"]);
         }
-//      }
+      }
     }
     
     users.sort(function(a,b) {
@@ -240,7 +239,7 @@ var path = d3.svg.chord()
         matrix[i][j] = 0;
       }
     };
-    //console.log(matrix);
+    // console.log(matrix);
     
   //populate the matrix with the frequency value
   //for the source/user combination
@@ -255,7 +254,7 @@ var path = d3.svg.chord()
         }
       }
     };
-    //console.log(matrix);
+    // console.log(matrix);
     
     updateVis(matrix, users);
   }
@@ -290,6 +289,9 @@ function updateVis(matrix, users) {
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
       .range(colorbrewer.Paired[12]);
+      
+  svg.selectAll("g.group").remove();
+  svg.selectAll("g.path").remove();
 
 /* Create/update "group" elements */
     var groupG = svg.selectAll("g.group") 
