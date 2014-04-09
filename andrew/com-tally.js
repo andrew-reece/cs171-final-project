@@ -21,14 +21,14 @@ var hm_gridSize = 30,
 	w = hm_gridSize,
 	rectPadding = 60;
 
-var color_low = "blue", color_med = "yellow", color_high = "orangered";
+var color_low = "aliceblue", color_med = "lightblue", color_high = "navy";
 
 var hm_margin = {top: 20, right: 80, bottom: 30, left: 50},
 	hm_width = 640 - hm_margin.left - hm_margin.right,
 	hm_height = 280 - hm_margin.top - hm_margin.bottom;
 
 var heatmapColorScale = d3.scale.linear()
-	 .domain([0, 5, 10])
+	 .domain([0, .05, .12])
 	  .interpolate(d3.interpolateRgb)
 	  .range([color_low, color_med, color_high])
 var libcon = ["CON3", "CON2", "CON1", "NEUT", "LIB1", "LIB2", "LIB3"]
@@ -70,17 +70,17 @@ d3.csv("data/libcon-heatmap.csv", function(error, data) {
 	 	 .append("rect")
 			.attr("x", function(d) { 
 				//console.log(d)
-				var val = d.pairname.split("-")[0]
+				var val = d.pairs.split("-")[0]
 				return xScale(val)*hm_gridSize; })
 			.attr("y", function(d) { 
-				var val = d.pairname.split("-")[1]
+				var val = d.pairs.split("-")[1]
 				return yScale(val)*hm_gridSize; })
 			.attr("width", function(d) { return w; })
 			.attr("height", function(d) { return h; })
 			.style("stroke-width", "1px")
 			.style("stroke", "black")
 			.style("fill", function(d) { 
-				var first_date = d3.entries(data[0])[1].key
+				var first_date = d3.entries(data[0])[2].key
 				return heatmapColorScale(d[first_date]); });
 })
 
