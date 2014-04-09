@@ -28,17 +28,20 @@ var hm_margin = {top: 20, right: 80, bottom: 30, left: 50},
 	hm_height = 280 - hm_margin.top - hm_margin.bottom;
 
 var heatmapColorScale = d3.scale.linear()
-	 .domain([0, .05, .12])
+	 .domain([0, .2, .5])
 	  .interpolate(d3.interpolateRgb)
 	  .range([color_low, color_med, color_high])
 var libcon = ["CON3", "CON2", "CON1", "NEUT", "LIB1", "LIB2", "LIB3"]
-var libcon_range = [1,2,3,4,5,6,7]
-var yScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range)
-var xScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range)
+var libcon_range = [1*hm_gridSize,2*hm_gridSize,3*hm_gridSize,4*hm_gridSize,5*hm_gridSize,6*hm_gridSize,7*hm_gridSize]
+var xScale = d3.scale.ordinal().domain(libcon).range(libcon_range)
+var yScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range.reverse())
+
+var yAxis = d3.svg.axis().scale(yScale).orient("left")
+var xAxis = d3.svg.axis().scale(xScale).orient("bottom")
 var hmap_data, hmap_area, heatmap
 
 d3.csv("data/libcon-heatmap.csv", function(error, data) {
-
+	
 	hmap_data = data
 	
 	hmap_area = d3.select("#heatmap").append("svg")
@@ -64,6 +67,11 @@ d3.csv("data/libcon-heatmap.csv", function(error, data) {
 		.attr("transform", "translate(-5,"+(hm_margin.top+20)+")")
 	  	.style("font-size", "12pt")
 		.text(" LIB")
+		/*hmap_area.append("g")
+			.attr("class", "x-axis")
+			.attr("width", 100)
+			.attr("transform", "translate(35,"+(hm_height+hm_margin.top-10)+")")
+			.call(xAxis)*/
 	heatmap = hmap_area.selectAll(".heatmap")
 		.data(data)
 	 	 .enter()
@@ -71,10 +79,10 @@ d3.csv("data/libcon-heatmap.csv", function(error, data) {
 			.attr("x", function(d) { 
 				//console.log(d)
 				var val = d.pairs.split("-")[0]
-				return xScale(val)*hm_gridSize; })
+				return xScale(val); })
 			.attr("y", function(d) { 
 				var val = d.pairs.split("-")[1]
-				return yScale(val)*hm_gridSize; })
+				return yScale(val); })
 			.attr("width", function(d) { return w; })
 			.attr("height", function(d) { return h; })
 			.style("stroke-width", "1px")
