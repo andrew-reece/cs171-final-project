@@ -28,7 +28,7 @@ path.chord {
 <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
 
 <table>
-<tr><td>User:</td><td><div id="selector"></div></td></tr>
+<tr><td>User:</td><td><div id="selector"></div></td><td><div id="zoomIn"></div></td><td><div id="zoomOut"></div></td></tr>
 </table>
 
 <form name="sort">
@@ -133,6 +133,16 @@ var path = d3.svg.chord()
     
     // in case no dropDown event is trigged and they just leave it as default, will display "all" users
     user =  userDropDown.node().value;
+    
+    var zoomIn = d3.select("#zoomIn")
+    .append("button")
+    .text("zoomIn")
+    .on("click",function() {  });
+    
+    var zoomOut = d3.select("#zoomOut")
+    .append("button")
+    .text("zoomOut")
+    .on("click",function() {  });
     
     // call updateDate() and filterComm() on load so we have something to look at
     updateDate();
