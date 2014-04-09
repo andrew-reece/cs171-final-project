@@ -1,4 +1,4 @@
-<i>Andrew represented our team in class for Design Studio 3.  He met with another student, Yingyi Wang, whose team was also composed of distance-learning students (besides himself).</i>x  
+<i>Andrew represented our team in class for Design Studio 3.  He met with another student, Yingyi Wang, whose team was also composed of distance-learning students (besides himself).</i>
 <br /><br />
 <b>Andrew:</b>
 <br /><br />
