@@ -5,6 +5,7 @@
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <style>
     	body {
+    		color: rgb(110,110,110);
     		font-family: helvetica, arial, sans serif;
     		font-size: 12pt;
     	}
@@ -29,50 +30,73 @@
 		
 		#graph {
 			position: absolute;
-			top:150px;
-			left:0px;
-			margin-top: 10px;
+			top:140px;
+			left:20px;
+			width:900px;
+			margin-top: 30px;
 			fill: purple;
 			
 		}
 		
 		#date {
-		
 			position: absolute;
-			top:150px;
-			left:1000px;
+			top:180px;
+			left:920px;
 			margin-top: 10px;
 		}
 		
 		.date-box {
 			
-			fill: purple;
-			font-size:24px;
-			stroke-width:24px;
+			color: maroon;
+			font-size:16pt;
+		}
+		
+		.subtitle {
+			font-size:18pt;
 		}
 		
 		#heatmap {
 		
 			position: absolute;
-			top:350px;
-			left:950px;
-			width:200px;
+			top:230px;
+			left:920px;
+			width:300px;
 			margin-top: 10px;
+		}
+		
+		#intro {
+			position: absolute;
+			left:20px;
+			top:10px;
+		}
+		h2 {
+			margin-bottom:-20px;
+		}
+		h4 {
+			margin-bottom:5px;
 		}
     </style>
 </head>
 
 <body>
-	This graph combines the Locations.csv and Subjects.csv data from Social Evolution dataset. 
-	<br />
-	I used a subset of Locations (first 1000 rows) for this demo.
-	<br />
-	<b>Nodes</b> = individual subjects <br />
-	<b>Node colors</b> = residential floors <br />
-	<b>Edges</b> = connected bluetooth signals from subject phones at a given point in time (meaning they're nearby each other) <br />
-	<b>Edge weights</b> = probability of being on same floor
-	<div id="graph"></div>
-	<div id="date"></div>
-	<div id="heatmap"></div>
+<div id="intro">
+	<h2>The Evolution of Social Networks:</h2>
+	<h4>Visual reports from the MIT Social Evolution experiment</h4>
+		This display shows the evolution of communication networks over time. <br />
+		Edge weights represent call/sms activity between individuals. <br />
+		Frequency counts are updated in two-week intervals, for the ~18 month 
+		duration of the study.
+</div>
+<div id="graph"></div>
+<div id="date">
+	<span class="subtitle" style="margin-right:15px;">Date</span>
+</div>
+<div id="heatmap">
+	<span class="subtitle">Heatmap</span><br />
+	Heatmap(s) show aggregate <br />
+	pairwise relationships over time.  <br />
+	Ex. Liberal-Conservative heatmap shows relative 
+	communication frequency of various political orientations at each time point.
+</div>
 	<script src="com-tally.js"> </script>
 </body>
