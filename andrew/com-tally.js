@@ -21,24 +21,33 @@ var hm_gridSize = 30,
 	w = hm_gridSize,
 	rectPadding = 60;
 
-var color_low = "blue", color_med = "yellow", color_high = "orangered";
+var heatmap_colors = { low:"#deebf7", med:"#9ecae1", high:"#3182bd", vhigh:"#08519c" };
 
-var hm_margin = {top: 20, right: 80, bottom: 30, left: 50},
-	hm_width = 640 - hm_margin.left - hm_margin.right,
+var hm_margin = {top: 20, right: 80, bottom: 30, left: 0},
+	hm_width = 300 - hm_margin.left - hm_margin.right,
 	hm_height = 280 - hm_margin.top - hm_margin.bottom;
 
 var heatmapColorScale = d3.scale.linear()
-	 .domain([0, 5, 10])
+	 .domain([0, .2, .5, 1])
 	  .interpolate(d3.interpolateRgb)
-	  .range([color_low, color_med, color_high])
+	  .range([heatmap_colors.low, heatmap_colors.med, heatmap_colors.high, heatmap_colors.vhigh])
 var libcon = ["CON3", "CON2", "CON1", "NEUT", "LIB1", "LIB2", "LIB3"]
-var libcon_range = [1,2,3,4,5,6,7]
-var yScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range)
-var xScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range)
+var libcon1 = libcon
+
+var libcon_range = [1*hm_gridSize,2*hm_gridSize,3*hm_gridSize,4*hm_gridSize,5*hm_gridSize,6*hm_gridSize,7*hm_gridSize]
+var	libcon_range1 = libcon_range
+
+var xScale = d3.scale.ordinal().domain(libcon1).range(libcon_range1)
+var yScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range.reverse())
+
+//var yAxis = d3.svg.axis().scale(yScale).orient("left")
+//var xAxis = d3.svg.axis().scale(xScale).orient("bottom")
 var hmap_data, hmap_area, heatmap
 
-d3.csv("data/libcon-heatmap.csv", function(error, data) {
+var file = "data/com-pairs.csv"
 
+d3.csv("data/libcon-heatmap.csv", function(error, data) {
+	
 	hmap_data = data
 	
 	hmap_area = d3.select("#heatmap").append("svg")
@@ -47,48 +56,59 @@ d3.csv("data/libcon-heatmap.csv", function(error, data) {
 	  .append("g")
 		.attr("transform", "translate(" + hm_margin.left + "," + hm_margin.top + ")");
 
-	
+
+// x-axis labels	
 	hmap_area.append("text")
 		.attr("transform", "translate(35,"+(hm_height+hm_margin.top+10)+")")
-	  	.style("font-size", "12pt")
-		.text("CON")
+	  	.style("font-size", "10pt")
+		.text("LIBERAL")
 	hmap_area.append("text")
-		.attr("transform", "translate(215,"+(hm_height+hm_margin.top+10)+")")
-	  	.style("font-size", "12pt")
-		.text("LIB")
+		.attr("transform", "translate(140,"+(hm_height+hm_margin.top+10)+")")
+	  	.style("font-size", "10pt")
+		.text("CONSERVATIVE")
+// y-axis labels
 	hmap_area.append("text")
-		.attr("transform", "translate(-10,"+(hm_height+hm_margin.top-10)+")")
-	  	.style("font-size", "12pt")
-		.text("CON")
+		.attr("transform", "translate(20,"+(hm_height+hm_margin.top-10)+")rotate(-90)")
+	  	.style("font-size", "10pt")
+		.text("LIBERAL")
 	hmap_area.append("text")
-		.attr("transform", "translate(-5,"+(hm_margin.top+20)+")")
-	  	.style("font-size", "12pt")
-		.text(" LIB")
+		.attr("transform", "translate(20,"+(hm_margin.top+115)+")rotate(-90)")
+	  	.style("font-size", "10pt")
+		.text("CONSERVATIVE")
+		hmap_area.append("g")
+			.attr("class", "x-axis")
+			.attr("width", 100)
+			.attr("transform", "translate(10,"+(hm_height+hm_margin.top-10)+")")
+			//.call(xAxis)
+		hmap_area.append("g")
+			.attr("class", "y-axis")
+			.attr("width", 100)
+			.attr("transform", "translate(35,"+(hm_margin.top-10)+")")
+			//.call(yAxis)
 	heatmap = hmap_area.selectAll(".heatmap")
 		.data(data)
 	 	 .enter()
 	 	 .append("rect")
 			.attr("x", function(d) { 
 				//console.log(d)
-				var val = d.pairname.split("-")[0]
-				return xScale(val)*hm_gridSize; })
+				var val = d.pairs.split("-")[0]
+				return xScale(val); })
 			.attr("y", function(d) { 
-				var val = d.pairname.split("-")[1]
-				return yScale(val)*hm_gridSize; })
+				var val = d.pairs.split("-")[1]
+				return yScale(val); })
 			.attr("width", function(d) { return w; })
 			.attr("height", function(d) { return h; })
 			.style("stroke-width", "1px")
 			.style("stroke", "black")
 			.style("fill", function(d) { 
-				var first_date = d3.entries(data[0])[1].key
+				var first_date = d3.entries(data[0])[2].key
 				return heatmapColorScale(d[first_date]); });
 })
 
 
 
 			  
-d3.csv("data/com-pairs.csv", function(error, data) {
-
+d3.csv(file, function(error, data) {
 	
 		data.forEach( function(d) { 
 			freqmax = (freqmax < parseInt(d.total_freq)) ? parseInt(d.total_freq) : freqmax 
@@ -105,13 +125,13 @@ d3.csv("data/com-pairs.csv", function(error, data) {
 	numkeys = keys.length
 	
 	//var colors = d3.scale.category20().domain(floors)
-	var width = 960,
-	height = 650;
+	var width = 850;
+	var height = 600;
 	edgeScale.domain([0,freqmax])
 	var force = d3.layout.force()
 		.nodes(d3.values(nodes))
 		.links(links)
-		.size([width, height])
+		.size([width-50, height+50])
 		.linkDistance(400)
 		.charge(-50)
 		.friction(.2)
@@ -120,7 +140,7 @@ d3.csv("data/com-pairs.csv", function(error, data) {
 		.start();
 
 	var svg = d3.select("#graph").append("svg")
-		.attr("width", width)
+		.attr("width", width-50)
 		.attr("height", height);
 
 	var path = svg.append("g").selectAll("path")
@@ -149,8 +169,7 @@ d3.csv("data/com-pairs.csv", function(error, data) {
 	
 	var datebox = d3.select("#date").append("text")
 					 .attr("class", "date-box")
-					 .attr("transform", "translate(100,100)")
-					 .html("Date")
+					 .attr("transform", "translate(100,90)")
 	
 	var start_button = svg.append("g")
 		.attr("transform", "translate(20,0)")
@@ -173,8 +192,8 @@ d3.csv("data/com-pairs.csv", function(error, data) {
 	function tick() {
 	  path.attr("d", linkArc);
       circle
-        .attr("cx", function(d) { return d.x = Math.max(r, Math.min(width - r, d.x)); })
-        .attr("cy", function(d) { return d.y = Math.max(r, Math.min(height - r, d.y)); });
+        .attr("cx", function(d) { return d.x = Math.max(r, Math.min((width-50) - r, d.x)); })
+        .attr("cy", function(d) { return d.y = Math.max(r, Math.min((height+20) - r, d.y)); });
 	  text.attr("transform", transform);
 	}
 
@@ -201,8 +220,8 @@ d3.csv("data/com-pairs.csv", function(error, data) {
 			})
 		datebox
 				.html(function() {
-					var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(1) : "July 2009 <br />[end of study]"
-					return "Date<br /><br />"+thisdate
+					var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+					return thisdate
 					})
 		heatmap
 			.style("fill", function(d) { 
@@ -220,7 +239,7 @@ d3.csv("data/com-pairs.csv", function(error, data) {
 	}
 	
 	function end() {
-		console.log('all done')
+		console.log('finished.')
 	}
 	
 })
