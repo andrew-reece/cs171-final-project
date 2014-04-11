@@ -26,6 +26,11 @@ path.chord {
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/colorbrewer.v1.min.js"></script>
+
+<table>
+<tr><td>User:</td><td><div id="selector"></div></td><td><div id="zoomIn"></div></td><td><div id="zoomOut"></div></td></tr>
+</table>
+
 <form name="sort">
   <input type="range" name="dateFilter" min="0" max="50" step="1" value="50">
 </form>  
@@ -38,13 +43,14 @@ path.chord {
 
   var dateRange = [];
   var timeScale = d3.scale.quantize();
-  var width = 960,
+  var width = 1300,
       height = 700,
       innerRadius = Math.min(width, height) * .41,
       outerRadius = innerRadius * 1.1;
   var svg, students_g, text_g, ticks_g;
   var filterLevel, filterDate;
   var last_layout; //store layout between updates
+  var user;
 
 //create the arc path data generator for the groups
 var arc = d3.svg.arc()
@@ -103,9 +109,52 @@ var path = d3.svg.chord()
     d3.selectAll("input[name=dateFilter]")
     .on("change", function () { updateDate(); });
     
+     // Drop down selector to show choices for users
+     var userDropDown = d3.select("#selector")
+       .append("select")
+       .on("change", function() {
+         user = this.options[this.selectedIndex].value;
+         filterComm(data);
+       });
+    
+    // Options for 1 to 80 
+    var userOptions = userDropDown.selectAll("option")
+      .data(function() {  var tempArray = [];
+                        tempArray.push("all");
+                        for(i=1;i<=80;i++) { 
+                          tempArray.push(i);
+                        }
+                        return tempArray;
+                    })
+      .enter()
+      .append("option")
+        .text(function (d) { return d; })
+        .attr("value", function (d) { return d; });
+    
+    // in case no dropDown event is trigged and they just leave it as default, will display "all" users
+    user =  userDropDown.node().value;
+    
+    // zoom chord graph out
+    var zoomOut = d3.select("#zoomOut")
+    .append("button")
+    .text("zoomOut")
+    .on("click",function() { // d3.select("#circle").transition().delay(250).attr("transform", "scale(0)");
+                             d3.select("#circle").transition().delay(250).attr("transform", "translate(" + width * .90 + "," + height * .15 + ") scale(.25)");
+    });
+    
+    // zoom chord graph in
+    var zoomIn = d3.select("#zoomIn")
+    .append("button")
+    .text("zoomIn")
+    .on("click",function() { d3.select("#circle").transition().delay(250).attr("transform", "scale(1)").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")"); });
+    
+    // call updateDate() and filterComm() on load so we have something to look at
+    updateDate();
+    filterComm(data);
   }
   
   function updateDate() {
+
     // Read our filter level from our slider
     filterLevel = parseInt(document.forms[0].dateFilter.value);
 
@@ -127,14 +176,23 @@ var path = d3.svg.chord()
     d3.select("#filterDate")
     .text(filterDate);
          
+    // console.log("User is: ", user);
+    
+    comm = [];
+    
     for (var i = 0; i<data.length; i++) {
+      if(+data[i]["source"] == +user || +data[i]["target"] == +user || user == "all") {
         var dataobject = data[i];
-        comm[i] = {};
-//      console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
-        comm[i]["source"] = +dataobject["source"];
-        comm[i]["target"] = +dataobject["target"];
-        comm[i]["freq"] = +dataobject[key];
-      };
+
+        commObject = {};
+        // console.log(dataobject["source"] + " : " + dataobject["target"] + " -> " + dataobject[key]);
+        commObject["source"] = +dataobject["source"];
+        commObject["target"] = +dataobject["target"];
+        commObject["freq"] = +dataobject[key];
+   //     console.log(dataobject);
+        comm.push(commObject);
+      }
+    };
       
 //    console.log(comm);
     matrixmap(comm);
@@ -144,13 +202,15 @@ var path = d3.svg.chord()
     var matrix = [];
     var users = [];
     
+//    console.log(comm);
+    
     /*get all the unique users (both senders & receivers)
     because that is going to be the number of arrays in the
     square matrix.*/
     
     //first add all unique source IDs
     for (var i = 0; i< comm.length; i++) {
-//      if (comm[i]["freq"] != 0) {
+      if (comm[i]["freq"] != 0) {
         var add = 1;
         for (var u = 0; u < users.length; u++) {
           if (comm[i]["source"] == users[u]) {
@@ -160,12 +220,12 @@ var path = d3.svg.chord()
         if (add == 1) {
         users.push(+comm[i]["source"]);
        }
-//      }
+      }
     }
     
     //then add any unique Target IDs that weren't already added
     for (var i = 0; i< comm.length; i++) {
-//     if (comm[i]["freq"] != 0) {
+     if (comm[i]["freq"] != 0) {
         var add = 1;
         for (var u = 0; u < users.length; u++) {
           if (comm[i]["target"] == users[u]) {
@@ -175,13 +235,13 @@ var path = d3.svg.chord()
         if (add == 1) {
         users.push(comm[i]["target"]);
         }
-//      }
+      }
     }
     
     users.sort(function(a,b) {
       return a - b;
     })
-    console.log(users);
+    // console.log(users);
     
     //intialize the square matrix and put 0s in
     //so the values can be incremented later.
@@ -193,7 +253,7 @@ var path = d3.svg.chord()
         matrix[i][j] = 0;
       }
     };
-    //console.log(matrix);
+    // console.log(matrix);
     
   //populate the matrix with the frequency value
   //for the source/user combination
@@ -208,7 +268,7 @@ var path = d3.svg.chord()
         }
       }
     };
-    //console.log(matrix);
+    // console.log(matrix);
     
     updateVis(matrix, users);
   }
@@ -242,8 +302,16 @@ function updateVis(matrix, users) {
            
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
+<<<<<<< HEAD
       .range(colorbrewer.Paired[12]);  
       
+=======
+      .range(colorbrewer.Paired[12]);
+      
+  svg.selectAll("g.group").remove();
+  svg.selectAll("g.path").remove();
+
+>>>>>>> chorduserselector
 /* Create/update "group" elements */
     var groupG = svg.selectAll("g.group") 
         .data(layout.groups(), function (d) {
