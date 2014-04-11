@@ -68,7 +68,7 @@ var path = d3.svg.chord()
 */
 
   var YmdXParser = d3.time.format("%Y-%m-%d").parse;
-  var file = "../andrew/com-pairs.csv";
+  var file = "../andrew/data/com-pairs.csv";
   
   loadComm();
   function loadComm() {
@@ -302,16 +302,11 @@ function updateVis(matrix, users) {
            
   var fill = d3.scale.ordinal()
       .domain(d3.range(users.length))
-<<<<<<< HEAD
       .range(colorbrewer.Paired[12]);  
-      
-=======
-      .range(colorbrewer.Paired[12]);
-      
+            
   svg.selectAll("g.group").remove();
   svg.selectAll("g.path").remove();
 
->>>>>>> chorduserselector
 /* Create/update "group" elements */
     var groupG = svg.selectAll("g.group") 
         .data(layout.groups(), function (d) {
