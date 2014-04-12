@@ -28,23 +28,6 @@
 		  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 		}
 		
-		#graph {
-			position: absolute;
-			top:140px;
-			left:20px;
-			width:900px;
-			margin-top: 30px;
-			fill: purple;
-			
-		}
-		
-		#date {
-			position: absolute;
-			top:20px;
-			left:920px;
-			margin-top: 10px;
-		}
-		
 		.date-box {
 			
 			color: maroon;
@@ -54,49 +37,120 @@
 		.subtitle {
 			font-size:18pt;
 		}
-		
-		#heatmap {
-		
-			position: absolute;
-			top:60px;
-			left:920px;
-			width:350px;
-			margin-top: 10px;
-		}
-		
-		#intro {
-			position: absolute;
-			left:20px;
-			top:10px;
-		}
+
 		h2 {
+			margin-top:-15px;
 			margin-bottom:-20px;
 		}
 		h4 {
 			margin-bottom:5px;
 		}
+		
+		#left {
+			position: absolute;
+			left:20px;
+			top: 20px;
+			width:800px;
+		}
+		
+			#intro {
+				position: relative;
+				left:0px;
+				top:0px;
+			}
+				
+			#graph {
+				position: relative;
+				top:20px;
+				left:0px;
+				fill: purple;
+			}
+		
+		#right {
+			position: absolute;
+			left:820px;
+			top: 20px;
+		}
+		
+			#controls {
+				position: relative;
+				top:10px;
+				left:0px;
+			}
+			
+				#heatmap-dropdown {
+					margin-top:15px;
+				}
+				
+				#start-button {
+					position: relative;
+					top:2px;
+					left:10px;
+					width:93px;
+					display:inline-block;
+					height:17px;
+					padding:3px;
+					font-size:12pt;
+					border: solid steelblue 2px;
+					color: rgb(110,110,110);
+					background-color: whitesmoke;
+				}
+				
+			#date {
+				position: relative;
+				top:20px;
+				left:0px;
+			}
+			
+			#heatmap {
+				position: relative;
+				top:20px;
+				left:0px;
+				width:350px;
+				margin-top: 10px;
+			}
+			
+				#heatmap-description {
+					margin-top:50px;
+				}
     </style>
 </head>
 
 <body>
-<div id="intro">
-	<h2>The Evolution of Social Networks:</h2>
-	<h4>Visual reports from the MIT Social Evolution experiment</h4>
-		This display shows the evolution of communication networks over time. <br />
-		Edge weights represent call/sms activity between individuals. <br />
-		Frequency counts are updated in two-week intervals, for the ~18 month 
-		duration of the study.
+<div id="left">
+
+	<div id="intro">
+		<h2>The Evolution of Social Networks:</h2>
+		<h4>Visual reports from the MIT Social Evolution experiment</h4>
+			This display shows the evolution of communication networks over time. <br />
+			Edge weights represent call/sms activity between individuals. <br />
+			Frequency counts are updated in two-week intervals, for the ~18 month 
+			duration of the study.
+	</div>
+	
+	<div id="graph"></div>
 </div>
-<div id="graph"></div>
-<div id="date">
-	<span class="subtitle" style="margin-right:15px;">Date</span>
-</div>
-<div id="heatmap">
-	<span class="subtitle">Heatmap</span><br />
-	Heatmap(s) show aggregate <br />
-	pairwise relationships over time.  <br />
-	Ex. Liberal-Conservative heatmap shows relative 
-	communication frequency of various political orientations at each time point.
+
+<div id="right">
+
+	<div id="controls">
+		<span class="subtitle">Control Panel</span><br />
+		<select id="heatmap-dropdown">
+		</select>
+		<div id="start-button">Click to start</div>
+	</div>
+	
+	<div id="date">
+		<span class="subtitle" style="margin-right:15px;">Date</span>
+	</div>
+	
+	<div id="heatmap">
+		<span class="subtitle">Heatmap</span><br />
+		Heatmap(s) show aggregate <br />
+		pairwise relationships over time.  <br /><br />
+		<span id="heatmap-description"></span>
+	</div>
+	
 </div>
 	<script src="com-tally.js"> </script>
 </body>

@@ -21,274 +21,261 @@ var hm_gridSize = 25,
 	w = hm_gridSize,
 	rectPadding = 60;
 
+var hmap_xaxis, hmap_yaxis
+
 var heatmap_colors = { low:"#deebf7", med:"#9ecae1", high:"#3182bd", vhigh:"#08519c" };
 
-var hm_margin = {top: 0, right: 80, bottom: 30, left: 0},
+var hm_margin = {top: 15, right: 80, bottom: 30, left: 0},
 	hm_width = 350 - hm_margin.left - hm_margin.right,
-	hm_height = 580 - hm_margin.top - hm_margin.bottom;
+	hm_height = 500 - hm_margin.top - hm_margin.bottom;
 
 var heatmapColorScale = d3.scale.linear()
 	 .domain([0, .2, .5, 2.5])
 	  .interpolate(d3.interpolateRgb)
 	  .range([heatmap_colors.low, heatmap_colors.med, heatmap_colors.high, heatmap_colors.vhigh])
-var libcon = ["CON3", "CON2", "CON1", "NEUT", "LIB1", "LIB2", "LIB3"]
-var libcon1 = libcon
-
-var libcon_range = [1*hm_gridSize,2*hm_gridSize,3*hm_gridSize,4*hm_gridSize,5*hm_gridSize,6*hm_gridSize,7*hm_gridSize]
-var	libcon_range1 = libcon_range
-
-var xScale = d3.scale.ordinal().domain(libcon1).range(libcon_range1)
-var yScale = d3.scale.ordinal().domain(libcon.reverse()).range(libcon_range.reverse())
-
-//var yAxis = d3.svg.axis().scale(yScale).orient("left")
-//var xAxis = d3.svg.axis().scale(xScale).orient("bottom")
-var hmap_data, hmap_area, heatmap, heatmap2
-
-var file = "data/com-pairs.csv"
-
-d3.csv("data/libcon-heatmap.csv", function(error, data) {
-	
-	hmap_data = data
-	
-	hmap_area = d3.select("#heatmap").append("svg")
-		.attr("width", hm_width + hm_margin.left + hm_margin.right)
-		.attr("height", hm_height + hm_margin.top + hm_margin.bottom)
-	  .append("g")
-		.attr("transform", "translate(" + hm_margin.left + "," + hm_margin.top + ")");
 
 
-// x-axis labels	
-	hmap_area.append("text")
-		.attr("transform", "translate(25,"+(210+hm_margin.top+5)+")")
-	  	.style("font-size", "10pt")
-		.text("LIBERAL")
-	hmap_area.append("text")
-		.attr("transform", "translate(100,"+(210+hm_margin.top+5)+")")
-	  	.style("font-size", "10pt")
-		.text("CONSERVATIVE")
-// y-axis labels
-	hmap_area.append("text")
-		.attr("transform", "translate(20,"+(210+hm_margin.top-10)+")rotate(-90)")
-	  	.style("font-size", "10pt")
-		.text("LIBERAL")
-	hmap_area.append("text")
-		.attr("transform", "translate(20,"+(hm_margin.top+125)+")rotate(-90)")
-	  	.style("font-size", "10pt")
-		.text("CONSERVATIVE")
-		hmap_area.append("g")
-			.attr("class", "x-axis")
-			.attr("width", 100)
-			.attr("transform", "translate(10,"+(hm_height+hm_margin.top-10)+")")
-			//.call(xAxis)
+var hmap_data, heatmap
+var hmap_area = d3.select("#heatmap").append("svg")
+	.attr("width", hm_width + hm_margin.left + hm_margin.right)
+	.attr("height", hm_height + hm_margin.top + hm_margin.bottom)
+  .append("g");
+var hmap_x = hmap_area.append("g")
+		.attr("class", "x-axis")
+		.attr("width", 100)
+		.attr("height", 0)
+		.attr("transform", "translate(30,0)")
+var hmap_y = 		
 		hmap_area.append("g")
 			.attr("class", "y-axis")
 			.attr("width", 100)
-			.attr("transform", "translate(35,"+(hm_margin.top-10)+")")
-			//.call(yAxis)
-	heatmap1 = hmap_area.selectAll(".heatmap")
-		.data(data)
-	 	 .enter()
-	 	 .append("rect")
-			.attr("x", function(d) { 
-				//console.log(d)
-				var val = d.pairs.split("-")[0]
-				return xScale(val); })
-			.attr("y", function(d) { 
-				var val = d.pairs.split("-")[1]
-				return yScale(val); })
-			.attr("width", function(d) { return w; })
-			.attr("height", function(d) { return h; })
-			.style("stroke-width", "1px")
-			.style("stroke", "black")
-			.style("fill", function(d) { 
-				var first_date = d3.entries(data[0])[2].key
-				return heatmapColorScale(d[first_date]); });
-	
-})
-
-d3.csv("data/fav_music-heatmap.csv", function(error, data2) {
-	var hmap_data2 = data2
-	var music =  ["METAL", "JAZZ", "CLASS", "ELECTR", "INDIE", 
-                "TOP40", "CNFLK", "SHOWTUN", "OTHER", "CLSRCK"]
-    var music_range = [ 1*hm_gridSize,2*hm_gridSize,3*hm_gridSize,
-    					4*hm_gridSize,5*hm_gridSize,6*hm_gridSize,
-    					7*hm_gridSize,8*hm_gridSize,9*hm_gridSize,10*hm_gridSize]
-
-	var xScale2 = d3.scale.ordinal().domain(music).range(music_range)
-	var yScale2 = d3.scale.ordinal().domain(music.reverse()).range(music_range.reverse())
-	var yAxis2 = d3.svg.axis().scale(yScale2).orient("left")
-	var xAxis2 = d3.svg.axis().scale(xScale2).orient("bottom")
-
-	var hmap2_xaxis = hmap_area.append("g")
-		.attr("class", "x-axis2")
-		.attr("width", 100)
-		.attr("transform", "translate(30,"+(260+hm_margin.top-10+260)+")")
-		.call(xAxis2)
-	hmap2_xaxis.selectAll("text")
-				.attr("transform", "translate(0,35)rotate(-90)")	
-	hmap_area.append("g")
-		.attr("class", "y-axis")
-		.attr("width", 100)
-		.attr("transform", "translate(60,"+(hm_margin.top-10+265)+")")
-		.call(yAxis2)				
-	heatmap2 = hmap_area.selectAll(".heatmap2")
-		.data(data2)
-	 	 .enter()
-	 	 .append("rect")
-			.attr("x", function(d) { 
-				//console.log(d)
-				var val = d.pairs.split("-")[0]
-				return xScale2(val); })
-			.attr("y", function(d) { 
-				var val = d.pairs.split("-")[1]
-				return yScale2(val); })
-			.attr("width", function(d) { return w; })
-			.attr("height", function(d) { return h; })
-			.attr("transform", "translate(30,240)")
-			.style("stroke-width", "1px")
-			.style("stroke", "black")
-			.style("fill", function(d) { 
-				var first_date2 = d3.entries(data2[0])[2].key
-				return heatmapColorScale(d[first_date2]); });
-})
-
-			  
-d3.csv(file, function(error, data) {
-	
-		data.forEach( function(d) { 
-			freqmax = (freqmax < parseInt(d.total_freq)) ? parseInt(d.total_freq) : freqmax 
-		})
-		links = data
-		links.forEach(function(link) {
-		  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
-		  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
-		});	
-
-	for(var k in data[0]) {
-		keys.push(k);
-	}
-	numkeys = keys.length
-	
-	//var colors = d3.scale.category20().domain(floors)
-	var width = 850;
-	var height = 600;
-	edgeScale.domain([0,freqmax])
-	var force = d3.layout.force()
-		.nodes(d3.values(nodes))
-		.links(links)
-		.size([width-50, height+50])
-		.linkDistance(400)
-		.charge(-50)
-		.friction(.2)
-		.gravity(.3)
-		.on("tick", tick)
-		.start();
-
-	var svg = d3.select("#graph").append("svg")
-		.attr("width", width-50)
-		.attr("height", height);
-
-	var path = svg.append("g").selectAll("path")
-		.data(force.links())
-	  .enter().append("path")
-		.attr("class", "link")
-		.style("stroke-width", function(d) {
-			return edgeScale(d[keys[4]])
-		});
+			.attr("transform", "translate(60,"+hm_margin.top+")")
 			
-	var circle = svg.append("g").selectAll("circle")
-		.data(force.nodes())
-	  .enter().append("circle")
-		.attr("r", r)
-		.style("fill", function(d) {return "steelblue"})
-		.call(force.drag);
-	
-	var text = svg.append("g").selectAll("text")
-		.data(force.nodes())
-	  	.enter()
-	  	.append("text")
-			.attr("x", 12)
-			.attr("y", 3)
-			.style("font-size", "12pt")
-			.text(function(d) { return d.name; });
-	
-	var datebox = d3.select("#date").append("text")
-					 .attr("class", "date-box")
-					 .attr("transform", "translate(100,90)")
-	
-	var start_button = svg.append("g")
-		.attr("transform", "translate(20,0)")
-	
-	start_button.append("rect")
-		.attr("width", 100)
-		.attr("height", 20)
-		.style("fill", "whitesmoke")
-		.style("stroke","steelblue")
-		.style("stroke-width", "1px")
-		.on("click", function() {return elapse(4)}) // 4 is the index of the first column of time series data				 
-	start_button.append("text")
-		.style("stroke-width","1px")
-		.style("fill", "rgb(110,110,110)")
-		.style("font-size", "12pt")
-		.attr("transform","translate(3,15)")
-		.text("Click to start")
-		
-		// Use elliptical arc path segments to doubly-encode directionality.
-	function tick() {
-	  path.attr("d", linkArc);
-      circle
-        .attr("cx", function(d) { return d.x = Math.max(r, Math.min((width-50) - r, d.x)); })
-        .attr("cy", function(d) { return d.y = Math.max(r, Math.min((height+20) - r, d.y)); });
-	  text.attr("transform", transform);
-	}
+var file = "data/com-pairs.csv"
+var heatmap_name = "libcon"
+var x = d3.scale.ordinal()
+var y = d3.scale.ordinal()
+var yAxis = d3.svg.axis().scale(y).orient("left")
+var xAxis = d3.svg.axis().scale(x).orient("bottom")
 
-	function linkArc(d) {
-	  var dx = d.target.x - d.source.x,
-		  dy = d.target.y - d.source.y,
-		  dr = Math.sqrt(dx * dx + dy * dy);
-	  return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-	}
+var hmdata
 
-	function transform(d) {
-	  return "translate(" + d.x + "," + d.y + ")";
-	}
+getData()
+
+function getData() {
+	var path = "data/variables.json"
+	d3.json(path, function(error, data) { renderPage(data) })
+}
+
+function renderPage(vardata) {
 	
-	function elapse(thiskey) {
-		path.transition()
-			.duration(300)
-			.style("stroke-width", function(d) {
-				var weight = edgeScale(d[keys[thiskey]])
-				if (weight >= 5) {
-					d3.select(this).style("stroke",color(weight))
-				}
-				return weight
-			})
-		datebox
-				.html(function() {
-					var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-					return thisdate
+	d3.select("#heatmap-dropdown")
+				.on("change", function() { 
+						heatmap_name = d3.select(this).property("value")
+						clearHeatmap()
+						buildHeatmap(heatmap_name, vardata)
 					})
-		heatmap1
-			.style("fill", function(d) { 
-				return heatmapColorScale(d[keys[thiskey]]); });
-		heatmap2
-			.style("fill", function(d) { 
-				return heatmapColorScale(d[keys[thiskey]]); });		
-		svg.transition()
-			.duration(300)
-			.each("end", function() {
-				thiskey++
+	var select = document.getElementById("heatmap-dropdown")
+	
+	for (var i = 0; i < d3.entries(vardata.name).length; i++) {
+		var option = document.createElement("option")
+		option.text = vardata.nickname[i]
+		option.value = vardata.name[i]
+		console.log(option)
+		select.add(option)
+	}
+			  
+	d3.csv(file, function(error, data) {
+	
+			data.forEach( function(d) { 
+				freqmax = (freqmax < parseInt(d.total_freq)) ? parseInt(d.total_freq) : freqmax 
+			})
+			links = data
+			links.forEach(function(link) {
+			  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
+			  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+			});	
+
+		for(var k in data[0]) {
+			keys.push(k);
+		}
+		numkeys = keys.length
+	
+		//var colors = d3.scale.category20().domain(floors)
+		var width = 800;
+		var height = 600;
+		edgeScale.domain([0,freqmax])
+		var force = d3.layout.force()
+			.nodes(d3.values(nodes))
+			.links(links)
+			.size([width, height])
+			.linkDistance(400)
+			.charge(-50)
+			.friction(.2)
+			.gravity(.3)
+			.on("tick", tick)
+			.start();
+
+		var svg = d3.select("#graph").append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+		var path = svg.append("g").selectAll("path")
+			.data(force.links())
+		  .enter().append("path")
+			.attr("class", "link")
+			.style("stroke-width", function(d) {
+				return edgeScale(d[keys[4]])
+			});
+			
+		var circle = svg.append("g").selectAll("circle")
+			.data(force.nodes())
+		  .enter().append("circle")
+			.attr("r", r)
+			.style("fill", function(d) {return "steelblue"})
+			.call(force.drag);
+	
+		var text = svg.append("g").selectAll("text")
+			.data(force.nodes())
+			.enter()
+			.append("text")
+				.attr("x", 12)
+				.attr("y", 3)
+				.style("font-size", "12pt")
+				.text(function(d) { return d.name; });
+	
+		var datebox = d3.select("#date").append("text")
+						 .attr("class", "date-box")
+						 .attr("transform", "translate(100,90)")
+	
+		d3.select("#start-button")
+			.on("click", function() {return elapse(4)}) // don't hard code argument here, it may change based on variable
+		
+			// Use elliptical arc path segments to doubly-encode directionality.
+		function tick() {
+		  path.attr("d", linkArc);
+		  // r+10 b/c that keeps the numbers of nodes near the viewbox border from getting cut off
+		  // if it's just "r" then the node names (i.e. numbers) can float out of view
+		  circle .attr("cx", function(d) { return d.x = Math.max((r+10), Math.min(width - (r+10), d.x)); })
+				 .attr("cy", function(d) { return d.y = Math.max((r+10), Math.min(height - (r+10), d.y)); });
+		  text.attr("transform", transform);
+		}
+
+		function linkArc(d) {
+		  var dx = d.target.x - d.source.x,
+			  dy = d.target.y - d.source.y,
+			  dr = Math.sqrt(dx * dx + dy * dy);
+		  return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+		}
+
+		function transform(d) {
+		  return "translate(" + d.x + "," + d.y + ")";
+		}
+	
+		function elapse(thiskey) {
+			path.transition()
+				.duration(300)
+				.style("stroke-width", function(d) {
+					var weight = edgeScale(d[keys[thiskey]])
+					if (weight >= 5) {
+						d3.select(this).style("stroke",color(weight))
+					}
+					return weight
+				})
+			datebox
+					.html(function() {
+						var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+						return thisdate
+						})
+			heatmap
+				.style("fill", function(d) { 
+					return heatmapColorScale(d[keys[thiskey]]); });
+			
+			svg.transition()
+				.duration(300)
+				.each("end", function() {
+					thiskey++
 				
-				return (thiskey <= numkeys) 
-					? elapse(thiskey) 
-					: end()
-			})	
+					return (thiskey <= numkeys) 
+						? elapse(thiskey) 
+						: end()
+				})	
+		}
+	
+		function end() {
+			heatmap
+				.style("fill", function(d) { 
+					return heatmapColorScale(d["total"]); });	
+		}
+	
+	})
+}
+
+
+function clearHeatmap() {
+	d3.selectAll(".heatmap").remove()
+}
+
+function buildHeatmap(name, vardata) {
+
+	var path = "data/"+name+"-heatmap.csv"
+	
+	var entries = d3.entries(vardata.name)
+	var var_idx
+	entries.forEach( function(x) {
+		if (x.value == name) { var_idx = x.key }
+	})
+	
+	var var_names = vardata.var_range[var_idx]
+	
+	var var_range = []
+	for (var i = 1; i <= var_names.length; i++) {
+		var_range.push(i*hm_gridSize)
+		if (i == var_names.length) {
+			drawHeatmap(vardata)
+		}
 	}
 	
-	function end() {
-		heatmap2
-			.style("fill", function(d) { 
-				return heatmapColorScale(d["total"]); });	
+	function drawHeatmap(vardata) {	
+		d3.select("#heatmap-description").html(function() { return vardata.descrip[var_idx] })
+		x.domain(var_names).range(var_range)
+		y.domain(var_names.reverse()).range(var_range.reverse())
+		var map_height = var_names.length*hm_gridSize+20
+		var max_label_length = d3.max(var_names, function(d) {return d.length})
+		var x_offset = max_label_length*5.5
+		hmap_x.attr("height", map_height)
+		hmap_x.attr("transform", "translate(30,"+map_height+")")
+		d3.select(".x-axis").call(xAxis)
+		d3.select(".x-axis")
+			.selectAll("text")
+			.attr("transform", "translate(0,"+x_offset+")rotate(-90)")		
+		d3.select(".y-axis").call(yAxis)	
+		
+		d3.csv(path, function(error, data2) {
+			var hmap_data2 = data2
+				
+			heatmap = hmap_area.selectAll(".heatmap")
+				.data(data2)
+				 .enter()
+				 .append("rect")
+					.attr("class", "heatmap")
+					.attr("x", function(d) { 
+						//console.log(d)
+						var val = d.pairs.split("-")[0]
+						return x(val); })
+					.attr("y", function(d) { 
+						var val = d.pairs.split("-")[1]
+						return y(val); })
+					.attr("width", function(d) { return w; })
+					.attr("height", function(d) { return h; })
+					.attr("transform", "translate(30,0)")
+					.style("stroke-width", "1px")
+					.style("stroke", "black")
+					.style("fill", function(d) { 
+						var first_entry = d3.entries(data2[0])[2].key
+						return heatmapColorScale(d[first_entry])
+					})
+
+		})
 	}
-	
-})
+}
