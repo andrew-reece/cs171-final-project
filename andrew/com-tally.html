@@ -3,117 +3,7 @@
 <head>
     <title>Social Evolution Beta</title>
     <script src="http://d3js.org/d3.v3.min.js"></script>
-    <style>
-    	body {
-    		color: rgb(110,110,110);
-    		font-family: helvetica, arial, sans serif;
-    		font-size: 12pt;
-    	}
-    	
-		.link {
-		  fill: none;
-		  stroke: #666;
-		  stroke-width: 1.5px;
-		}
-
-		circle {
-		  fill: #ccc;
-		  stroke: #333;
-		  stroke-width: 1.5px;
-		}
-
-		text {
-		  font: 10px sans-serif;
-		  pointer-events: none;
-		  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-		}
-		
-		.date-box {
-			
-			color: maroon;
-			font-size:16pt;
-		}
-		
-		.subtitle {
-			font-size:18pt;
-		}
-
-		h2 {
-			margin-top:-15px;
-			margin-bottom:-20px;
-		}
-		h4 {
-			margin-bottom:5px;
-		}
-		
-		#left {
-			position: absolute;
-			left:20px;
-			top: 20px;
-			width:800px;
-		}
-		
-			#intro {
-				position: relative;
-				left:0px;
-				top:0px;
-			}
-				
-			#graph {
-				position: relative;
-				top:20px;
-				left:0px;
-				fill: purple;
-			}
-		
-		#right {
-			position: absolute;
-			left:820px;
-			top: 20px;
-		}
-		
-			#controls {
-				position: relative;
-				top:10px;
-				left:0px;
-			}
-			
-				#heatmap-dropdown {
-					margin-top:15px;
-				}
-				
-				#start-button {
-					position: relative;
-					top:2px;
-					left:10px;
-					width:93px;
-					display:inline-block;
-					height:17px;
-					padding:3px;
-					font-size:12pt;
-					border: solid steelblue 2px;
-					color: rgb(110,110,110);
-					background-color: whitesmoke;
-				}
-				
-			#date {
-				position: relative;
-				top:20px;
-				left:0px;
-			}
-			
-			#heatmap {
-				position: relative;
-				top:20px;
-				left:0px;
-				width:350px;
-				margin-top: 10px;
-			}
-			
-				#heatmap-description {
-					margin-top:50px;
-				}
-    </style>
+    <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 
 <body>
@@ -127,17 +17,31 @@
 			Frequency counts are updated in two-week intervals, for the ~18 month 
 			duration of the study.
 	</div>
-	
+	<div id="tab-bar">
+		<div id="force-tab" class="tab selected">Force Layout</div>
+		<div id="chord-tab" class="tab">Chord Layout</div>
+		<div id="heatmap-tab" class="tab">Heatmaps</div>
+	</div>
 	<div id="graph"></div>
 </div>
 
 <div id="right">
 
 	<div id="controls">
-		<span class="subtitle">Control Panel</span><br />
+		<span class="subtitle" style="line-height:35px;">Control Panel</span>
+			<br />
+
+		Filter <div id="filter-clicker">...</div>
+		<div id="filter-box"></div>
+		Heatmap
 		<select id="heatmap-dropdown">
+			<option value="">Select heatmap</option>
 		</select>
-		<div id="start-button">Click to start</div>
+		<br />
+		Time Slider
+		<br />
+		Animation
+		<div id="start-button" onclick="elapse(elapse_seed);">Click to start</div>
 	</div>
 	
 	<div id="date">

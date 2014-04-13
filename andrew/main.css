@@ -1,0 +1,182 @@
+body {
+	color: rgb(110,110,110);
+	font-family: helvetica, arial, sans serif;
+	font-size: 12pt;
+}
+
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+circle {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+text {
+  font: 10px sans-serif;
+  pointer-events: none;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+.date-box {
+	
+	color: maroon;
+	font-size:16pt;
+}
+
+.subtitle {
+	font-size:18pt;
+}
+
+h2 {
+	margin-top:-15px;
+	margin-bottom:-20px;
+}
+h4 {
+	margin-bottom:5px;
+}
+
+#left {
+	position: absolute;
+	left:20px;
+	top: 20px;
+	width:800px;
+}
+
+	#intro {
+		position: relative;
+		left:0px;
+		top:0px;
+	}
+	
+	#tab-bar {
+		position:relative;
+		left:0px;
+		top:5px;
+		width:794px;
+		display:inline-block;
+		height:25px;
+		border-bottom: solid steelblue 2px;
+	}
+	
+	.tab {
+		position:relative;
+		left:0px;
+		top:0px;
+		width:110px;
+		display:inline-block;
+		height:20px;
+		padding-left:0px;
+		padding-top:3px;
+		margin-right:-6px;
+		border: solid steelblue 2px;
+		text-align:center;
+	}
+	
+	.tab-hover {
+		background-color:aliceblue;
+	}
+	
+	.selected {
+		border-bottom:solid whitesmoke 2px;
+		background-color:whitesmoke; 
+	}
+	
+	#graph {
+		position: relative;
+		top:5px;
+		left:0px;
+		display:inline-block;
+		height:575px;
+		width:790px
+		fill: purple;
+		background-color:whitesmoke;
+		border-right: solid steelblue 2px;
+		border-left: solid steelblue 2px;
+		border-bottom: solid steelblue 2px;
+	}
+
+#right {
+	position: absolute;
+	left:840px;
+	top: 20px;
+}
+
+	#controls {
+		position: relative;
+		top:0px;
+		left:0px;
+		padding-top:5px;
+		padding-bottom:10px;
+		line-height:25px;
+		border-bottom: solid steelblue 1px;
+		border-top: solid steelblue 1px;
+	}
+	
+		#filter-clicker {
+			position:relative;
+			top:3.5px;
+			left:1px;
+			width:11px;
+			display:inline-block;
+			height:11px;
+			line-height:7px;
+			border: solid rgb(110,110,110) 2px;
+			font-size:13pt;
+			letter-spacing:-1.5px;
+			vertical-align:top;
+		}
+		
+		#filter-box {
+			position:relative;
+			top:0px;
+			left:0px;
+			border: solid rgb(110,110,110) 1px;
+			visibility:hidden;
+			z-index:-10;
+		}
+		
+		#heatmap-dropdown {
+			margin-left:10px;
+			vertical-align:top;
+		}
+		
+		#start-button {
+			position: relative;
+			top:2px;
+			left:10px;
+			width:93px;
+			display:inline-block;
+			height:17px;
+			line-height:17px;
+			padding:3px;
+			font-size:12pt;
+			border: solid steelblue 2px;
+			color: rgb(110,110,110);
+			background-color: whitesmoke;
+			vertical-align:bottom;
+		}
+		
+	#date {
+		position: relative;
+		top:20px;
+		left:0px;
+		padding-bottom:10px;
+		border-bottom: solid steelblue 1px;
+	}
+	
+	#heatmap {
+		position: relative;
+		top:20px;
+		left:0px;
+		width:350px;
+		margin-top: 10px;
+	}
+	
+		#heatmap-description {
+			margin-top:50px;
+		}
