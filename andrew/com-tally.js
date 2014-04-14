@@ -1,4 +1,17 @@
 //////////////////////////////////////////////////////////////////////////////////////
+//
+// 	CS171: Final Project
+//  Group: Brian Feeny, Andrew Reece, Jennifer Sulkow
+//
+//  Page: Main page
+//
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // 				GLOBAL VARIABLES
@@ -11,7 +24,7 @@
 	
 // force-directed graph objects
 	var nodes = {}, links = []
-	var path
+	var path, circle, text
 	
 // default node radius
 	var r = 6
@@ -47,7 +60,7 @@
 // these margin values are all kind of arbitrary - clean up a bit?  HARD CODE
 	var hm_margin = {top: 15, right: 80, bottom: 30, left: 0},
 		hm_width = 350 - hm_margin.left - hm_margin.right,
-		hm_height = 500 - hm_margin.top - hm_margin.bottom;
+		hm_height = 330 - hm_margin.top - hm_margin.bottom;
 		
 /* heatmap color scale
 	uses 4 range points, interpolates between these points
@@ -96,151 +109,101 @@ HARD CODE */
 
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
-var elapse_seed = 4
+	var elapse_seed = 4
 
-d3.selectAll(".tab")
-	.on("click", function() { 
-		if (!(current_graph == d3.select(this).attr("id"))) { return changeGraph(this) }
-	})
-	.on("mouseover", function() { return highlightTab(this) })	
-	.on("mouseout", function()  { return highlightTab(this) })	
-	
-getData()
+//////////////////////////////////////////////////////////////////////////////////////
+//      END GLOBAL VARIABLES
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+//      STARTUP
+//		* these functions get things going
+//////////////////////////////////////////////////////////////////////////////////////
+
+	setTabEvents()	
+	getData() // this feeds into renderPage()
+
+//////////////////////////////////////////////////////////////////////////////////////
+//      END STARTUP
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 //
-//       		FUNCTION DEFINITIONS
+//      MAIN FUNCTIONS
+//		* these are the workhorses
 //
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 
-function changeGraph(obj) {
 
-	clearGraph()
-	
-	var graph = d3.select(obj).attr("id")
-	
-	if (graph == "force-tab") {
-		changeTab(graph)
-		renderForceGraph()
-	} else if (graph == "chord-tab") {
-		changeTab(graph)
-		svg = d3.select("#graph").append("svg")
-			.attr("id", "graph-viewbox")
-			.attr("width", width)
-			.attr("height", height)
-		svg.append("image")
-			.attr("transform", "translate(20,10)")
-			.attr("width", 750)
-			.attr("height", 550)
-			.attr("xlink:href","chord2.png")
-	} else if (graph == "heatmap-tab") {
-		changeTab(graph)
-		renderAllHeatmaps()
-	}
-	current_graph = d3.select(obj).attr("id")
-}
-
-function clearGraph() {
-	d3.select("#graph-viewbox").remove()
-}
-
-function changeTab(tabname) {
-	d3.selectAll(".selected").classed("selected", false)
-	d3.select("#"+tabname).classed("selected", true)
-}
-
-function highlightTab(obj) {
-	var hover = d3.select(obj).classed("tab-hover")
-	//console.log(col)
-	d3.select(obj).classed("tab-hover", function() { return (hover) ? false : true })
-}
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: getData()
+// Purpose:  1. gets variable meta-data
+//			 2. feeder function to renderPage(), the main function for this page
+//
+//////////////////////////////////////////////////////////////////////////////////////
 
 function getData() {
 	var path = "data/variables.json"
 	d3.json(path, function(error, data) { renderPage(data) })
 }
 
-function renderForceGraph() {	
-		var force = d3.layout.force()
-			.nodes(d3.values(nodes))
-			.links(links)
-			.size([width, height])
-			.linkDistance(400)
-			.charge(-50)
-			.friction(.2)
-			.gravity(.3)
-			.on("tick", tick)
-			.start();
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: elapse(thiskey)
+// Purpose:  runs time series animation
+//
+//////////////////////////////////////////////////////////////////////////////////////
 
-		svg = d3.select("#graph").append("svg")
-			.attr("id", "graph-viewbox")
-			.attr("width", width)
-			.attr("height", height);
-
-		path = svg.append("g").selectAll("path")
-			.data(force.links())
-		  .enter().append("path")
-			.attr("class", "link")
-			.style("stroke-width", function(d) {
-				return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
-			});
-			
-		var circle = svg.append("g").selectAll("circle")
-			.data(force.nodes())
-		  .enter().append("circle")
-			.attr("r", r)
-			.style("fill", function(d) {return "steelblue"})
-			.call(force.drag);
-	
-		var text = svg.append("g").selectAll("text")
-			.data(force.nodes())
-			.enter()
-			.append("text")
-				.attr("x", 12)
-				.attr("y", 3)
-				.style("font-size", "12pt")
-				.text(function(d) { return d.name; });
-
-		// Use elliptical arc path segments to doubly-encode directionality.
-		function tick() {
-		  path.attr("d", linkArc);
-		  // r+10 b/c that keeps the numbers of nodes near the viewbox border from getting cut off
-		  // if it's just "r" then the node names (i.e. numbers) can float out of view
-		  circle .attr("cx", function(d) { return d.x = Math.max((r+10), Math.min(width - (r+10), d.x)); })
-				 .attr("cy", function(d) { return d.y = Math.max((r+10), Math.min(height - (r+10), d.y)); });
-		  text.attr("transform", transform);
-		}
-
-		function linkArc(d) {
-		  var dx = d.target.x - d.source.x,
-			  dy = d.target.y - d.source.y,
-			  dr = Math.sqrt(dx * dx + dy * dy);
-		  return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-		}
-
-		function transform(d) {
-		  return "translate(" + d.x + "," + d.y + ")";
-		}
+function elapse(thiskey) {
+	path.transition()
+		.duration(300)
+		.style("stroke-width", function(d) {
+			var weight = edgeScale(d[keys[thiskey]])
+			if (weight >= 5) {
+				d3.select(this).style("stroke",color(weight))
+			}
+			return weight
+		})
+	datebox
+			.html(function() {
+				var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+				return thisdate
+				})
+	if(heatmap) {
+		heatmap
+		.style("fill", function(d) { 
+			return heatmapColorScale(d[keys[thiskey]]); });
+	}
+	svg.transition()
+		.duration(300)
+		.each("end", function() {
+			thiskey++
+		
+			return (thiskey <= numkeys) 
+				? elapse(thiskey) 
+				: end()
+		})	
 }
-		   
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: renderPage(vardata)
+// Purpose:  workhorse function for entire page
+//
+//////////////////////////////////////////////////////////////////////////////////////
+	   
 function renderPage(vardata) {
 	
-	d3.select("#heatmap-dropdown")
-				.on("change", function() { 
-						heatmap_name = d3.select(this).property("value")
-						clearHeatmap()
-						buildHeatmap(heatmap_name, vardata)
-					})
-	var select = document.getElementById("heatmap-dropdown")
-	
-	for (var i = 0; i < d3.entries(vardata.name).length; i++) {
-		var option = document.createElement("option")
-		option.text = vardata.nickname[i]
-		option.value = vardata.name[i]
-		select.add(option)
-	}
+	makeHeatmapDropdown(vardata)
 
 	d3.csv(file, function(error, data) {
 	
@@ -267,109 +230,367 @@ function renderPage(vardata) {
 	})
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+//      END MAIN FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////////////
 
-		function elapse(thiskey) {
-			path.transition()
-				.duration(300)
-				.style("stroke-width", function(d) {
-					var weight = edgeScale(d[keys[thiskey]])
-					if (weight >= 5) {
-						d3.select(this).style("stroke",color(weight))
-					}
-					return weight
-				})
-			datebox
-					.html(function() {
-						var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-						return thisdate
-						})
-			if(heatmap) {
-				heatmap
-				.style("fill", function(d) { 
-					return heatmapColorScale(d[keys[thiskey]]); });
-			}
-			svg.transition()
-				.duration(300)
-				.each("end", function() {
-					thiskey++
-				
-					return (thiskey <= numkeys) 
-						? elapse(thiskey) 
-						: end()
-				})	
-		}
-	
-		function end() {
-			if(heatmap) {
-				heatmap
-					.style("fill", function(d) { 
-						return heatmapColorScale(d["total"]); });	
-			}
-		}
-	
-function clearHeatmap() {
-	d3.selectAll(".heatmap").remove()
-	d3.selectAll(".axis-instance").remove()
-}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+//
+//       		HELPER FUNCTIONS
+//				* listed alphabetically
+//
+//////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: buildHeatmap(name, vardata)
+// Purpose:  1. gets heatmap data
+//			 2. feeds into drawHeatmap()
+//
+//////////////////////////////////////////////////////////////////////////////////////
 
 function buildHeatmap(name, vardata) {
 
-	var path = "data/"+name+"-heatmap.csv"
+	var hmpath = "data/"+name+"-heatmap.csv"
 	
 	var entries = d3.entries(vardata.name)
 	var var_idx
 	entries.forEach( function(x) {
 		if (x.value == name) { var_idx = x.key }
 	})
-	
 	var var_names = vardata.var_range[var_idx]
-	
 	var var_range = []
+	
 	for (var i = 1; i <= var_names.length; i++) {
 		var_range.push(i*hm.size)
 		if (i == var_names.length) {
-			drawHeatmap(vardata)
+			drawHeatmap(vardata, var_names, var_range, var_idx, hmpath)
 		}
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: changeGraph(obj)
+// Purpose:  switches graph views in main graph viewbox
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function changeGraph(obj) {
+
+	clearGraph()
 	
-	function drawHeatmap(vardata) {	
-		d3.select("#heatmap-description").html(function() { return vardata.descrip[var_idx] })
-		x.domain(var_names).range(var_range)
-		y.domain(var_names.reverse()).range(var_range.reverse())
-		var map_height = var_names.length*hm.size+20
-		var max_label_length = d3.max(var_names, function(d) {return d.length})
-		var x_offset = max_label_length*5.5
-		hmap_x.attr("height", map_height)
-		hmap_x.attr("transform", "translate(30,"+map_height+")")
-		hmap_x.append("g").attr("class", "axis-instance").call(xAxis)
-		hmap_x.selectAll("text")
-			.attr("transform", "translate(0,"+x_offset+")rotate(-90)")		
-		hmap_y.append("g").attr("class", "axis-instance").call(yAxis)	
+	var graph = d3.select(obj).attr("id")
+	
+	if (graph == "force-tab") {
+		changeTab(graph)
+		renderForceGraph()
+	} else if (graph == "chord-tab") {
+		changeTab(graph)
+		initSVG()
+		renderChordGraph()
+	} else if (graph == "heatmap-tab") {
+		changeTab(graph)
+		initSVG()
+		renderAllHeatmaps()
+	}
+	current_graph = d3.select(obj).attr("id")
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: changeTab(tabname)
+// Purpose:  changes appearance of tabs based on which one is currently selected
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function changeTab(tabname) {
+	d3.selectAll(".selected").classed("selected", false)
+	d3.select("#"+tabname).classed("selected", true)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: clearGraph()
+// Purpose:  clears current graph from viewbox
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function clearGraph() {
+	d3.select("#graph-viewbox").remove()
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: clearHeatmap()
+// Purpose:  clears out previous heatmap
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function clearHeatmap() {
+	d3.selectAll(".heatmap").remove()
+	d3.selectAll(".axis-instance").remove()
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: drawHeatmap(vardata, var_names, var_range, hmpath)
+// Purpose:  draws heatmap
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function drawHeatmap(vardata, var_names, var_range, var_idx, hmpath) {	
+
+	// write hmap description from file
+	d3.select("#heatmap-description").html(function() { return vardata.descrip[var_idx] })
+	
+	// set hm dimension params
+	var map_height = var_names.length*hm.size+20
+	var max_label_length = d3.max(var_names, function(d) {return d.length})
+	var x_offset = max_label_length*5.5
+	
+	// define scale domains and ranges
+	x.domain(var_names).range(var_range)
+	y.domain(var_names.reverse()).range(var_range.reverse())
+	
+	// set axes
+	hmap_x.attr("height", map_height)
+	hmap_x.attr("transform", "translate(30,"+map_height+")")
+	hmap_x.append("g").attr("class", "axis-instance").call(xAxis)
+	hmap_x.selectAll("text")
+		.attr("transform", "translate(0,"+x_offset+")rotate(-90)")		
+	hmap_y.append("g").attr("class", "axis-instance").call(yAxis)	
+	
+	// get hmap data
+	d3.csv(hmpath, function(error, data2) {
+		var hmap_data2 = data2
 		
-		d3.csv(path, function(error, data2) {
-			var hmap_data2 = data2
-				
-			heatmap = hmap_area.selectAll(".heatmap")
-				.data(data2)
-				 .enter()
-				 .append("rect")
-					.attr("class", "heatmap")
-					.attr("x", function(d) { 
-						//console.log(d)
-						var val = d.pairs.split("-")[0]
-						return x(val); })
-					.attr("y", function(d) { 
-						var val = d.pairs.split("-")[1]
-						return y(val); })
-					.attr("width", function(d) { return hm.w; })
-					.attr("height", function(d) { return hm.h; })
-					.attr("transform", "translate(30,0)")
-					.style("stroke-width", "1px")
-					.style("stroke", "black")
-					.style("fill", function(d) { 
-						var first_entry = d3.entries(data2[0])[2].key
-						return heatmapColorScale(d[first_entry])
-					})
-		})
+		// draw map	
+		heatmap = hmap_area.selectAll(".heatmap")
+			.data(data2)
+			 .enter()
+			 .append("rect")
+				.attr("class", "heatmap")
+				.attr("x", function(d) { 
+					//console.log(d)
+					var val = d.pairs.split("-")[0]
+					return x(val); })
+				.attr("y", function(d) { 
+					var val = d.pairs.split("-")[1]
+					return y(val); })
+				.attr("width", function(d) { return hm.w; })
+				.attr("height", function(d) { return hm.h; })
+				.attr("transform", "translate(30,0)")
+				.style("stroke-width", "1px")
+				.style("stroke", "black")
+				.style("fill", function(d) { 
+					var first_entry = d3.entries(data2[0])[2].key
+					return heatmapColorScale(d[first_entry])
+				})
+	})
+}
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: end()
+// Purpose:  1. closes out animation
+//			 2. prints final tally for heatmap
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function end() {
+	if(heatmap) { heatmap.style("fill", 
+				  function(d) { 
+					return heatmapColorScale(d["total"]) 
+				  })
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: highlightTab(obj)
+// Purpose:  highlights tab on hover
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function highlightTab(obj) {
+	var hover = d3.select(obj).classed("tab-hover")
+	//console.log(col)
+	d3.select(obj).classed("tab-hover", function() { return (hover) ? false : true })
+}
+
+function initSVG() {
+	svg = d3.select("#graph").append("svg")
+			.attr("id", "graph-viewbox")
+			.attr("width", width)
+			.attr("height", height)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: linkArc(d)
+// Purpose:  draws edges in force layout
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+	function linkArc(d) {
+	  var dx = d.target.x - d.source.x,
+		  dy = d.target.y - d.source.y,
+		  dr = Math.sqrt(dx * dx + dy * dy);
+	  return "M" + 
+			 d.source.x + "," + d.source.y + "A" + 
+			 dr + "," + dr + " 0 0,1 " + 
+			 d.target.x + "," + d.target.y;
+	}
+	
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: makeHeatmapDropdown(vardata)
+// Purpose:  draws and populates heatmap dropdown box in control panel
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function makeHeatmapDropdown(vardata) {
+	d3.select("#heatmap-dropdown")
+			.on("change", function() { 
+					heatmap_name = d3.select(this).property("value")
+					clearHeatmap()
+					buildHeatmap(heatmap_name, vardata)
+				})
+	var select = document.getElementById("heatmap-dropdown")
+	
+	for (var i = 0; i < d3.entries(vardata.name).length; i++) {
+		var option = document.createElement("option")
+		option.text = vardata.nickname[i]
+		option.value = vardata.name[i]
+		select.add(option)
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: renderAllHeatmaps()
+// Purpose:  draws all heatmaps for main viewbox
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function renderAllHeatmaps() {
+	svg.append("image")
+		.attr("transform", "translate(20,10)")
+		.attr("width", 750)
+		.attr("height", 550)
+		.attr("xlink:href","heatmap-example.png")
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: renderChordGraph()
+// Purpose:  draws chord graph for main viewbox
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function renderChordGraph() {
+	svg.append("image")
+		.attr("transform", "translate(20,10)")
+		.attr("width", 750)
+		.attr("height", 550)
+		.attr("xlink:href","chord.png")
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: renderForceGraph()
+// Purpose:  draws force-directed graph
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function renderForceGraph() {	
+	var force = d3.layout.force()
+		.nodes(d3.values(nodes))
+		.links(links)
+		.size([width, height])
+		.linkDistance(400)
+		.charge(-50)
+		.friction(.2)
+		.gravity(.3)
+		.on("tick", tick)
+		.start();
+
+	initSVG()
+
+	path = svg.append("g").selectAll("path")
+		.data(force.links())
+	  .enter().append("path")
+		.attr("class", "link")
+		.style("stroke-width", function(d) {
+			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
+		});
+		
+	circle = svg.append("g").selectAll("circle")
+		.data(force.nodes())
+	  .enter().append("circle")
+		.attr("r", r)
+		.style("fill", function(d) {return "steelblue"})
+		.call(force.drag);
+
+	text = svg.append("g").selectAll("text")
+		.data(force.nodes())
+		.enter()
+		.append("text")
+			.attr("x", 12)
+			.attr("y", 3)
+			.style("font-size", "12pt")
+			.text(function(d) { return d.name; });
+}
+	
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setTabEvents
+// Purpose:  sets interactive mouse events for graph tabs
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function setTabEvents() {
+
+	d3.selectAll(".tab")
+		.on("click", function() { 
+			if (!(current_graph == d3.select(this).attr("id"))) { return changeGraph(this) }
+		})
+		.on("mouseover", function() { return highlightTab(this) })	
+		.on("mouseout", function()  { return highlightTab(this) })	
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: tick()
+// Purpose:  positions nodes and draws edges for force layout
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+	function tick() {
+	  path.attr("d", linkArc);
+	  // r+10 b/c that keeps the numbers of nodes near the viewbox border from getting cut off
+	  // if it's just "r" then the node names (i.e. numbers) can float out of view
+	  circle .attr("cx", function(d) { return d.x = Math.max((r+15), Math.min(width - (r+15), d.x)); })
+			 .attr("cy", function(d) { return d.y = Math.max((r+15), Math.min(height - (r+15), d.y)); });
+	  text.attr("transform", transform);
+	}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: transform(d)
+// Purpose:  helper function for force layout, orients node text
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+	function transform(d) {
+	  return "translate(" + d.x + "," + d.y + ")";
+	}
+	
+//////////////////////////////////////////////////////////////////////////////////////
+//      END HELPER FUNCTIONS
+//////////////////////////////////////////////////////////////////////////////////////

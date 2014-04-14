@@ -23,13 +23,12 @@ text {
 }
 
 .date-box {
-	
 	color: maroon;
 	font-size:16pt;
 }
 
 .subtitle {
-	font-size:18pt;
+	font-size:14pt;
 }
 
 h2 {
@@ -147,27 +146,35 @@ h4 {
 		
 		#start-button {
 			position: relative;
-			top:2px;
+			top:0px;
 			left:10px;
-			width:93px;
+			width:85px;
 			display:inline-block;
-			height:17px;
-			line-height:17px;
+			height:15px;
+			line-height:15px;
 			padding:3px;
-			font-size:12pt;
+			font-size:11pt;
 			border: solid steelblue 2px;
 			color: rgb(110,110,110);
 			background-color: whitesmoke;
-			vertical-align:bottom;
+			vertical-align:top;
 		}
 		
 	#date {
 		position: relative;
-		top:20px;
+		top:10px;
 		left:0px;
 		padding-bottom:10px;
 		border-bottom: solid steelblue 1px;
 	}
+	
+	#details {
+		position: relative;
+		top:20px;
+		left:0px;
+		padding-bottom:80px;
+		border-bottom: solid steelblue 1px;
+	}	
 	
 	#heatmap {
 		position: relative;
