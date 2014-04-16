@@ -106,16 +106,16 @@ HARD CODE */
 
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
-	var elapse_seed = 4
+  var elapse_seed = 4
 	
 // date parser
-var YmdXParser = d3.time.format("%Y-%m-%d").parse;
+  var YmdXParser = d3.time.format("%Y-%m-%d").parse;
 
 // time scale
-var timeScale = d3.scale.quantize();
+  var timeScale = d3.scale.quantize();
 
 // range for our timeScale
-var dateRange = [];
+  var dateRange = [];
 
 
 
@@ -171,14 +171,10 @@ function getData() {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-<<<<<<< HEAD
-function elapse(thiskey) {
-  console.log("thiskey:", thiskey);
-=======
+
 function elapse(thiskey, animation) {
 
   //console.log("thiskey:", thiskey);
->>>>>>> da4d3f70d99de1e97d2549b13552dc892778cf4d
 	path.transition()
 		.duration(300)
 		.style("stroke-width", function(d) {
@@ -187,13 +183,11 @@ function elapse(thiskey, animation) {
 				d3.select(this).style("stroke",color(weight))
 			}
 			return weight
-<<<<<<< HEAD
-=======
+
 		})
 	datebox.html(function() {
 		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
 		return thisdate
->>>>>>> da4d3f70d99de1e97d2549b13552dc892778cf4d
 		})
 		
 	if(heatmap) {
@@ -213,10 +207,8 @@ function elapse(thiskey, animation) {
 			})	
 	}
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> da4d3f70d99de1e97d2549b13552dc892778cf4d
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -258,8 +250,6 @@ function renderPage(vardata) {
 	slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
 		   .on("change", function() { return elapse(slider.property("value"),false)})
 			   
-		//console.log("ts domain:", timeScale.domain());
-		//console.log("ts range:", timeScale.range());
 		numkeys = keys.length
 	
 		//var colors = d3.scale.category20().domain(floors)
