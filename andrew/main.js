@@ -171,8 +171,14 @@ function getData() {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
 function elapse(thiskey) {
   console.log("thiskey:", thiskey);
+=======
+function elapse(thiskey, animation) {
+
+  //console.log("thiskey:", thiskey);
+>>>>>>> da4d3f70d99de1e97d2549b13552dc892778cf4d
 	path.transition()
 		.duration(300)
 		.style("stroke-width", function(d) {
@@ -181,27 +187,36 @@ function elapse(thiskey) {
 				d3.select(this).style("stroke",color(weight))
 			}
 			return weight
+<<<<<<< HEAD
+=======
 		})
-	datebox
-			.html(function() {
-				var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-				return thisdate
-				})
+	datebox.html(function() {
+		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+		return thisdate
+>>>>>>> da4d3f70d99de1e97d2549b13552dc892778cf4d
+		})
+		
 	if(heatmap) {
 		heatmap
 		.style("fill", function(d) { 
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
-	svg.transition()
-		.duration(300)
-		.each("end", function() {
-			thiskey++
-		
-			return (thiskey <= numkeys) 
-				? elapse(thiskey) 
-				: end()
-		})	
+	
+	if (animation) {
+		svg.transition()
+			.duration(300)
+			.each("end", function() {
+				thiskey++
+				return (thiskey <= numkeys) 
+					? elapse(thiskey,true) 
+					: end()
+			})	
+	}
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> da4d3f70d99de1e97d2549b13552dc892778cf4d
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -239,12 +254,12 @@ function renderPage(vardata) {
     timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
     
     // set our slider to correct values
-    document.getElementById("date-filter").min = elapse_seed;
-    document.getElementById("date-filter").max = (elapse_seed + dateRange.length - 1);
-    document.getElementById("date-filter").value = elapse_seed;
-
-		console.log("ts domain:", timeScale.domain());
-		console.log("ts range:", timeScale.range());
+    var slider = d3.select("#date-filter")
+	slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
+		   .on("change", function() { return elapse(slider.property("value"),false)})
+			   
+		//console.log("ts domain:", timeScale.domain());
+		//console.log("ts range:", timeScale.range());
 		numkeys = keys.length
 	
 		//var colors = d3.scale.category20().domain(floors)
