@@ -172,44 +172,6 @@ function getData() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function elapse(thiskey) {
-  for(var i = thiskey; i <= numkeys;) {
-    elapseSlice(i);
-    i++;
-  } 
-}
-
-function elapseSlice(thiskey) {
-  console.log("thiskey:", thiskey);
-	path.transition()
-		.duration(300)
-		.style("stroke-width", function(d) {
-			var weight = edgeScale(d[keys[thiskey]])
-			if (weight >= 5) {
-				d3.select(this).style("stroke",color(weight))
-			}
-			return weight
-		})
-	datebox
-			.html(function() {
-				var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-				return thisdate
-				})
-	if(heatmap) {
-		heatmap
-		.style("fill", function(d) { 
-			return heatmapColorScale(d[keys[thiskey]]); });
-	}
-	svg.transition()
-		.duration(300)
-		.each("end", function() {
-			return (thiskey <= numkeys) 
-				? true 
-				: end()
-		})	
-}
-
-/*
-function elapse(thiskey) {
   console.log("thiskey:", thiskey);
 	path.transition()
 		.duration(300)
@@ -240,7 +202,6 @@ function elapse(thiskey) {
 				: end()
 		})	
 }
-*/
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
