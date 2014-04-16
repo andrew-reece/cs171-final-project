@@ -107,6 +107,17 @@ HARD CODE */
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
 	var elapse_seed = 4
+	
+// date parser
+var YmdXParser = d3.time.format("%Y-%m-%d").parse;
+
+// time scale
+var timeScale = d3.scale.quantize();
+
+// range for our timeScale
+var dateRange = [];
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
@@ -161,6 +172,45 @@ function getData() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function elapse(thiskey) {
+  for(var i = thiskey; i <= numkeys;) {
+    elapseSlice(i);
+    i++;
+  } 
+}
+
+function elapseSlice(thiskey) {
+  console.log("thiskey:", thiskey);
+	path.transition()
+		.duration(300)
+		.style("stroke-width", function(d) {
+			var weight = edgeScale(d[keys[thiskey]])
+			if (weight >= 5) {
+				d3.select(this).style("stroke",color(weight))
+			}
+			return weight
+		})
+	datebox
+			.html(function() {
+				var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+				return thisdate
+				})
+	if(heatmap) {
+		heatmap
+		.style("fill", function(d) { 
+			return heatmapColorScale(d[keys[thiskey]]); });
+	}
+	svg.transition()
+		.duration(300)
+		.each("end", function() {
+			return (thiskey <= numkeys) 
+				? true 
+				: end()
+		})	
+}
+
+/*
+function elapse(thiskey) {
+  console.log("thiskey:", thiskey);
 	path.transition()
 		.duration(300)
 		.style("stroke-width", function(d) {
@@ -190,6 +240,7 @@ function elapse(thiskey) {
 				: end()
 		})	
 }
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -215,8 +266,24 @@ function renderPage(vardata) {
 
 		for(var k in data[0]) {
 			keys.push(k);
+			if(YmdXParser(k)) { dateRange.push(k); }
 		}
 		
+		// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
+    dateRange.sort(function(a,b) {
+      return new Date(a) - new Date(b);
+    })
+    
+    // create our timeScale
+    timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
+    
+    // set our slider to correct values
+    document.getElementById("date-filter").min = elapse_seed;
+    document.getElementById("date-filter").max = (elapse_seed + dateRange.length - 1);
+    document.getElementById("date-filter").value = elapse_seed;
+
+		console.log("ts domain:", timeScale.domain());
+		console.log("ts range:", timeScale.range());
 		numkeys = keys.length
 	
 		//var colors = d3.scale.category20().domain(floors)
