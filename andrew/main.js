@@ -199,8 +199,7 @@ function elapse(thiskey, animation) {
 	}
 	if (animation) {
 	  slider.property("value", thiskey);
-	  // slider.attr({'value':thiskey});
-	  // slider.attr("value", thiskey);
+
 		svg.transition()
 			.duration(300)
 			.each("end", function() {
