@@ -171,15 +171,9 @@ function getData() {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function elapse(thiskey) {
-  for(var i = thiskey; i <= numkeys;) {
-    elapseSlice(i);
-    i++;
-  } 
-}
+function elapse(thiskey, animation) {
 
-function elapseSlice(thiskey) {
-  console.log("thiskey:", thiskey);
+  //console.log("thiskey:", thiskey);
 	path.transition()
 		.duration(300)
 		.style("stroke-width", function(d) {
@@ -189,23 +183,27 @@ function elapseSlice(thiskey) {
 			}
 			return weight
 		})
-	datebox
-			.html(function() {
-				var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-				return thisdate
-				})
+	datebox.html(function() {
+		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+		return thisdate
+		})
+		
 	if(heatmap) {
 		heatmap
 		.style("fill", function(d) { 
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
-	svg.transition()
-		.duration(300)
-		.each("end", function() {
-			return (thiskey <= numkeys) 
-				? true 
-				: end()
-		})	
+	
+	if (animation) {
+		svg.transition()
+			.duration(300)
+			.each("end", function() {
+				thiskey++
+				return (thiskey <= numkeys) 
+					? elapse(thiskey,true) 
+					: end()
+			})	
+	}
 }
 
 /*
@@ -278,10 +276,11 @@ function renderPage(vardata) {
     timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
     
     // set our slider to correct values
-    document.getElementById("date-filter").min = elapse_seed;
-    document.getElementById("date-filter").max = (elapse_seed + dateRange.length - 1);
-    document.getElementById("date-filter").value = elapse_seed;
-
+    var slider = d3.select("#date-filter")
+	console.log(slider)
+		slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
+			   .on("change", function() { return elapse(slider.property("value"),false)})
+			   
 		console.log("ts domain:", timeScale.domain());
 		console.log("ts range:", timeScale.range());
 		numkeys = keys.length
