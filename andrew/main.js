@@ -198,7 +198,7 @@ function elapse(thiskey, animation) {
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
 	if (animation) {
-	  document.getElementById("date-filter").value = thiskey;
+	  slider.property("value", thiskey);
 	  // slider.attr({'value':thiskey});
 	  // slider.attr("value", thiskey);
 		svg.transition()
@@ -252,9 +252,7 @@ function renderPage(vardata) {
     // set our slider to correct values
 	  slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
 		   .on("change", function() { return elapse(slider.property("value"),false)})
-		console.log("min:", document.getElementById("date-filter").min);
-		console.log("max:", document.getElementById("date-filter").max);
-		
+
 			   
 		numkeys = keys.length
 	
