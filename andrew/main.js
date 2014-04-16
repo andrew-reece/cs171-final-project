@@ -117,6 +117,8 @@ HARD CODE */
 // range for our timeScale
   var dateRange = [];
 
+// reference to our slider
+  var slider = d3.select("#date-filter");
 
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -195,8 +197,10 @@ function elapse(thiskey, animation) {
 		.style("fill", function(d) { 
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
-	
 	if (animation) {
+	  document.getElementById("date-filter").value = thiskey;
+	  // slider.attr({'value':thiskey});
+	  // slider.attr("value", thiskey);
 		svg.transition()
 			.duration(300)
 			.each("end", function() {
@@ -246,9 +250,11 @@ function renderPage(vardata) {
     timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
     
     // set our slider to correct values
-    var slider = d3.select("#date-filter")
-	slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
+	  slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
 		   .on("change", function() { return elapse(slider.property("value"),false)})
+		console.log("min:", document.getElementById("date-filter").min);
+		console.log("max:", document.getElementById("date-filter").max);
+		
 			   
 		numkeys = keys.length
 	
