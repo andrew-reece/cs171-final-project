@@ -206,39 +206,6 @@ function elapse(thiskey, animation) {
 	}
 }
 
-/*
-function elapse(thiskey) {
-  console.log("thiskey:", thiskey);
-	path.transition()
-		.duration(300)
-		.style("stroke-width", function(d) {
-			var weight = edgeScale(d[keys[thiskey]])
-			if (weight >= 5) {
-				d3.select(this).style("stroke",color(weight))
-			}
-			return weight
-		})
-	datebox
-			.html(function() {
-				var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-				return thisdate
-				})
-	if(heatmap) {
-		heatmap
-		.style("fill", function(d) { 
-			return heatmapColorScale(d[keys[thiskey]]); });
-	}
-	svg.transition()
-		.duration(300)
-		.each("end", function() {
-			thiskey++
-		
-			return (thiskey <= numkeys) 
-				? elapse(thiskey) 
-				: end()
-		})	
-}
-*/
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -277,12 +244,11 @@ function renderPage(vardata) {
     
     // set our slider to correct values
     var slider = d3.select("#date-filter")
-	console.log(slider)
-		slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
-			   .on("change", function() { return elapse(slider.property("value"),false)})
+	slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
+		   .on("change", function() { return elapse(slider.property("value"),false)})
 			   
-		console.log("ts domain:", timeScale.domain());
-		console.log("ts range:", timeScale.range());
+		//console.log("ts domain:", timeScale.domain());
+		//console.log("ts range:", timeScale.range());
 		numkeys = keys.length
 	
 		//var colors = d3.scale.category20().domain(floors)
