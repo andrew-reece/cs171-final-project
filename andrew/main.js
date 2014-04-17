@@ -62,6 +62,7 @@
 		
 // initialize heatmap vars, specs
 	var hmap_data, heatmap, hmdata, hmap_xaxis, hmap_yaxis, hm
+	var grid_ct = 0
 	var heatmap_colors = { low:"#deebf7", med:"#9ecae1", high:"#3182bd", vhigh:"#08519c" };
 	
 // these margin values are all kind of arbitrary - clean up a bit?  HARD CODE
@@ -120,7 +121,8 @@ HARD CODE */
 // reference to our slider
   var slider = d3.select("#date-filter");
 
-
+// notice box for testing only
+	var notice = d3.select("#notice")
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
 //////////////////////////////////////////////////////////////////////////////////////
@@ -382,6 +384,7 @@ function changeGraph(obj) {
 		initSVG(0,0)
 		renderChordGraph()
 	} else if (graph == "heatmap-tab") {
+		grid_ct = 1
 		changeTab(graph)
 		initSVG(50,40)
 		renderAllHeatmaps(master_vardata)
@@ -492,6 +495,10 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 					var first_entry = d3.entries(data2[0])[2].key
 					return heatmapColorScale(d[first_entry])
 				})
+				.on("mouseover", function(d) {
+					notice.text(d.pairs.split("-")[0]+ ' and '+ d.pairs.split("-")[1])
+				})
+				.on("mouseout", notice.text(""))
 	})
 }
 //////////////////////////////////////////////////////////////////////////////////////
@@ -540,8 +547,6 @@ function initSVG(x_offset, y_offset) {
 			.attr("transform", "translate("+x_offset+","+y_offset+")")
 			.attr("width", width)
 			.attr("height", height)
-	console.log(x_offset)
-	console.log(y_offset)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -697,11 +702,11 @@ function setHmapArea(container, x_offset, y_offset) {
 	
 	x_offset = (typeof x_offset === "undefined") ? 0 : x_offset
 	y_offset = (typeof y_offset === "undefined") ? 0 : y_offset
-			
+	grid_ct++
 	var area = container.attr("width", hm_width + hm_margin.left + hm_margin.right)
 						.attr("height", hm_height + hm_margin.top + hm_margin.bottom)
 						.append("g")
-						.attr("id", "svg-g1")
+						.attr("id", "svg-"+grid_ct)
 						.attr("transform", "translate("+x_offset+","+y_offset+")")
 	return area
 }

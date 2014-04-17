@@ -187,3 +187,13 @@ h4 {
 		#heatmap-description {
 			margin-top:50px;
 		}
+	
+	#notice {
+		position: absolute;
+		top:5px;
+		left:200px;
+		width:200px;
+		color:purple;
+		z-index:200;
+		font-size:20pt;
+	}
