@@ -27,8 +27,8 @@
 // initialize global svg var
 	var svg
 
-// master variable holds subj var data
-	var master_vardata
+// master variable holds subj var data, labels holds axis labels
+	var master_vardata, master_labels
 	
 // force-directed graph objects
 	var nodes = {}, links = []
@@ -106,7 +106,20 @@ HARD CODE */
 
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
-	var elapse_seed = 4
+  var elapse_seed = 4
+	
+// date parser
+  var YmdXParser = d3.time.format("%Y-%m-%d").parse;
+
+// time scale
+  var timeScale = d3.scale.quantize();
+
+// range for our timeScale
+  var dateRange = [];
+
+// reference to our slider
+  var slider = d3.select("#date-filter");
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
@@ -150,9 +163,13 @@ HARD CODE */
 
 function getData() {
 	var path = "data/variables.json"
-	d3.json(path, function(error, data) { master_vardata = data; renderPage(data); })
+	d3.json(path, function(error, data) { master_vardata = data; getAxisLabels(); })
 }
 
+function getAxisLabels() {
+	var path = "data/type-key.json"
+	d3.json(path, function(error,data) { master_labels = data; renderPage(master_vardata); })
+}
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: elapse(thiskey)
@@ -160,7 +177,10 @@ function getData() {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function elapse(thiskey) {
+
+function elapse(thiskey, animation) {
+
+  //console.log("thiskey:", thiskey);
 	path.transition()
 		.duration(300)
 		.style("stroke-width", function(d) {
@@ -169,27 +189,37 @@ function elapse(thiskey) {
 				d3.select(this).style("stroke",color(weight))
 			}
 			return weight
+
 		})
-	datebox
-			.html(function() {
-				var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-				return thisdate
-				})
+	datebox.html(function() {
+		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+		return thisdate
+		})
+		
 	if(heatmap) {
 		heatmap
 		.style("fill", function(d) { 
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
-	svg.transition()
-		.duration(300)
-		.each("end", function() {
-			thiskey++
-		
-			return (thiskey <= numkeys) 
-				? elapse(thiskey) 
-				: end()
-		})	
+	if (animation) {
+<<<<<<< HEAD
+	  	slider.property("value", thiskey);
+=======
+	  slider.property("value", thiskey);
+
+>>>>>>> FETCH_HEAD
+		svg.transition()
+			.duration(300)
+			.each("end", function() {
+				thiskey++
+				return (thiskey <= numkeys) 
+					? elapse(thiskey,true) 
+					: end()
+			})	
+	}
 }
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -215,8 +245,22 @@ function renderPage(vardata) {
 
 		for(var k in data[0]) {
 			keys.push(k);
+			if(YmdXParser(k)) { dateRange.push(k); }
 		}
 		
+		// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
+    dateRange.sort(function(a,b) {
+      return new Date(a) - new Date(b);
+    })
+    
+    // create our timeScale
+    timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
+    
+    // set our slider to correct values
+	  slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
+		   .on("change", function() { return elapse(slider.property("value"),false)})
+
+			   
 		numkeys = keys.length
 	
 		//var colors = d3.scale.category20().domain(floors)
@@ -267,11 +311,9 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 	})
 	var var_names = vardata.var_range[var_idx]
 	var var_range = []
-	
 	for (var i = 1; i <= var_names.length; i++) {
 		var_range.push(i*hm.size)
 		if (i == var_names.length) {
-			
 			if (location == "main") {
 				var region = setHmapArea(svg, xoffset, yoffset)
 				var x_axis = setAxis("x", region, 30, 0)
@@ -282,6 +324,9 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 				var per_rect_x_offset = 5
 				var per_rect_y_offset = -10
 				var x_axis_offset_multiplier = 5.5
+				console.log(d3.entries(master_labels))
+				console.log(name)
+				console.log(d3.values(master_labels[name]))
 			} else if (location == "focus") {
 				var region = hmap_area
 				var x_axis = hmap_x
@@ -294,6 +339,16 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 				var x_axis_offset_multiplier = 5.5	
 				// write hmap description from file
 				d3.select("#heatmap-description").html(function() { return vardata.descrip[var_idx] })
+			}
+			
+			var axis_labels = d3.values(master_labels[name])
+			if (axis_labels.length > 0) {
+				yAxis.tickValues(axis_labels)
+				var temp = axis_labels
+				xAxis.tickValues(axis_labels.slice(0).reverse())
+			} else {
+				yAxis.tickValues(null)
+				xAxis.tickValues(null)
 			}
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
 						hmpath, location, region,
@@ -386,15 +441,26 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	var map_height = var_names.length*hm.size + axis_offset
 	var max_label_length = d3.max(var_names, function(d) {return d.length})
 	var x_axis_vert_offset = max_label_length*x_axis_offset_multiplier 
-	console.log(var_names)
-	console.log(var_range)
+
 	// define scale domains and ranges
-	x.domain(var_names).range(var_range)
-	y.domain(var_names.reverse()).range(var_range.reverse())
-	
+	y.domain(var_names).range(var_range)
+	x.domain(var_names.reverse()).range(var_range.reverse())
+	if (hmpath == "data/fav_music-comdata-heatmap.csv") {
+		console.log('found music')
+		console.log(var_names)
+		console.log(var_range)
+		console.log('domain range')
+		console.log(y.domain())
+		console.log(y.range())
+		console.log('dims')
+		console.log('height: '+map_height)
+		region.attr("height", map_height)
+		console.log('region height: '+region.attr("height"))
+	}
 	// set axes
 	x_axis.attr("height", map_height)
 	x_axis.attr("transform", "translate("+x_axis_offset+","+map_height+")")
+	
 	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
 	x_axis.selectAll("text")
 		.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
@@ -404,6 +470,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	d3.csv(hmpath, function(error, data2) {
 		var hmap_data2 = data2
 		// draw map	
+		console.log(map_height)
 		heatmap = region.selectAll(".heatmap")
 			.data(data2)
 			 .enter()
@@ -414,12 +481,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 					return x(val); })
 				.attr("y", function(d) { 
 					var val = d.pairs.split("-")[1]
-					if(hmpath == "data/year_school-comdata-heatmap.csv") {
-						console.log(d)
-						console.log(d.pairs)
-						console.log(val)
-						console.log(y(val))
-					}
 					return y(val); })
 				.attr("width", function(d)  { return hm.w })
 				.attr("height", function(d) { return hm.h })
@@ -546,14 +607,6 @@ function renderAllHeatmaps(vardata) {
 				var yoffset = multiplier_y[i]*230
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
-
-	/*
-	svg.append("image")
-		.attr("transform", "translate(20,10)")
-		.attr("width", 750)
-		.attr("height", 550)
-		.attr("xlink:href","heatmap-example.png")
-	*/
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
