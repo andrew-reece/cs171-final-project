@@ -202,8 +202,7 @@ function elapse(thiskey, animation) {
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
 	if (animation) {
-
-	  slider.property("value", thiskey);
+	  	slider.property("value", thiskey);
 
 		svg.transition()
 			.duration(300)
@@ -319,11 +318,16 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 				var x_axis_offset = 0
 				var y_axis_offset = 0
 				var per_rect_x_offset = 5
-				var per_rect_y_offset = -10
+				var per_rect_y_offset = 0
 				var x_axis_offset_multiplier = 5.5
-				console.log(d3.entries(master_labels))
-				console.log(name)
-				console.log(d3.values(master_labels[name]))
+				var axis_labels = d3.values(master_labels[name])
+				if (axis_labels.length > 0) {
+					xAxis.tickValues(axis_labels)
+					yAxis.tickValues(axis_labels)
+				} else {
+					xAxis.tickValues(null)
+					yAxis.tickValues(null)
+				}
 			} else if (location == "focus") {
 				var region = hmap_area
 				var x_axis = hmap_x
