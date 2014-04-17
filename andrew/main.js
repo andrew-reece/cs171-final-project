@@ -564,7 +564,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				.on("mouseover", function(d) {
 					notice.text(d.pairs.split("-")[0]+ ' and '+ d.pairs.split("-")[1])
 				})
-				.on("mouseout", notice.text(""))
+				.on("mouseout", function() {notice.text("")})
 	})
 }
 //////////////////////////////////////////////////////////////////////////////////////
@@ -722,7 +722,12 @@ function renderForceGraph() {
 		.attr("class", "link")
 		.style("stroke-width", function(d) {
 			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
-		});
+		})
+		.on("mouseover", function(d) {
+			d3.select(this).style("stroke", "purple")
+			console.log(d)
+		})
+		.on("mouseout", function(d) {d3.select(this).style("stroke", "#666")})
 		
 	circle = svg.append("g").selectAll("circle")
 		.data(force.nodes())
