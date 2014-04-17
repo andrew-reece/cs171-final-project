@@ -91,7 +91,7 @@ HARD CODE */
 	var heatmap_name = "libcon"	
 
 // default time series data is communications data		
-	var file = "data/com-pairs.csv"
+	var ts_filename = "data/com-pairs.csv"
 
 // initialize scales for heatmap window
 	var x = d3.scale.ordinal()
@@ -135,7 +135,7 @@ HARD CODE */
 //		* these functions get things going
 //////////////////////////////////////////////////////////////////////////////////////
 
-	setTabEvents()	
+	setTabEvents() // sets up tab behavior for main graph viewport
 	getData() // this feeds into renderPage()
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ HARD CODE */
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
-// FUNCTION: getData()
+// FUNCTION: getData() & getAxisLabels()
 // Purpose:  1. gets variable meta-data
 //			 2. feeder function to renderPage(), the main function for this page
 //
@@ -179,7 +179,6 @@ function getAxisLabels() {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-
 function elapse(thiskey, animation) {
 
   //console.log("thiskey:", thiskey);
@@ -193,19 +192,23 @@ function elapse(thiskey, animation) {
 			return weight
 
 		})
+
+// updates date in datebox
 	datebox.html(function() {
 		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
 		return thisdate
 		})
-		
+
+// if single pane heatmap is selected, this updates heatmap based on time series	
 	if(heatmap) {
 		heatmap
 		.style("fill", function(d) { 
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
+// if time series is selected as animation (rather than discrete intervals on slider),
+// this triggers recursion that runs until time is exhausted
 	if (animation) {
-	  	slider.property("value", thiskey);
-
+	  	slider.property("value", thiskey)
 		svg.transition()
 			.duration(300)
 			.each("end", function() {
@@ -217,8 +220,6 @@ function elapse(thiskey, animation) {
 	}
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: renderPage(vardata)
@@ -228,25 +229,39 @@ function elapse(thiskey, animation) {
 	   
 function renderPage(vardata) {
 	
+// creates options of heatmap <select> element in control panel, based on vardata
 	makeHeatmapDropdown(vardata)
 
-	d3.csv(file, function(error, data) {
+// reads time series data, assigns node/link info for force graph
+	d3.csv(ts_filename, function(error, data) {
 	
+	// we need an upper bound for frequency count across our entire time series
+	// this lets us set the range for the scale that creates edge weights in force graph
+	// so this loop just keeps track of the highest frequency count in our dataset
 		data.forEach( function(d) { 
 			freqmax = (freqmax < parseInt(d.total_freq)) ? parseInt(d.total_freq) : freqmax 
 		})
 		links = data
+		
+	// this is node graph mumbo from a bostock page - i used it in HW2. 
+	// i don't remember where it's from.
+	
 		links.forEach(function(link) {
 		  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
 		  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
 		});	
-
+	
+// 
+// CREATE TIME SLIDER
+//
+	// i think this is for the time slider that brian installed.  
+	// looks like it keeps track of time series checkpoints in an array
 		for(var k in data[0]) {
 			keys.push(k);
 			if(YmdXParser(k)) { dateRange.push(k); }
 		}
 		
-		// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
+	// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
     dateRange.sort(function(a,b) {
       return new Date(a) - new Date(b);
     })
@@ -257,16 +272,19 @@ function renderPage(vardata) {
     // set our slider to correct values
 	  slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
 		   .on("change", function() { return elapse(slider.property("value"),false)})
-
-			   
+//
+// END TIME SLIDER
+//
+		// i don't remember what numkeys is for, but it's a global we need elsewhere.
 		numkeys = keys.length
-	
-		//var colors = d3.scale.category20().domain(floors)
 
+		// set domain for edge weight scale, based on freqmax (see top of this function)
 		edgeScale.domain([0,freqmax])
 
+		// draw actual force layout
 		renderForceGraph()
-	})
+		
+	}) // end d3.csv()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -295,62 +313,106 @@ function renderPage(vardata) {
 
 function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 
-	console.log(name)
+// hm dims differ based on whether drawn in main or focus box
+// NB: size/h/w are all the same for now...may just be easier to make one value
+
 	if (location == "main") {
 		hm = { size: 20, h:20, w:20 }
 	} else if (location == "focus") {
 		hm = { size: 25, h:25, w:25 }
 	}
+	
+// filename for heatmap data
+// name: 	actual variable name ("libcon", "fav_music", etc)
+// ts_type:	time series type ("com" or "prox")
+	
 	var hmpath = "data/"+name+ts_type+"-heatmap.csv"
+	
+// vardata holds the variable metadata from variables.json
+// we need the numeric index of the variable we're interested in
+// vardata has our var names stored as values in key:val pairs, with keys as numbers
+
+// it's crude, but below we use d3.entries (which makes key:val pairs from an object)
+// and loops through looking for a val that matches 'name'.  
+
 	var entries = d3.entries(vardata.name)
 	var var_idx
+	
 	entries.forEach( function(x) {
+	
+		// if found, it saves its corresponding key into 'var_idx'.  
 		if (x.value == name) { var_idx = x.key }
 	})
+	
+// then we can use var_idx to identify the range in vardata.var_range that we want. 
+ 
 	var var_names = vardata.var_range[var_idx]
+
+// this gives us the range of pairwise entries for a given variable (ie. lib1-con2, lib2-con3, etc).  
+	
+// we then use that range to construct the actual scale .range() array for the
+// heatmap.  that's what this for loop does.  
+
 	var var_range = []
 	for (var i = 1; i <= var_names.length; i++) {
+	
+	// for each 'i', multiply by the size of one heatmap cell rect, then push to range array
 		var_range.push(i*hm.size)
+
+// at the end of the loop (i==var_names.length) we set the relevant values 
+// based on whether we're rendering in main or focus, and then
+// call the drawHeatmap() function, which actually renders the heatmap grid.
+		
 		if (i == var_names.length) {
+			var region = (location == "main") // implicitly, 'if else location=="focus"'
+						? setHmapArea(svg, xoffset, yoffset)
+						: hmap_area
+			var x_axis = (location == "main") 
+						? setAxis("x", region, 30, 0)
+						: hmap_x
+			var y_axis = (location == "main")
+						? setAxis("y", region, 30, 0)
+						: hmap_y
+			var offset = (location == "main")
+						? {h:10, x:0,  y:0, rect: {x:5,y:0},  multiplier:{x:5.5,y:0}}
+						: {h:20, x:30, y:0, rect: {x:30,y:0}, multiplier:{x:5.5,y:0}}
 			if (location == "main") {
-				var region = setHmapArea(svg, xoffset, yoffset)
-				var x_axis = setAxis("x", region, 30, 0)
-				var y_axis = setAxis("y", region, 30, 0)
-				var axis_offset = 10
-				var x_axis_offset = 0
-				var y_axis_offset = 0
-				var per_rect_x_offset = 5
-				var per_rect_y_offset = 0
-				var x_axis_offset_multiplier = 5.5
-			} else if (location == "focus") {
-				var region = hmap_area
-				var x_axis = hmap_x
-				var y_axis = hmap_y
-				var axis_offset = 20
-				var x_axis_offset = 30
-				var y_axis_offset = 0
-				var per_rect_x_offset = 30
-				var per_rect_y_offset = 0
-				var x_axis_offset_multiplier = 5.5	
 				// write hmap description from file
 				d3.select("#heatmap-description").html(function() { return vardata.descrip[var_idx] })
 			}
 			
+		// axes will take array values as tick labels unless otherwise specified
+		// but we kept categorical array values in generic form during munging
+		// ie. TYPE1 instead of LIB1 or FRESHMAN.  
+		// we have 'type-key.csv' which contains the key codes to map meaningful
+		// values to each generic value for every variable
+		// master_labels is an object with these key codes - here we map these values
+		// onto the d3 axis tickValues so the graph displays them instead of generics
+		
 			var axis_labels = d3.values(master_labels[name])
+			
+		// if array len = 0, that means there's no need to map, the originals are
+		// the actual values (true for sad, stressed, and exercise hrs)
+		
 			if (axis_labels.length > 0) {
+			
 				yAxis.tickValues(axis_labels)
-				var temp = axis_labels
+				
+				// .slice(0) copies array before reversing
+				// otherwise .reverse() reverses the original array, too
 				xAxis.tickValues(axis_labels.slice(0).reverse())
-			} else {
+				
+			} else { // tickValues(null) takes array values as ticks
+			
+			// we want null arg for sad, stressed, etc, where ticks and values are equal
 				yAxis.tickValues(null)
 				xAxis.tickValues(null)
 			}
+			
+		// call drawHeatmap function, which actually renders the heatmap
+		
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region,
-						xoffset, yoffset, 
-						x_axis_offset, y_axis_offset,
-						x_axis_offset_multiplier, axis_offset, 
-						x_axis, y_axis, per_rect_x_offset, per_rect_y_offset)
+						hmpath, location, region, x_axis, y_axis, offset)
 		}
 	}
 }
@@ -364,10 +426,16 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 
 function changeGraph(obj) {
 
+// first get rid of whatever was there before
 	clearGraph()
-	
+
+// define graph object	
 	var graph = d3.select(obj).attr("id")
-	
+
+// render whatever graph type is selected
+//	changeTab() updates tab appearances based on 'obj' parameter (which IDs the selected tab)
+// 	initSVG() re-draws the foundation svg for the graph (not sure why we don't need it for force?)
+// 	render[Whatever]() starts the drawing process 	
 	if (graph == "force-tab") {
 		changeTab(graph)
 		renderForceGraph()
@@ -381,7 +449,8 @@ function changeGraph(obj) {
 		initSVG(50,40)
 		renderAllHeatmaps(master_vardata)
 	}
-	current_graph = d3.select(obj).attr("id")
+// global var we call on elsewhere
+	current_graph = graph
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -392,6 +461,8 @@ function changeGraph(obj) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function changeTab(tabname) {
+
+// see main.css for more - basically changes color and borders
 	d3.selectAll(".selected").classed("selected", false)
 	d3.select("#"+tabname).classed("selected", true)
 }
@@ -427,20 +498,19 @@ function clearHeatmap() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region,
-						xoffset, yoffset, 
-						x_axis_offset, y_axis_offset,
-						x_axis_offset_multiplier, axis_offset, 
-						x_axis, y_axis, per_rect_x_offset, per_rect_y_offset) {	
+						hmpath, location, region, x_axis, y_axis, offset) {	
 
 	// set hm dimension params
-	var map_height = var_names.length*hm.size + axis_offset
+	var map_height = var_names.length * hm.size + offset.h
 	var max_label_length = d3.max(var_names, function(d) {return d.length})
-	var x_axis_vert_offset = max_label_length*x_axis_offset_multiplier 
+	var x_axis_vert_offset = max_label_length * offset.multiplier.x 
 
 	// define scale domains and ranges
 	y.domain(var_names).range(var_range)
 	x.domain(var_names.reverse()).range(var_range.reverse())
+
+/*
+	// for testing only
 	if (hmpath == "data/fav_music-comdata-heatmap.csv") {
 		console.log('found music')
 		console.log(var_names)
@@ -453,9 +523,11 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 		region.attr("height", map_height)
 		console.log('region height: '+region.attr("height"))
 	}
+*/
+
 	// set axes
 	x_axis.attr("height", map_height)
-	x_axis.attr("transform", "translate("+x_axis_offset+","+map_height+")")
+	x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
 	
 	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
 	x_axis.selectAll("text")
@@ -463,12 +535,10 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
 	
 	// get hmap data
-	d3.csv(hmpath, function(error, data2) {
-		var hmap_data2 = data2
+	d3.csv(hmpath, function(error, data) {
 		// draw map	
-		console.log(map_height)
 		heatmap = region.selectAll(".heatmap")
-			.data(data2)
+			.data(data)
 			 .enter()
 			 .append("rect")
 				.attr("class", "heatmap")
@@ -480,13 +550,17 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 					return y(val); })
 				.attr("width", function(d)  { return hm.w })
 				.attr("height", function(d) { return hm.h })
-				.attr("transform", "translate("+per_rect_x_offset+","+per_rect_y_offset+")")
+				.attr("transform", "translate("+offset.rect.x+","+offset.rect.y+")")
 				.style("stroke-width", "1px")
 				.style("stroke", "black")
 				.style("fill", function(d) { 
-					var first_entry = d3.entries(data2[0])[2].key
+				// needs to be [2] here because first two columns are index/label cols
+					var first_entry = d3.entries(data[0])[2].key
 					return heatmapColorScale(d[first_entry])
 				})
+			//
+			// for testing only - shows cell pairwise values in notice box (upper right)
+			//
 				.on("mouseover", function(d) {
 					notice.text(d.pairs.split("-")[0]+ ' and '+ d.pairs.split("-")[1])
 				})
@@ -518,7 +592,6 @@ function end() {
 
 function highlightTab(obj) {
 	var hover = d3.select(obj).classed("tab-hover")
-	//console.log(col)
 	d3.select(obj).classed("tab-hover", function() { return (hover) ? false : true })
 }
 
