@@ -107,6 +107,9 @@ HARD CODE */
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
 	var elapse_seed = 4
+	
+// an array to store each heatmap so it can be referenced later
+  var heatMapArray = [];
 
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
@@ -176,10 +179,13 @@ function elapse(thiskey) {
 				return thisdate
 				})
 	if(heatmap) {
-		heatmap
-		.style("fill", function(d) { 
-			return heatmapColorScale(d[keys[thiskey]]); });
-	}
+	  for(var hm in heatMapArray) {
+	   // console.log("heatmap:", heatMapArray[hm]);
+		  heatMapArray[hm].style("fill", function(d) { 
+			  return heatmapColorScale(d[keys[thiskey]]); 
+		  });
+    }
+  }
 	svg.transition()
 		.duration(300)
 		.each("end", function() {
@@ -430,6 +436,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 					var first_entry = d3.entries(data2[0])[2].key
 					return heatmapColorScale(d[first_entry])
 				})
+				heatMapArray.push(heatmap);
 	})
 }
 //////////////////////////////////////////////////////////////////////////////////////
