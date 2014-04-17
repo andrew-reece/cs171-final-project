@@ -202,12 +202,9 @@ function elapse(thiskey, animation) {
 			return heatmapColorScale(d[keys[thiskey]]); });
 	}
 	if (animation) {
-<<<<<<< HEAD
-	  	slider.property("value", thiskey);
-=======
+
 	  slider.property("value", thiskey);
 
->>>>>>> FETCH_HEAD
 		svg.transition()
 			.duration(300)
 			.each("end", function() {
