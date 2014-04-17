@@ -122,6 +122,9 @@ HARD CODE */
 
 // reference to our slider
   var slider = d3.select("#date-filter");
+	
+// an array to store each heatmap so it can be referenced later
+  var heatMapArray = [];
 
 // notice box for testing only
 	var notice = d3.select("#notice")
@@ -208,10 +211,13 @@ function elapse(thiskey, animation) {
 
 // if single pane heatmap is selected, this updates heatmap based on time series	
 	if(heatmap) {
-		heatmap
-		.style("fill", function(d) { 
-			return heatmapColorScale(d[keys[thiskey]]); });
-	}
+	  for(var hm in heatMapArray) {
+	   // console.log("heatmap:", heatMapArray[hm]);
+		  heatMapArray[hm].style("fill", function(d) { 
+			  return heatmapColorScale(d[keys[thiskey]]); 
+		  });
+    }
+  }
 // if time series is selected as animation (rather than discrete intervals on slider),
 // this triggers recursion that runs until time is exhausted
 	if (animation) {
@@ -589,6 +595,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 					notice.text(d.pairs.split("-")[0]+ ' and '+ d.pairs.split("-")[1])
 				})
 				.on("mouseout", function() {notice.text("")})
+				heatMapArray.push(heatmap);
 	})
 }
 //////////////////////////////////////////////////////////////////////////////////////
