@@ -1,4 +1,4 @@
-,user_id,year_school,floor,aerobic_per_week,party,libcon,sad,stressed,fav_music
+index,user_id,year_school,floor,aerobic_per_week,party,libcon,sad,stressed,fav_music
 0,2,TYPEa,f282.4,3.5,TYPEd,TYPEf,0.4,0.2,TYPEd
 1,4,TYPEb,f282.1,0.8,TYPEa,TYPEf,0.0,0.0,TYPEg
 2,5,TYPEa,f282.3,0.8,TYPEc,TYPEe,0.0,0.0,TYPEa

@@ -21,14 +21,13 @@
 
 // for now, everything is comdata - at some point this variable will change based on 
 // which time series data user has selected
-
 	var ts_type = "-comdata"
 	
 // initialize global svg var
 	var svg
 
-// master variable holds subj var data, labels holds axis labels
-	var master_vardata, master_labels
+// master vars hold persistent user/variable data after load via csv/json
+	var master_vardata, master_subjects, master_labels
 	
 // force-directed graph objects
 	var nodes = {}, links = []
@@ -101,10 +100,13 @@ HARD CODE */
 	var tab_toggle = false
 	var current_graph = "force-tab" // page loads with force layout
 
+// init output boxes for right-hand panels
 	var datebox = d3.select("#date").append("text")
 					 .attr("class", "date-box")
 					 .attr("transform", "translate(100,90)")
 
+	var deetbox = d3.select("#details-box")
+	
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
   var elapse_seed = 4
@@ -136,7 +138,7 @@ HARD CODE */
 //////////////////////////////////////////////////////////////////////////////////////
 
 	setTabEvents() // sets up tab behavior for main graph viewport
-	getData() // this feeds into renderPage()
+	getVarData() // this feeds into renderPage()
 
 //////////////////////////////////////////////////////////////////////////////////////
 //      END STARTUP
@@ -157,20 +159,25 @@ HARD CODE */
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
-// FUNCTION: getData() & getAxisLabels()
+// FUNCTION: getVarData() & getSubjectData() & getAxisLabels()
 // Purpose:  1. gets variable meta-data
 //			 2. feeder function to renderPage(), the main function for this page
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function getData() {
-	var path = "data/variables.json"
-	d3.json(path, function(error, data) { master_vardata = data; getAxisLabels(); })
+function getVarData() {
+	var fpath = "data/variables.json"
+	d3.json(fpath, function(error, data) { master_vardata = data; getSubjectData(); })
+}
+
+function getSubjectData() {
+	var fpath = "data/subjects-master.csv"
+	d3.csv(fpath, function(error, data) { master_subjects = data; getAxisLabels(); })
 }
 
 function getAxisLabels() {
-	var path = "data/type-key.json"
-	d3.json(path, function(error,data) { master_labels = data; renderPage(master_vardata); })
+	var fpath = "data/type-key.json"
+	d3.json(fpath, function(error,data) { master_labels = data; renderPage(master_vardata); })
 }
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -267,11 +274,15 @@ function renderPage(vardata) {
     })
     
     // create our timeScale
-    timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
+      timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
     
     // set our slider to correct values
-	  slider .attr({'min':elapse_seed, 'max':(elapse_seed + dateRange.length - 1), 'value':elapse_seed})
-		   .on("change", function() { return elapse(slider.property("value"),false)})
+	  slider.attr({	
+	  				'min':elapse_seed, 
+	  				'max':(elapse_seed + dateRange.length - 1), 
+	  				'value':elapse_seed
+	  			 })
+		   	.on("change", function() { return elapse(slider.property("value"),false)})
 //
 // END TIME SLIDER
 //
@@ -434,7 +445,9 @@ function changeGraph(obj) {
 
 // render whatever graph type is selected
 //	changeTab() updates tab appearances based on 'obj' parameter (which IDs the selected tab)
-// 	initSVG() re-draws the foundation svg for the graph (not sure why we don't need it for force?)
+// 	initSVG() re-draws the foundation svg for the graph
+//  (initSVG() is not called for force b/c it's embedded in renderForceGraph()
+//	(needs to be this way since renderForceGraph is called on pageload)
 // 	render[Whatever]() starts the drawing process 	
 	if (graph == "force-tab") {
 		changeTab(graph)
@@ -488,6 +501,17 @@ function clearGraph() {
 function clearHeatmap() {
 	d3.selectAll(".heatmap").remove()
 	d3.selectAll(".axis-instance").remove()
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: clearNetworkDetails()
+// Purpose:  clears out network details pane
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function clearNetworkDetails() {
+	deetbox.html("")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -692,7 +716,7 @@ function renderChordGraph() {
 		.attr("transform", "translate(20,10)")
 		.attr("width", 750)
 		.attr("height", 550)
-		.attr("xlink:href","chord.png")
+		.attr("xlink:href","images/chord.png")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -703,6 +727,7 @@ function renderChordGraph() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function renderForceGraph() {	
+
 	var force = d3.layout.force()
 		.nodes(d3.values(nodes))
 		.links(links)
@@ -725,15 +750,26 @@ function renderForceGraph() {
 		})
 		.on("mouseover", function(d) {
 			d3.select(this).style("stroke", "purple")
-			console.log(d)
+			setNetworkDetails(d,true) 
 		})
-		.on("mouseout", function(d) {d3.select(this).style("stroke", "#666")})
+		.on("mouseout", function(d) {
+			d3.select(this).style("stroke", "#666")
+			clearNetworkDetails()
+		})
 		
 	circle = svg.append("g").selectAll("circle")
 		.data(force.nodes())
 	  .enter().append("circle")
 		.attr("r", r)
 		.style("fill", function(d) {return "steelblue"})
+		.on("mouseover", function(d) {
+			d3.select(this).style("fill", "purple")
+			setNetworkDetails(d,false) 
+		})
+		.on("mouseout", function(d) {
+			d3.select(this).style("fill", "steelblue")
+			clearNetworkDetails()
+		})
 		.call(force.drag);
 
 	text = svg.append("g").selectAll("text")
@@ -779,6 +815,102 @@ function setHmapArea(container, x_offset, y_offset) {
 						.attr("id", "svg-"+grid_ct)
 						.attr("transform", "translate("+x_offset+","+y_offset+")")
 	return area
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setNetworkDetails(d, multi)
+// Purpose:  draws table of either pairwise or single-user data in network details box
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function setNetworkDetails(d, multi) {
+	var userinfo = { 
+			s:{	idx:null,
+				id: (multi) ? d.source.name : d.name,
+				music:"NA",
+				floor:"NA",
+				year:"NA",
+				pol:"NA",
+				sad:"NA",
+				stress:"NA",
+				exercise:"NA"
+			  },
+			t:{	idx:null,
+				id: (multi) ? d.target.name : "&lt;empty&gt;",
+				music:(multi) ? "NA": "&lt;empty&gt;",
+				floor:(multi) ? "NA": "&lt;empty&gt;",
+				year:(multi) ? "NA": "&lt;empty&gt;",
+				pol:(multi) ? "NA": "&lt;empty&gt;",
+				sad:(multi) ? "NA": "&lt;empty&gt;",
+				stress:(multi) ? "NA": "&lt;empty&gt;",
+				exercise:(multi) ? "NA": "&lt;empty&gt;"
+			  }
+			}
+						
+	for (var i = 0; i < master_subjects.length; i++) {
+		if (master_subjects[i].user_id == userinfo.s.id) {
+			userinfo.s.idx = i
+			userinfo.s.music = master_subjects[i].fav_music
+			userinfo.s.floor = master_subjects[i].floor
+			userinfo.s.year = master_subjects[i].year_school
+			userinfo.s.pol = master_subjects[i].libcon
+			userinfo.s.sad = master_subjects[i].sad
+			userinfo.s.stress = master_subjects[i].stressed
+			userinfo.s.exercise = master_subjects[i].aerobic_per_week	
+		} else if (master_subjects[i].user_id == userinfo.t.id) {
+			userinfo.t.idx = i
+			userinfo.t.music = master_subjects[i].fav_music
+			userinfo.t.floor = master_subjects[i].floor
+			userinfo.t.year = master_subjects[i].year_school
+			userinfo.t.pol = master_subjects[i].libcon
+			userinfo.t.sad = master_subjects[i].sad
+			userinfo.t.stress = master_subjects[i].stressed
+			userinfo.t.exercise = master_subjects[i].aerobic_per_week
+		}
+	}
+	var targetdata = (multi) 
+		? userinfo.t
+		: {id:"",year:"",floor:"",pol:"",music:"",sad:"",stress:"",exercise:""}
+		
+	deetbox.html(
+				"<table>"+
+					"<tr class='head'>"+
+						"<th> </th><th>Source Node</th><th>Target Node</th>" +
+					"</tr><tr>" +
+						"<td class='rowhead'>User ID</td>" +
+						"<td>"+userinfo.s.id + "</td>" +
+						"<td>"+userinfo.t.id + "</td>" + 
+					"</tr><tr class='zebra'>" +
+						"<td class='rowhead'>Year</td>" +
+						"<td>"+userinfo.s.year + "</td>" +
+						"<td>"+userinfo.t.year + "</td>" + 
+					"</tr><tr>" +
+						"<td class='rowhead'>Dorm Floor</td>" +
+						"<td>"+userinfo.s.floor + "</td>" +
+						"<td>"+userinfo.t.floor + "</td>" + 
+					"</tr><tr class='zebra'>" +
+						"<td class='rowhead'>Politics</td>" +
+						"<td>"+userinfo.s.pol + "</td>" +
+						"<td>"+userinfo.t.pol + "</td>" + 
+					"</tr><tr>" +
+						"<td class='rowhead'>Fav Music</td>" +
+						"<td>"+userinfo.s.music + "</td>" +
+						"<td>"+userinfo.t.music + "</td>" + 
+					"</tr><tr class='zebra'>" +
+						"<td class='rowhead'>Sad</td>" +
+						"<td>"+userinfo.s.sad + "</td>" +
+						"<td>"+userinfo.t.sad + "</td>" + 
+					"</tr><tr>" +
+						"<td class='rowhead'>Stressed</td>" +
+						"<td>"+userinfo.s.stress + "</td>" +
+						"<td>"+userinfo.t.stress + "</td>" + 
+					"</tr><tr class='zebra'>" +
+						"<td class='rowhead'>Exercise</td>" +
+						"<td>"+userinfo.s.exercise + "</td>" +
+						"<td>"+userinfo.t.exercise + "</td>" + 
+				"</table>"
+			)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

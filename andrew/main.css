@@ -4,6 +4,37 @@ body {
 	font-size: 12pt;
 }
 
+table {
+	border:solid steelblue 1px;
+	padding:5px;
+	border-spacing:0px;
+	font-size:11pt;
+	width:350px;
+}
+
+	td {
+		color: steelblue;
+	}
+	
+	th, td {
+		margin-left:5px;
+		margin-right:5px;
+		text-align: center;
+	}
+
+	tr.head {
+		border-bottom:solid steelblue 1px;
+	}
+
+	tr.zebra {
+		background-color:whitesmoke;
+	}
+	
+	td.rowhead {
+		color:rgb(110,110,110);
+		font-weight:900;
+	}
+
 .link {
   fill: none;
   stroke: #666;
@@ -172,10 +203,21 @@ h4 {
 		position: relative;
 		top:20px;
 		left:0px;
+		width:350px;
 		padding-bottom:80px;
 		border-bottom: solid steelblue 1px;
 	}	
 	
+		#details-box {
+			position: relative;
+			top:10px;
+			left:1px;
+			width:350px;
+			display:inline-block;
+			height:80px;
+			padding-bottom:40px;
+		}
+		
 	#heatmap {
 		position: relative;
 		top:20px;
