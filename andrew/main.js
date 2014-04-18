@@ -388,7 +388,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						? setAxis("x", region, 30, 0)
 						: hmap_x
 			var y_axis = (location == "main")
-						? setAxis("y", region, 30, 0)
+						? setAxis("y", region, 30, 10)
 						: hmap_y
 			var offset = (location == "main")
 						? {h:20, x:0,  y:0, rect: {x:5,y:0},  multiplier:{x:5.5,y:0}}
@@ -531,7 +531,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
       xAxis.tickValues(null)
 		}
 
-
 	  // set hm dimension params
 	  var map_height = var_names.length * hm.size + offset.h
 	  var max_label_length = d3.max(var_names, function(d) {return d.length})
@@ -563,6 +562,10 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	  x_axis.selectAll("text")
 	  	.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
 	  y_axis.append("g").attr("class", "axis-instance").call(yAxis)
+/*
+	  y_axis.selectAll("text")
+	    .attr("transform", "translate(0,10)")
+*/
     
 	  // get hmap data
 		// draw map	
