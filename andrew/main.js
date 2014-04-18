@@ -391,7 +391,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						? setAxis("y", region, 30, 0)
 						: hmap_y
 			var offset = (location == "main")
-						? {h:10, x:0,  y:0, rect: {x:5,y:0},  multiplier:{x:5.5,y:0}}
+						? {h:20, x:0,  y:0, rect: {x:5,y:0},  multiplier:{x:5.5,y:0}}
 						: {h:20, x:30, y:0, rect: {x:30,y:0}, multiplier:{x:5.5,y:0}}
 			if (location == "main") {
 				// write hmap description from file
@@ -705,7 +705,7 @@ function renderAllHeatmaps(vardata) {
 				var multiplier_x = [0, 1, 2, 0, 1, 2]
 				var multiplier_y = [0, 0, 0, 1, 1, 1]
 				var xoffset = multiplier_x[i]*260
-				var yoffset = multiplier_y[i]*270
+				var yoffset = multiplier_y[i]*280
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
 }
