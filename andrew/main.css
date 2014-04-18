@@ -239,3 +239,15 @@ h4 {
 		z-index:200;
 		font-size:20pt;
 	}
+	
+ .x-axis {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+ }
+ 
+ .y-axis {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+ }

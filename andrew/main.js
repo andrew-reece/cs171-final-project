@@ -576,7 +576,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 					return x(val); })
 				.attr("y", function(d) { 
 					var val = d.pairs.split("-")[1]
-
 					return y(val); })
 				.attr("width", function(d)  { return hm.w })
 				.attr("height", function(d) { return hm.h })
