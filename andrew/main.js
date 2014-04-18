@@ -880,6 +880,7 @@ function setNetworkDetails(d, multi) {
 	var targetdata = (multi) 
 		? userinfo.t
 		: {id:"",year:"",floor:"",pol:"",music:"",sad:"",stress:"",exercise:""}
+	
 		
 	deetbox.html(
 				"<table>"+
@@ -887,38 +888,47 @@ function setNetworkDetails(d, multi) {
 						"<th> </th><th>Source Node</th><th>Target Node</th>" +
 					"</tr><tr>" +
 						"<td class='rowhead'>User ID</td>" +
-						"<td>"+userinfo.s.id + "</td>" +
-						"<td>"+userinfo.t.id + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.id, "user_id") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.id, "user_id") + "</td>" + 
 					"</tr><tr class='zebra'>" +
 						"<td class='rowhead'>Year</td>" +
-						"<td>"+userinfo.s.year + "</td>" +
-						"<td>"+userinfo.t.year + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.year,"year_school") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.year, "year_school") + "</td>" + 
 					"</tr><tr>" +
 						"<td class='rowhead'>Dorm Floor</td>" +
-						"<td>"+userinfo.s.floor + "</td>" +
-						"<td>"+userinfo.t.floor + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.floor, "floor") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.floor, "floor") + "</td>" + 
 					"</tr><tr class='zebra'>" +
 						"<td class='rowhead'>Politics</td>" +
-						"<td>"+userinfo.s.pol + "</td>" +
-						"<td>"+userinfo.t.pol + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.pol, "libcon") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.pol, "libcon") + "</td>" + 
 					"</tr><tr>" +
 						"<td class='rowhead'>Fav Music</td>" +
-						"<td>"+userinfo.s.music + "</td>" +
-						"<td>"+userinfo.t.music + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.music, "fav_music") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.music, "fav_music") + "</td>" + 
 					"</tr><tr class='zebra'>" +
 						"<td class='rowhead'>Sad</td>" +
-						"<td>"+userinfo.s.sad + "</td>" +
-						"<td>"+userinfo.t.sad + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.sad, "sad") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.sad, "sad") + "</td>" + 
 					"</tr><tr>" +
 						"<td class='rowhead'>Stressed</td>" +
-						"<td>"+userinfo.s.stress + "</td>" +
-						"<td>"+userinfo.t.stress + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.stress, "stress") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.stress, "stress") + "</td>" + 
 					"</tr><tr class='zebra'>" +
 						"<td class='rowhead'>Exercise</td>" +
-						"<td>"+userinfo.s.exercise + "</td>" +
-						"<td>"+userinfo.t.exercise + "</td>" + 
+						"<td>"+mapLabel(userinfo.s.exercise, "stress") + "</td>" +
+						"<td>"+mapLabel(userinfo.t.exercise, "stress") + "</td>" + 
 				"</table>"
 			)
+}
+
+function mapLabel(raw, thisvar) {
+	if (raw.substr(0,4) == "TYPE") {
+		var idx = d3.values(master_labels.type).indexOf( raw )
+		return master_labels[thisvar][idx]
+	} else {
+		return raw
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
