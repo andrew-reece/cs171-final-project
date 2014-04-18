@@ -530,6 +530,8 @@ function clearNetworkDetails() {
 function drawHeatmap(vardata, var_names, var_range, var_idx, 
 						hmpath, location, region, x_axis, y_axis, offset) {	
 
+  d3.csv(hmpath, function(error, data) {
+
 	// set hm dimension params
 	var map_height = var_names.length * hm.size + offset.h
 	var max_label_length = d3.max(var_names, function(d) {return d.length})
@@ -539,7 +541,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	y.domain(var_names).range(var_range)
 	x.domain(var_names.reverse()).range(var_range.reverse())
 
-/*
 	// for testing only
 	if (hmpath == "data/fav_music-comdata-heatmap.csv") {
 		console.log('found music')
@@ -553,7 +554,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 		region.attr("height", map_height)
 		console.log('region height: '+region.attr("height"))
 	}
-*/
 
 	// set axes
 	x_axis.attr("height", map_height)
@@ -565,7 +565,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
 	
 	// get hmap data
-	d3.csv(hmpath, function(error, data) {
+  //	d3.csv(hmpath, function(error, data) {
 		// draw map	
 		heatmap = region.selectAll(".heatmap")
 			.data(data)
@@ -577,6 +577,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 					return x(val); })
 				.attr("y", function(d) { 
 					var val = d.pairs.split("-")[1]
+
 					return y(val); })
 				.attr("width", function(d)  { return hm.w })
 				.attr("height", function(d) { return hm.h })
