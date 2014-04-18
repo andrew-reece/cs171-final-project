@@ -429,7 +429,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// call drawHeatmap function, which actually renders the heatmap
 		
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset)
+						hmpath, location, region, x_axis, y_axis, offset, axis_labels)
 		}
 	}
 }
@@ -528,9 +528,27 @@ function clearNetworkDetails() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset) {	
+						hmpath, location, region, x_axis, y_axis, offset, axis_labels) {	
 
   d3.csv(hmpath, function(error, data) {
+  		// if array len = 0, that means there's no need to map, the originals are
+		// the actual values (true for sad, stressed, and exercise hrs)
+		
+			if (axis_labels.length > 0) {
+			
+				yAxis.tickValues(axis_labels)
+				
+				// .slice(0) copies array before reversing
+				// otherwise .reverse() reverses the original array, too
+				xAxis.tickValues(axis_labels.slice(0).reverse())
+				
+			} else { // tickValues(null) takes array values as ticks
+			
+			// we want null arg for sad, stressed, etc, where ticks and values are equal
+				yAxis.tickValues(null)
+				xAxis.tickValues(null)
+			}
+
 
 	// set hm dimension params
 	var map_height = var_names.length * hm.size + offset.h
@@ -562,8 +580,8 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
 	x_axis.selectAll("text")
 		.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
-	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
-	
+	y_axis.append("g").attr("class", "axis-instance").call(yAxis)
+
 	// get hmap data
   //	d3.csv(hmpath, function(error, data) {
 		// draw map	
