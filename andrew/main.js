@@ -487,8 +487,8 @@ function clearGraph() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function clearHeatmap() {
-	d3.selectAll(".heatmap").remove()
-	d3.selectAll(".axis-instance").remove()
+	d3.select("#svg-1").selectAll(".heatmap").remove()
+	d3.select("#svg-1").selectAll(".axis-instance").remove()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
