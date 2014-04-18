@@ -562,10 +562,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	  x_axis.selectAll("text")
 	  	.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
 	  y_axis.append("g").attr("class", "axis-instance").call(yAxis)
-/*
-	  y_axis.selectAll("text")
-	    .attr("transform", "translate(0,10)")
-*/
     
 	  // get hmap data
 		// draw map	
