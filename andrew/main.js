@@ -407,25 +407,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// onto the d3 axis tickValues so the graph displays them instead of generics
 		
 			var axis_labels = d3.values(master_labels[name])
-			
-		// if array len = 0, that means there's no need to map, the originals are
-		// the actual values (true for sad, stressed, and exercise hrs)
-		
-			if (axis_labels.length > 0) {
-			
-				yAxis.tickValues(axis_labels)
-				
-				// .slice(0) copies array before reversing
-				// otherwise .reverse() reverses the original array, too
-				xAxis.tickValues(axis_labels.slice(0).reverse())
-				
-			} else { // tickValues(null) takes array values as ticks
-			
-			// we want null arg for sad, stressed, etc, where ticks and values are equal
-				yAxis.tickValues(null)
-				xAxis.tickValues(null)
-			}
-			
+
 		// call drawHeatmap function, which actually renders the heatmap
 		
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
@@ -531,59 +513,58 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 						hmpath, location, region, x_axis, y_axis, offset, axis_labels) {	
 
   d3.csv(hmpath, function(error, data) {
-  		// if array len = 0, that means there's no need to map, the originals are
+    // if array len = 0, that means there's no need to map, the originals are
 		// the actual values (true for sad, stressed, and exercise hrs)
 		
-			if (axis_labels.length > 0) {
+		if (axis_labels.length > 0) {
 			
-				yAxis.tickValues(axis_labels)
+		  yAxis.tickValues(axis_labels)
 				
-				// .slice(0) copies array before reversing
-				// otherwise .reverse() reverses the original array, too
-				xAxis.tickValues(axis_labels.slice(0).reverse())
+      // .slice(0) copies array before reversing
+      // otherwise .reverse() reverses the original array, too
+      xAxis.tickValues(axis_labels.slice(0).reverse())
 				
-			} else { // tickValues(null) takes array values as ticks
+		} else { // tickValues(null) takes array values as ticks
 			
 			// we want null arg for sad, stressed, etc, where ticks and values are equal
-				yAxis.tickValues(null)
-				xAxis.tickValues(null)
-			}
+      yAxis.tickValues(null)
+      xAxis.tickValues(null)
+		}
 
 
-	// set hm dimension params
-	var map_height = var_names.length * hm.size + offset.h
-	var max_label_length = d3.max(var_names, function(d) {return d.length})
-	var x_axis_vert_offset = max_label_length * offset.multiplier.x 
+	  // set hm dimension params
+	  var map_height = var_names.length * hm.size + offset.h
+	  var max_label_length = d3.max(var_names, function(d) {return d.length})
+	  var x_axis_vert_offset = max_label_length * offset.multiplier.x 
+    
+	  // define scale domains and ranges
+	  y.domain(var_names).range(var_range)
+	  x.domain(var_names.reverse()).range(var_range.reverse())
+    
+	  // for testing only
+	  if (hmpath == "data/fav_music-comdata-heatmap.csv") {
+	  	console.log('found music')
+	  	console.log(var_names)
+	  	console.log(var_range)
+	  	console.log('domain range')
+	  	console.log(y.domain())
+	  	console.log(y.range())
+	  	console.log('dims')
+	  	console.log('height: '+map_height)
+	  	region.attr("height", map_height)
+	  	console.log('region height: '+region.attr("height"))
+	  }
 
-	// define scale domains and ranges
-	y.domain(var_names).range(var_range)
-	x.domain(var_names.reverse()).range(var_range.reverse())
-
-	// for testing only
-	if (hmpath == "data/fav_music-comdata-heatmap.csv") {
-		console.log('found music')
-		console.log(var_names)
-		console.log(var_range)
-		console.log('domain range')
-		console.log(y.domain())
-		console.log(y.range())
-		console.log('dims')
-		console.log('height: '+map_height)
-		region.attr("height", map_height)
-		console.log('region height: '+region.attr("height"))
-	}
-
-	// set axes
-	x_axis.attr("height", map_height)
-	x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
-	
-	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
-	x_axis.selectAll("text")
-		.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
-	y_axis.append("g").attr("class", "axis-instance").call(yAxis)
-
-	// get hmap data
-  //	d3.csv(hmpath, function(error, data) {
+	  // set axes
+	  x_axis.attr("height", map_height)
+	  x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
+	  
+	  x_axis.append("g").attr("class", "axis-instance").call(xAxis)
+	  x_axis.selectAll("text")
+	  	.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
+	  y_axis.append("g").attr("class", "axis-instance").call(yAxis)
+    
+	  // get hmap data
 		// draw map	
 		heatmap = region.selectAll(".heatmap")
 			.data(data)
@@ -724,8 +705,8 @@ function renderAllHeatmaps(vardata) {
 			.each(function(d,i) {
 				var multiplier_x = [0, 1, 2, 0, 1, 2]
 				var multiplier_y = [0, 0, 0, 1, 1, 1]
-				var xoffset = multiplier_x[i]*250
-				var yoffset = multiplier_y[i]*230
+				var xoffset = multiplier_x[i]*260
+				var yoffset = multiplier_y[i]*270
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
 }
