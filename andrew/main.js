@@ -21,8 +21,20 @@
 
 // for now, everything is comdata - at some point this variable will change based on 
 // which time series data user has selected
-	var ts_type = "-comdata"
+
+////////////////////////////////////////////////////////
+//
+//
+// 	ONLY CHANGE THIS ts VARIABLE TO SWITCH TIME SERIES BETWEEN com & prox
+//
+	var ts = "com" // switch to "prox" for proxdata
+//
+//
+////////////////////////////////////////////////////////
 	
+	var ts_type = "-"+ts+"data"	
+	var ts_filename = "data/"+ts+"-pairs.csv"
+		
 // initialize global svg var
 	var svg
 
@@ -39,7 +51,7 @@
 // keys array holds column names for time series data
 	var keys = []
 	
-// useful global for time series object manipulation
+// useful global for time series object manipulation (aka i don't remember what it does)
 	var numkeys
 	
 // graph dimensions
@@ -85,13 +97,6 @@ HARD CODE */
 	var hmap_x = setAxis("x", hmap_area, 30, 0)
 	var hmap_y = setAxis("y", hmap_area, 60, hm_margin.top)
 
-// default heatmap name is libcon (political scale)
-// DO WE STILL NEED THIS?
-	var heatmap_name = "libcon"	
-
-// default time series data is communications data		
-	var ts_filename = "data/com-pairs.csv"
-
 // initialize scales for heatmap window
 	var x = d3.scale.ordinal()
 	var y = d3.scale.ordinal()
@@ -106,6 +111,11 @@ HARD CODE */
 					 .attr("transform", "translate(100,90)")
 
 	var deetbox = d3.select("#details-box")
+	
+	var filterbox = d3.select("#filter-box")
+	
+// init array holding current filtered-out variables
+	var filtered = []
 	
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
@@ -182,6 +192,7 @@ function getAxisLabels() {
 	var fpath = "data/type-key.json"
 	d3.json(fpath, function(error,data) { master_labels = data; renderPage(master_vardata); })
 }
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: elapse(thiskey)
@@ -263,7 +274,7 @@ function renderPage(vardata) {
 		  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
 		  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
 		});	
-	
+
 // 
 // CREATE TIME SLIDER
 //
@@ -336,7 +347,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 	if (location == "main") {
 		hm = { size: 20, h:20, w:20 }
 	} else if (location == "focus") {
-		hm = { size: 25, h:25, w:25 }
+		hm = { size: 15, h:15, w:15 }
 	}
 	
 // filename for heatmap data
@@ -388,12 +399,13 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						? setAxis("x", region, 30, 0)
 						: hmap_x
 			var y_axis = (location == "main")
-						? setAxis("y", region, 30, 10)
+						? setAxis("y", region, 30, 0)
 						: hmap_y
 			var offset = (location == "main")
-						? {h:20, x:0,  y:0, rect: {x:5,y:0},  multiplier:{x:5.5,y:0}}
-						: {h:20, x:30, y:0, rect: {x:30,y:0}, multiplier:{x:5.5,y:0}}
-			if (location == "main") {
+						? {h:10, x:0,  y:0, rect: {x:5, y:0},   multiplier:{x:5.5,y:0}}
+						: {h:10, x:37, y:-10, rect: {x:40,y:0}, multiplier:{x:2.5,y:0}}
+
+			if (location == "focus") {
 				// write hmap description from file
 				d3.select("#heatmap-description").html(function() { return vardata.descrip[var_idx] })
 			}
@@ -407,11 +419,29 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// onto the d3 axis tickValues so the graph displays them instead of generics
 		
 			var axis_labels = d3.values(master_labels[name])
-
+			
+		// if array len = 0, that means there's no need to map, the originals are
+		// the actual values (true for sad, stressed, and exercise hrs)
+		
+			if (axis_labels.length > 0) {
+			
+				yAxis.tickValues(axis_labels)
+				
+				// .slice(0) copies array before reversing
+				// otherwise .reverse() reverses the original array, too
+				xAxis.tickValues(axis_labels.slice(0).reverse())
+				
+			} else { // tickValues(null) takes array values as ticks
+			
+			// we want null arg for sad, stressed, etc, where ticks and values are equal
+				yAxis.tickValues(null)
+				xAxis.tickValues(null)
+			}
+			
 		// call drawHeatmap function, which actually renders the heatmap
 		
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset, axis_labels)
+						hmpath, location, region, x_axis, y_axis, offset)
 		}
 	}
 }
@@ -487,8 +517,8 @@ function clearGraph() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function clearHeatmap() {
-	d3.select("#svg-1").selectAll(".heatmap").remove()
-	d3.select("#svg-1").selectAll(".axis-instance").remove()
+	d3.selectAll(".heatmap").remove()
+	d3.selectAll(".axis-instance").remove()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -510,60 +540,45 @@ function clearNetworkDetails() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset, axis_labels) {	
+					 hmpath, location, region, x_axis, y_axis, offset) {	
 
-  d3.csv(hmpath, function(error, data) {
-    // if array len = 0, that means there's no need to map, the originals are
-		// the actual values (true for sad, stressed, and exercise hrs)
-		
-		if (axis_labels.length > 0) {
-			
-		  yAxis.tickValues(axis_labels)
-				
-      // .slice(0) copies array before reversing
-      // otherwise .reverse() reverses the original array, too
-      xAxis.tickValues(axis_labels.slice(0).reverse())
-				
-		} else { // tickValues(null) takes array values as ticks
-			
-			// we want null arg for sad, stressed, etc, where ticks and values are equal
-      yAxis.tickValues(null)
-      xAxis.tickValues(null)
-		}
+	// set hm dimension params
+	var map_height = var_names.length * hm.size + offset.h
+	var max_label_length = d3.max(var_names, function(d) {return d.length})
+	var x_axis_vert_offset = max_label_length * offset.multiplier.x 
 
-	  // set hm dimension params
-	  var map_height = var_names.length * hm.size + offset.h
-	  var max_label_length = d3.max(var_names, function(d) {return d.length})
-	  var x_axis_vert_offset = max_label_length * offset.multiplier.x 
-    
-	  // define scale domains and ranges
-	  y.domain(var_names).range(var_range)
-	  x.domain(var_names.reverse()).range(var_range.reverse())
-    
-	  // for testing only
-	  if (hmpath == "data/fav_music-comdata-heatmap.csv") {
-	  	console.log('found music')
-	  	console.log(var_names)
-	  	console.log(var_range)
-	  	console.log('domain range')
-	  	console.log(y.domain())
-	  	console.log(y.range())
-	  	console.log('dims')
-	  	console.log('height: '+map_height)
-	  	region.attr("height", map_height)
-	  	console.log('region height: '+region.attr("height"))
-	  }
+	// define scale domains and ranges
+	y.domain(var_names).range(var_range)
+	x.domain(var_names.reverse()).range(var_range.reverse())
 
-	  // set axes
-	  x_axis.attr("height", map_height)
-	  x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
-	  
-	  x_axis.append("g").attr("class", "axis-instance").call(xAxis)
-	  x_axis.selectAll("text")
-	  	.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
-	  y_axis.append("g").attr("class", "axis-instance").call(yAxis)
-    
-	  // get hmap data
+/*
+	// for testing only
+	if (hmpath == "data/fav_music-comdata-heatmap.csv") {
+		console.log('found music')
+		console.log(var_names)
+		console.log(var_range)
+		console.log('domain range')
+		console.log(y.domain())
+		console.log(y.range())
+		console.log('dims')
+		console.log('height: '+map_height)
+		region.attr("height", map_height)
+		console.log('region height: '+region.attr("height"))
+	}
+*/
+
+	// set axes
+	x_axis.attr("height", map_height)
+	x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
+	
+	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
+	x_axis.selectAll("text")
+		.style("text-anchor", "end")
+		.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
+	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
+	
+	// get hmap data
+	d3.csv(hmpath, function(error, data) {
 		// draw map	
 		heatmap = region.selectAll(".heatmap")
 			.data(data)
@@ -703,8 +718,8 @@ function renderAllHeatmaps(vardata) {
 			.each(function(d,i) {
 				var multiplier_x = [0, 1, 2, 0, 1, 2]
 				var multiplier_y = [0, 0, 0, 1, 1, 1]
-				var xoffset = multiplier_x[i]*260
-				var yoffset = multiplier_y[i]*280
+				var xoffset = multiplier_x[i]*250
+				var yoffset = multiplier_y[i]*230
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
 }
@@ -746,6 +761,8 @@ function renderForceGraph() {
 
 	initSVG(0,0)
 
+	setFilters(force.nodes())
+	
 	path = svg.append("g").selectAll("path")
 		.data(force.links())
 	  .enter().append("path")
@@ -765,6 +782,7 @@ function renderForceGraph() {
 	circle = svg.append("g").selectAll("circle")
 		.data(force.nodes())
 	  .enter().append("circle")
+	  	.attr("id", function(d) {return "id"+d.name})
 		.attr("r", r)
 		.style("fill", function(d) {return "steelblue"})
 		.on("mouseover", function(d) {
@@ -781,6 +799,7 @@ function renderForceGraph() {
 		.data(force.nodes())
 		.enter()
 		.append("text")
+			.attr("id", function(d) {return "txt"+d.name})
 			.attr("x", 12)
 			.attr("y", 3)
 			.style("font-size", "12pt")
@@ -800,6 +819,44 @@ function setAxis(dim, location, xoffset, yoffset) {
 						.attr("class", dim+"-axis")
 						.attr("transform", "translate("+xoffset+","+yoffset+")")
 	return axis
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setFilters
+// Purpose:  sets node filtering via filter checkboxes
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function setFilters(nodedata) {
+	
+	d3.selectAll(".filter")
+		.on("change", function() {
+			var selected =d3.select(this).property("checked")
+			var filname = d3.select(this).attr("name")
+			var filval  = d3.select(this).attr("value")
+			var thisfilter = filname+"-"+filval
+			for (var i = 0; i < master_subjects.length; i++) {
+				if (mapLabel(master_subjects[i][filname], filname) == filval) {
+					if (selected) {
+						d3.select("#id"+master_subjects[i].user_id).style("display", "none")
+						d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
+
+					} else if (filtered.indexOf(thisfilter) > -1) {
+						d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
+						d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
+
+					}
+				}
+			}
+			
+			if (selected) {
+				filtered.push(thisfilter)
+			} else if (filtered.indexOf(thisfilter) > -1) {
+				filtered.pop(thisfilter)
+			}
+		})
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -833,23 +890,23 @@ function setNetworkDetails(d, multi) {
 	var userinfo = { 
 			s:{	idx:null,
 				id: (multi) ? d.source.name : d.name,
-				music:"NA",
-				floor:"NA",
-				year:"NA",
-				pol:"NA",
-				sad:"NA",
-				stress:"NA",
-				exercise:"NA"
+				music: "&lt;empty&gt;",
+				floor: "&lt;empty&gt;",
+				year: "&lt;empty&gt;",
+				pol: "&lt;empty&gt;",
+				sad: "&lt;empty&gt;",
+				stress: "&lt;empty&gt;",
+				exercise: "&lt;empty&gt;",
 			  },
 			t:{	idx:null,
 				id: (multi) ? d.target.name : "&lt;empty&gt;",
-				music:(multi) ? "NA": "&lt;empty&gt;",
-				floor:(multi) ? "NA": "&lt;empty&gt;",
-				year:(multi) ? "NA": "&lt;empty&gt;",
-				pol:(multi) ? "NA": "&lt;empty&gt;",
-				sad:(multi) ? "NA": "&lt;empty&gt;",
-				stress:(multi) ? "NA": "&lt;empty&gt;",
-				exercise:(multi) ? "NA": "&lt;empty&gt;"
+				music: "&lt;empty&gt;",
+				floor: "&lt;empty&gt;",
+				year: "&lt;empty&gt;",
+				pol: "&lt;empty&gt;",
+				sad: "&lt;empty&gt;",
+				stress: "&lt;empty&gt;",
+				exercise: "&lt;empty&gt;"
 			  }
 			}
 						
@@ -880,7 +937,7 @@ function setNetworkDetails(d, multi) {
 	
 		
 	deetbox.html(
-				"<table>"+
+				"<table id='details-table'>"+
 					"<tr class='head'>"+
 						"<th> </th><th>Source Node</th><th>Target Node</th>" +
 					"</tr><tr>" +
@@ -943,6 +1000,19 @@ function setTabEvents() {
 		})
 		.on("mouseover", function() { return highlightTab(this) })	
 		.on("mouseout", function()  { return highlightTab(this) })	
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: summonFilterBox()
+// Purpose:  raises/closes window containing node filtering options
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function summonFilterBox() {
+	var visible = filterbox.style("visibility")
+	filterbox.style("visibility", function() {return (visible=="visible") ? "hidden" : "visible"})
+	filterbox.style("z-index", function() {return (visible=="visible") ? -10 : 10}) 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
