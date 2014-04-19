@@ -33,82 +33,65 @@
 
 		Filter <div id="filter-clicker" onclick="summonFilterBox()">...</div>
 		 <span style="margin-left:20px;font-size:10pt;">&lt; Click to open, then select categories to omit &gt;</span>
+		
 		<div id="filter-box">
-			<table id="filter-table">
-			<thead>
-				<tr>
-					<th>School Year</th><th>Politics</th><th>Fav Music</th><th>Exercise</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><input type="checkbox" class="filter" name="year_school" value="FRESH" />Freshman</td>
-					<td><input type="checkbox" class="filter" value="CON3" />High Conservative</td>
-					<td><input type="checkbox" class="filter" value="CLASS" />Classical</td>
-					<td><input type="checkbox" class="filter" value="0" />0 days/wk</td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" class="filter" name="year_school" value="SOPH" />Sophomore</td>
-					<td><input type="checkbox" class="filter" value="CON2" />Med Conservative</td>
-					<td><input type="checkbox" class="filter" value="CLSRCK" />Classic Rock</td>
-					<td><input type="checkbox" class="filter" value="1" />1 day/wk</td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" class="filter" name="year_school" value="JUN" />Junior</td>
-					<td><input type="checkbox" class="filter" value="CON1" />Low Conservative</td>
-					<td><input type="checkbox" class="filter" value="CNFLK" />Country/Folk</td>
-					<td><input type="checkbox" class="filter" value="2" />2 days/wk</td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" class="filter" name="year_school" value="SEN" />Senior</td>
-					<td><input type="checkbox" class="filter" value="NEUT" />Middle of the Road</td>
-					<td><input type="checkbox" class="filter" value="METAL" />Metal</td>
-					<td><input type="checkbox" class="filter" value="3" />3 days/wk</td>
-				</tr>
-				<tr>
-					<td><input type="checkbox" class="filter" name="year_school" value="GRAD" />Grad student</td>
-					<td><input type="checkbox" class="filter" value="LIB1" />Low Liberal</td>
-					<td><input type="checkbox" class="filter" value="HIPHOP" />Hip-hop</td>
-					<td><input type="checkbox" class="filter" value="4" />4 days/wk</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td><input type="checkbox" class="filter" value="LIB2" />Med Liberal</td>
-					<td><input type="checkbox" class="filter" value="INDIE" />Indie Rock</td>
-					<td><input type="checkbox" class="filter" value="5" />5 days/wk</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td><input type="checkbox" class="filter" value="LIB3" />High Liberals</td>
-					<td><input type="checkbox" class="filter" value="JAZZ" />Jazz</td>
-					<td><input type="checkbox" class="filter" value="6" />6 days/wk</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td><input type="checkbox" class="filter" value="TOP40" />Pop/Top 40</td>
-					<td><input type="checkbox" class="filter" value="7" />7 days/wk</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td><input type="checkbox" class="filter" value="SHOWTUN" />Showtunes</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td><input type="checkbox" class="filter" value="ELECTR" />Electronic</td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td></td>
-					<td><input type="checkbox" class="filter" value="OTHER" />Other</td>
-					<td></td>
-				</tr>
-			</tbody>
-			</table>
+			<div id="fb-far-left">
+				<span class="fb-cat">School Year</span><br />
+				<input type="checkbox" class="filter" name="year_school" value="FRESH" />Freshman<br />
+				<input type="checkbox" class="filter" name="year_school" value="SOPH" />Sophomore<br />
+				<input type="checkbox" class="filter" name="year_school" value="JUN" />Junior<br />
+				<input type="checkbox" class="filter" name="year_school" value="SEN" />Senior<br />
+				<input type="checkbox" class="filter" name="year_school" value="GRAD" />Grad student<br />
+				<br />
+				<span class="fb-cat">Exercise</span><br />
+				<input type="checkbox" class="filter" name="aerobic_per_week" value="0" />No exericse<br />
+				<input type="checkbox" class="filter" name="aerobic_per_week" value="3" />Light exercise<br />
+				<input type="checkbox" class="filter" name="aerobic_per_week" value="6" />Med exercise<br />
+				<input type="checkbox" class="filter" name="aerobic_per_week" value="5" />Crazy exercise
+				
+			</div>
+			<div id="fb-center-left">
+				<span class="fb-cat">Politics</span><br />
+				
+				<input type="checkbox" value="con-check" onclick="multiFilter(this.value)"/>Conservative<br />
+					<input class="filter sub-check con-check" type="checkbox" name="libcon" value="CON3" />Extreme<br />
+					<input class="filter sub-check con-check" type="checkbox" name="libcon" value="CON2" />Average<br />
+					<input class="filter sub-check con-check" type="checkbox" name="libcon" value="CON1" />Mild<br />
+					
+				<input type="checkbox" class="filter" name="libcon" value="NEUT" />Middling<br />
+				
+				<input type="checkbox" value="lib-check"  onclick="multiFilter(this.value)" />Liberal<br />
+					<input class="filter sub-check lib-check" name="libcon" type="checkbox" value="LIB1" />Mild<br />
+					<input class="filter sub-check lib-check" name="libcon" type="checkbox" value="LIB2" />Average<br />
+					<input class="filter sub-check lib-check" name="libcon" type="checkbox" value="LIB3" />Extreme<br />	
+			</div>
+			<div id="fb-center-right">
+				<span class="fb-cat">Musical Taste</span><br />
+					<input type="checkbox" class="filter" name="fav_music" value="CLASS" />Classical<br />
+					<input type="checkbox" class="filter" name="fav_music" value="CLSRCK" />Classic Rock<br />
+					<input type="checkbox" class="filter" name="fav_music" value="CNFLK" />Country/Folk<br />
+					<input type="checkbox" class="filter" name="fav_music" value="HIPHOP" />Hip-hop<br />
+					<input type="checkbox" class="filter" name="fav_music" value="INDIE" />Indie Rock<br />
+					<input type="checkbox" class="filter" name="fav_music" value="JAZZ" />Jazz<br />
+					<input type="checkbox" class="filter" name="fav_music" value="METAL" />Metal<br />
+					<input type="checkbox" class="filter" name="fav_music" value="TOP40" />Pop/Top 40<br />
+					<input type="checkbox" class="filter" name="fav_music" value="SHOWTUN" />Showtunes<br />
+					<input type="checkbox" class="filter" name="fav_music" value="ELECTR" />Electronic<br />
+					<input type="checkbox" class="filter" name="fav_music" value="OTHER" />Other<br />
+			</div>
+			<div id="fb-far-right">
+				<span class="fb-cat">Stressed</span><br />
+					<input type="checkbox" class="filter" name="stressed" value="0" />No stress<br />
+					<input type="checkbox" class="filter" name="stressed" value="1" />Mild stress<br />
+					<input type="checkbox" class="filter" name="stressed" value="2" />Med stress<br />
+					<input type="checkbox" class="filter" name="stressed" value="3" />Stressball!<br />
+				<br />
+				<span class="fb-cat">Sad</span><br />
+					<input type="checkbox" class="filter" name="sad" value="0" />Not sad<br />
+					<input type="checkbox" class="filter" name="sad" value="1" />Mildly sad<br />
+					<input type="checkbox" class="filter" name="sad" value="2" />Med sad<br />
+					<input type="checkbox" class="filter" name="sad" value="3" />Super sad
+			</div>
 		</div>
 		<br />
 		Heatmap

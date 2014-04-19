@@ -275,6 +275,9 @@ function renderPage(vardata) {
 		  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
 		});	
 
+// sets filter checkbox functionality based on node data
+	setFilters(nodes)
+	
 // 
 // CREATE TIME SLIDER
 //
@@ -702,6 +705,22 @@ function makeHeatmapDropdown(vardata) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: multiFilter(cl)
+// Purpose:  checks all filter checkboxes under main class 
+//			 (ie. checking "Conservative" checks all conservative sub-groups)
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function multiFilter(cl) {
+	d3.selectAll("."+cl)
+		.property("checked", function() {
+			return (d3.select(this).property("checked")) ? false: true
+		})
+		.each(function() {filterNodes(this, nodes)})
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: renderAllHeatmaps()
 // Purpose:  draws all heatmaps for main viewbox
 //
@@ -761,7 +780,6 @@ function renderForceGraph() {
 
 	initSVG(0,0)
 
-	setFilters(force.nodes())
 	
 	path = svg.append("g").selectAll("path")
 		.data(force.links())
@@ -836,32 +854,35 @@ function setFilters(nodedata) {
 	
 	d3.selectAll(".filter")
 		.on("change", function() {
-			var selected =d3.select(this).property("checked")
-			var filname = d3.select(this).attr("name")
-			var filval  = d3.select(this).attr("value")
-			var thisfilter = filname+"-"+filval
-			for (var i = 0; i < master_subjects.length; i++) {
-				if (mapLabel(master_subjects[i][filname], filname) == filval) {
-					if (selected) {
-						d3.select("#id"+master_subjects[i].user_id).style("display", "none")
-						d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
-						d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
-					} else if (filtered.indexOf(thisfilter) > -1) {
-						d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
-						d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
-						d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
-
-					}
-				}
-			}
-			
-			if (selected) {
-				filtered.push(thisfilter)
-			} else if (filtered.indexOf(thisfilter) > -1) {
-				filtered.pop(thisfilter)
-			}
+			filterNodes(this, nodedata)
 		})
 
+}
+
+function filterNodes(obj, nodedata) {
+	var selected= d3.select(obj).property("checked")
+	var filname = d3.select(obj).attr("name")
+	var filval  = d3.select(obj).attr("value")
+	var thisfilter = filname+"-"+filval
+	for (var i = 0; i < master_subjects.length; i++) {
+		if (mapLabel(master_subjects[i][filname], filname) == filval) {
+			if (selected) {
+				d3.select("#id"+master_subjects[i].user_id).style("display", "none")
+				d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
+				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
+			} else if (filtered.indexOf(thisfilter) > -1) {
+				d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
+				d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
+				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
+			}
+		}
+	}
+	
+	if (selected) {
+		filtered.push(thisfilter)
+	} else if (filtered.indexOf(thisfilter) > -1) {
+		filtered.pop(thisfilter)
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

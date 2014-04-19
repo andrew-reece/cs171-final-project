@@ -170,19 +170,60 @@ h4 {
 			height: 335px;
 			border: solid rgb(110,110,110) 1px;
 			background-color:white;
+			color:steelblue;
 			padding:5px;
 			visibility:hidden;
 			z-index:-10;
+			text-align:left;
+			vertical-align:top;
 		}
-		
-			table#filter-table {
-				border-spacing:0px;
-				width:520px;
+			#fb-far-left {
+				position:relative;
+				top:0px;
+				left:0px;
+				width:130px;
+				display:inline-block;
+				height:335px;
+				vertical-align:inherit;
 			}
 			
-			table#filter-table td, th {
-				
-				text-align:left;
+			#fb-center-left {
+				position:relative;
+				top:0px;
+				left:0px;
+				width:130px;
+				display:inline-block;
+				height:335px;
+				vertical-align:inherit;
+			}
+			
+			#fb-center-right {
+				position:relative;
+				top:0px;
+				left:0px;
+				width:130px;
+				display:inline-block;
+				height:335px;
+				vertical-align:inherit;
+			}
+			
+			#fb-far-right {
+				position:relative;
+				top:0px;
+				left:0px;
+				width:100px;
+				display:inline-block;
+				height:335px;
+				vertical-align:inherit;
+			}
+			
+			.fb-cat {
+				color:rgb(110,110,110);
+				font-weight:900;
+			}
+			
+			.sub-check {
+				margin-left:20px;
 			}
 			
 		#heatmap-dropdown {
