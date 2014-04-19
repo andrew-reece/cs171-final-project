@@ -585,8 +585,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				// needs to be [2] here because first two columns are index/label cols
 					// var first_entry = d3.entries(data[0])[2].key
 					// return heatmapColorScale(d[first_entry])
-					// console.log(data[0]);
-					// return heatmapColorScale(d[keys[slider.property("value") - 2]])
 					return heatmapColorScale(d[d3.entries(data[0])[slider.property("value") - 2].key])
 				})
 			//
