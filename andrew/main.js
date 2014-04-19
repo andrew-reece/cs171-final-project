@@ -191,7 +191,8 @@ function getAxisLabels() {
 
 function elapse(thiskey, animation) {
 
-  //console.log("thiskey:", thiskey);
+  // console.log("thiskey:", thiskey);
+  // console.log("slider:", slider.property("value"));
 	path.transition()
 		.duration(300)
 		.style("stroke-width", function(d) {
@@ -247,7 +248,6 @@ function renderPage(vardata) {
 
 // reads time series data, assigns node/link info for force graph
 	d3.csv(ts_filename, function(error, data) {
-	
 	// we need an upper bound for frequency count across our entire time series
 	// this lets us set the range for the scale that creates edge weights in force graph
 	// so this loop just keeps track of the highest frequency count in our dataset
@@ -273,7 +273,6 @@ function renderPage(vardata) {
 			keys.push(k);
 			if(YmdXParser(k)) { dateRange.push(k); }
 		}
-		
 	// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
     dateRange.sort(function(a,b) {
       return new Date(a) - new Date(b);
@@ -535,17 +534,24 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	  var map_height = var_names.length * hm.size + offset.h
 	  var max_label_length = d3.max(var_names, function(d) {return d.length})
 	  var x_axis_vert_offset = max_label_length * offset.multiplier.x 
+	  // must slice to make shallow copy as arrays are pass by reference
+	  var var_names_r = var_names.slice()
+	  var var_range_r = var_range.slice()
     
 	  // define scale domains and ranges
 	  y.domain(var_names).range(var_range)
-	  x.domain(var_names.reverse()).range(var_range.reverse())
+	  x.domain(var_names_r.reverse()).range(var_range_r.reverse())
     
 	  // for testing only
+/*
 	  if (hmpath == "data/fav_music-comdata-heatmap.csv") {
 	  	console.log('found music')
 	  	console.log(var_names)
 	  	console.log(var_range)
-	  	console.log('domain range')
+	  	console.log('x domain range')
+	  	console.log(x.domain())
+	  	console.log(x.range())
+	  	console.log('y domain range')
 	  	console.log(y.domain())
 	  	console.log(y.range())
 	  	console.log('dims')
@@ -553,6 +559,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	  	region.attr("height", map_height)
 	  	console.log('region height: '+region.attr("height"))
 	  }
+*/
 
 	  // set axes
 	  x_axis.attr("height", map_height)
@@ -584,7 +591,8 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				.style("fill", function(d) { 
 				// needs to be [2] here because first two columns are index/label cols
 					var first_entry = d3.entries(data[0])[2].key
-					return heatmapColorScale(d[first_entry])
+					// return heatmapColorScale(d[first_entry])
+					return heatmapColorScale(d[keys[slider.property("value")]])
 				})
 			//
 			// for testing only - shows cell pairwise values in notice box (upper right)
