@@ -21,8 +21,20 @@
 
 // for now, everything is comdata - at some point this variable will change based on 
 // which time series data user has selected
-	var ts_type = "-comdata"
+
+////////////////////////////////////////////////////////
+//
+//
+// 	ONLY CHANGE THIS ts VARIABLE TO SWITCH TIME SERIES BETWEEN com & prox
+//
+	var ts = "com" // switch to "prox" for proxdata
+//
+//
+////////////////////////////////////////////////////////
 	
+	var ts_type = "-"+ts+"data"	
+	var ts_filename = "data/"+ts+"-pairs.csv"
+		
 // initialize global svg var
 	var svg
 
@@ -39,7 +51,7 @@
 // keys array holds column names for time series data
 	var keys = []
 	
-// useful global for time series object manipulation
+// useful global for time series object manipulation (aka i don't remember what it does)
 	var numkeys
 	
 // graph dimensions
@@ -85,13 +97,6 @@ HARD CODE */
 	var hmap_x = setAxis("x", hmap_area, 30, 0)
 	var hmap_y = setAxis("y", hmap_area, 60, hm_margin.top)
 
-// default heatmap name is libcon (political scale)
-// DO WE STILL NEED THIS?
-	var heatmap_name = "libcon"	
-
-// default time series data is communications data		
-	var ts_filename = "data/com-pairs.csv"
-
 // initialize scales for heatmap window
 	var x = d3.scale.ordinal()
 	var y = d3.scale.ordinal()
@@ -106,6 +111,8 @@ HARD CODE */
 					 .attr("transform", "translate(100,90)")
 
 	var deetbox = d3.select("#details-box")
+	
+	var filterbox = d3.select("#filter-box")
 	
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
@@ -182,6 +189,7 @@ function getAxisLabels() {
 	var fpath = "data/type-key.json"
 	d3.json(fpath, function(error,data) { master_labels = data; renderPage(master_vardata); })
 }
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: elapse(thiskey)
@@ -336,7 +344,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 	if (location == "main") {
 		hm = { size: 20, h:20, w:20 }
 	} else if (location == "focus") {
-		hm = { size: 25, h:25, w:25 }
+		hm = { size: 15, h:15, w:15 }
 	}
 	
 // filename for heatmap data
@@ -391,9 +399,10 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						? setAxis("y", region, 30, 0)
 						: hmap_y
 			var offset = (location == "main")
-						? {h:10, x:0,  y:0, rect: {x:5,y:0},  multiplier:{x:5.5,y:0}}
-						: {h:20, x:30, y:0, rect: {x:30,y:0}, multiplier:{x:5.5,y:0}}
-			if (location == "main") {
+						? {h:10, x:0,  y:0, rect: {x:5, y:0},   multiplier:{x:5.5,y:0}}
+						: {h:10, x:37, y:-10, rect: {x:40,y:0}, multiplier:{x:2.5,y:0}}
+
+			if (location == "focus") {
 				// write hmap description from file
 				d3.select("#heatmap-description").html(function() { return vardata.descrip[var_idx] })
 			}
@@ -528,7 +537,7 @@ function clearNetworkDetails() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset) {	
+					 hmpath, location, region, x_axis, y_axis, offset) {	
 
 	// set hm dimension params
 	var map_height = var_names.length * hm.size + offset.h
@@ -561,6 +570,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	
 	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
 	x_axis.selectAll("text")
+		.style("text-anchor", "end")
 		.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
 	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
 	
@@ -882,7 +892,7 @@ function setNetworkDetails(d, multi) {
 	
 		
 	deetbox.html(
-				"<table>"+
+				"<table id='details-table'>"+
 					"<tr class='head'>"+
 						"<th> </th><th>Source Node</th><th>Target Node</th>" +
 					"</tr><tr>" +
@@ -945,6 +955,12 @@ function setTabEvents() {
 		})
 		.on("mouseover", function() { return highlightTab(this) })	
 		.on("mouseout", function()  { return highlightTab(this) })	
+}
+
+function summonFilterBox() {
+	var visible = filterbox.style("visibility")
+	filterbox.style("visibility", function() {return (visible=="visible") ? "hidden" : "visible"})
+	filterbox.style("z-index", function() {return (visible=="visible") ? -10 : 10}) 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

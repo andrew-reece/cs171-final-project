@@ -31,8 +31,89 @@
 		<span class="subtitle" style="line-height:35px;">Control Panel</span>
 			<br />
 
-		Filter <div id="filter-clicker">...</div>
-		<div id="filter-box"></div>
+		Filter <div id="filter-clicker" onclick="summonFilterBox()">...</div>
+		 <span style="margin-left:20px;font-size:10pt;">&lt; Click to open, then select categories to omit &gt;</span>
+		<div id="filter-box">
+			<div id="fb-left"></div>
+			<div id="fb-center"></div>
+			<div id="fb-right"></div>
+			<table id="filter-table">
+			<thead>
+				<tr>
+					<th>School Year</th><th>Politics</th><th>Fav Music</th><th>Exercise</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><input type="checkbox" value="FR" />Freshman</td>
+					<td><input type="checkbox" value="CON3" />High Conservative</td>
+					<td><input type="checkbox" value="CLASS" />Classical</td>
+					<td><input type="checkbox" value="0" />0 days/wk</td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" value="SO" />Sophomore</td>
+					<td><input type="checkbox" value="CON2" />Med Conservative</td>
+					<td><input type="checkbox" value="CLSRCK" />Classic Rock</td>
+					<td><input type="checkbox" value="1" />1 day/wk</td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" value="JUN" />Junior</td>
+					<td><input type="checkbox" value="CON1" />Low Conservative</td>
+					<td><input type="checkbox" value="CNFLK" />Country/Folk</td>
+					<td><input type="checkbox" value="2" />2 days/wk</td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" value="SEN" />Senior</td>
+					<td><input type="checkbox" value="NEUT" />Middle of the Road</td>
+					<td><input type="checkbox" value="METAL" />Metal</td>
+					<td><input type="checkbox" value="3" />3 days/wk</td>
+				</tr>
+				<tr>
+					<td><input type="checkbox" value="GRAD" />Grad student</td>
+					<td><input type="checkbox" value="LIB1" />Low Liberal</td>
+					<td><input type="checkbox" value="HIPHOP" />Hip-hop</td>
+					<td><input type="checkbox" value="4" />4 days/wk</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="checkbox" value="LIB2" />Med Liberal</td>
+					<td><input type="checkbox" value="INDIE" />Indie Rock</td>
+					<td><input type="checkbox" value="5" />5 days/wk</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="checkbox" value="LIB3" />High Liberals</td>
+					<td><input type="checkbox" value="JAZZ" />Jazz</td>
+					<td><input type="checkbox" value="6" />6 days/wk</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td><input type="checkbox" value="TOP40" />Pop/Top 40</td>
+					<td><input type="checkbox" value="7" />7 days/wk</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td><input type="checkbox" value="SHOWTUN" />Showtunes</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td><input type="checkbox" value="ELECTR" />Electronic</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td><input type="checkbox" value="OTHER" />Other</td>
+					<td></td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+		<br />
 		Heatmap
 		<select id="heatmap-dropdown">
 			<option value="">Select heatmap</option>
@@ -47,17 +128,23 @@
 	<div id="date">
 		<span class="subtitle" style="margin-right:15px;">Date</span>
 	</div>
-
+	
 	<div id="details">
 		<span class="subtitle" style="margin-right:15px;">Network Details</span>
-		<div id="details-box">test</div>
+		<div id="details-box"></div>
 	</div>	
 	
 	<div id="heatmap">
 		<span class="subtitle">Heatmap</span><br />
-		<span id="heatmap-description"></span>
+		<div id="heatmap-description"></div>
 	</div>
-<div id="notice">notice</div>	
+	
+	
+	<!-- for testing only - get rid of this when you figure out the heatmap tab -->
+	<div id="notice"></div>	
+
 </div>
-	<script src="main.js"> </script>
+
+<script src="main.js"></script>
+
 </body>

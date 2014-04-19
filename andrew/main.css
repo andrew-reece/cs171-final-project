@@ -4,7 +4,7 @@ body {
 	font-size: 12pt;
 }
 
-table {
+table#details-table {
 	border:solid steelblue 1px;
 	padding:5px;
 	border-spacing:0px;
@@ -12,25 +12,25 @@ table {
 	width:350px;
 }
 
-	td {
-		color: steelblue;
-	}
+td {
+	color: steelblue;
+}
 	
-	th, td {
+	table#details-table th, td {
 		margin-left:5px;
 		margin-right:5px;
 		text-align: center;
 	}
 
-	tr.head {
+	table#details-table tr.head {
 		border-bottom:solid steelblue 1px;
 	}
 
-	tr.zebra {
+	table#details-table tr.zebra {
 		background-color:whitesmoke;
 	}
 	
-	td.rowhead {
+	table#details-table td.rowhead {
 		color:rgb(110,110,110);
 		font-weight:900;
 	}
@@ -86,7 +86,7 @@ h4 {
 	#tab-bar {
 		position:relative;
 		left:0px;
-		top:5px;
+		top:25px;
 		width:794px;
 		display:inline-block;
 		height:25px;
@@ -118,7 +118,7 @@ h4 {
 	
 	#graph {
 		position: relative;
-		top:5px;
+		top:25px;
 		left:0px;
 		display:inline-block;
 		height:575px;
@@ -133,7 +133,7 @@ h4 {
 #right {
 	position: absolute;
 	left:840px;
-	top: 20px;
+	top: 10px;
 }
 
 	#controls {
@@ -141,7 +141,7 @@ h4 {
 		top:0px;
 		left:0px;
 		padding-top:5px;
-		padding-bottom:10px;
+		padding-bottom:8px;
 		line-height:25px;
 		border-bottom: solid steelblue 1px;
 		border-top: solid steelblue 1px;
@@ -162,14 +162,29 @@ h4 {
 		}
 		
 		#filter-box {
-			position:relative;
-			top:0px;
+			position:absolute;
+			top:60px;
 			left:0px;
+			width:520px;
+			display:inline-block;
+			height: 335px;
 			border: solid rgb(110,110,110) 1px;
+			background-color:white;
+			padding:5px;
 			visibility:hidden;
 			z-index:-10;
 		}
 		
+			table#filter-table {
+				border-spacing:0px;
+				width:520px;
+			}
+			
+			table#filter-table td, th {
+				
+				text-align:left;
+			}
+			
 		#heatmap-dropdown {
 			margin-left:10px;
 			vertical-align:top;
@@ -195,6 +210,7 @@ h4 {
 		position: relative;
 		top:10px;
 		left:0px;
+		width:370px;
 		padding-bottom:10px;
 		border-bottom: solid steelblue 1px;
 	}
@@ -203,7 +219,7 @@ h4 {
 		position: relative;
 		top:20px;
 		left:0px;
-		width:350px;
+		width:370px;
 		padding-bottom:80px;
 		border-bottom: solid steelblue 1px;
 	}	
@@ -215,7 +231,7 @@ h4 {
 			width:350px;
 			display:inline-block;
 			height:80px;
-			padding-bottom:40px;
+			padding-bottom:50px;
 		}
 		
 	#heatmap {
@@ -227,9 +243,13 @@ h4 {
 	}
 	
 		#heatmap-description {
-			margin-top:50px;
+			margin-top:10px;
 		}
 	
+		.axis-instance {
+			text-anchor:start;
+		}
+		
 	#notice {
 		position: absolute;
 		top:5px;
@@ -239,3 +259,15 @@ h4 {
 		z-index:200;
 		font-size:20pt;
 	}
+	
+ .x-axis {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+ }
+ 
+ .y-axis {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+ }
