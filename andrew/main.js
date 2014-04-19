@@ -592,7 +592,8 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				// needs to be [2] here because first two columns are index/label cols
 					// var first_entry = d3.entries(data[0])[2].key
 					// return heatmapColorScale(d[first_entry])
-					return heatmapColorScale(d[keys[slider.property("value")]])
+					console.log(data[0]);
+					return heatmapColorScale(d[keys[slider.property("value") - 2]])
 				})
 			//
 			// for testing only - shows cell pairwise values in notice box (upper right)
