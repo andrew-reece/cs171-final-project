@@ -562,7 +562,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
 	
 	// get hmap data
-	d3.csv(hmpath, function(error, data) {
+	// d3.csv(hmpath, function(error, data) {
 
 		// draw map	
 		heatmap = region.selectAll(".heatmap")
@@ -585,7 +585,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				// needs to be [2] here because first two columns are index/label cols
 					// var first_entry = d3.entries(data[0])[2].key
 					// return heatmapColorScale(d[first_entry])
-					console.log(data[0]);
+					// console.log(data[0]);
 					return heatmapColorScale(d[keys[slider.property("value") - 2]])
 				})
 			//
