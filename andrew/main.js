@@ -590,7 +590,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				.style("stroke", "black")
 				.style("fill", function(d) { 
 				// needs to be [2] here because first two columns are index/label cols
-					var first_entry = d3.entries(data[0])[2].key
+					// var first_entry = d3.entries(data[0])[2].key
 					// return heatmapColorScale(d[first_entry])
 					return heatmapColorScale(d[keys[slider.property("value")]])
 				})
