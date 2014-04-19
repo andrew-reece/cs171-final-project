@@ -117,7 +117,7 @@ HARD CODE */
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
   var elapse_seed = 4
-	
+  	
 // date parser
   var YmdXParser = d3.time.format("%Y-%m-%d").parse;
 
@@ -135,6 +135,10 @@ HARD CODE */
 
 // notice box for testing only
 	var notice = d3.select("#notice")
+	
+// variable to determine if we should run the animation
+  var animation = false;
+  
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
 //////////////////////////////////////////////////////////////////////////////////////
@@ -147,6 +151,25 @@ HARD CODE */
 //		* these functions get things going
 //////////////////////////////////////////////////////////////////////////////////////
 
+  // factored start-button event handler out of main.html as it needs more logic
+  // this could be added to one of the intiialization functions but is just here for
+  // now
+  d3.select("#start-button")
+		.on("click", function() {
+		  animation = animation == false ? true : false;
+		  if(animation) { 
+		      d3.select("#start-button").text("Click to stop");
+
+          // if we are at the end, start from the beginning
+		      if(slider.property("value") == numkeys - 1) { slider.property("value", elapse_seed); }
+
+          return elapse(slider.property("value")); 
+      } else {
+          d3.select("#start-button").text("Click to start");
+      }
+		}
+  )
+		
 	setTabEvents() // sets up tab behavior for main graph viewport
 	getVarData() // this feeds into renderPage()
 
@@ -197,8 +220,7 @@ function getAxisLabels() {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function elapse(thiskey, animation) {
-
+function elapse(thiskey) {
   // console.log("thiskey:", thiskey);
   // console.log("slider:", slider.property("value"));
 	path.transition()
@@ -230,13 +252,14 @@ function elapse(thiskey, animation) {
 // if time series is selected as animation (rather than discrete intervals on slider),
 // this triggers recursion that runs until time is exhausted
 	if (animation) {
-	  	slider.property("value", thiskey)
+	  slider.property("value", thiskey)
 		svg.transition()
 			.duration(300)
 			.each("end", function() {
 				thiskey++
-				return (thiskey <= numkeys) 
-					? elapse(thiskey,true) 
+
+				return (thiskey < numkeys) 
+					? elapse(thiskey) 
 					: end()
 			})	
 	}
@@ -295,7 +318,8 @@ function renderPage(vardata) {
 	  				'max':(elapse_seed + dateRange.length - 1), 
 	  				'value':elapse_seed
 	  			 })
-		   	.on("change", function() { return elapse(slider.property("value"),false)})
+	//	   	.on("change", function() { return elapse(slider.property("value"),false)})
+		   	.on("change", function() { return elapse(slider.property("value"))})
 //
 // END TIME SLIDER
 //
@@ -583,8 +607,6 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				.style("stroke", "black")
 				.style("fill", function(d) { 
 				// needs to be [2] here because first two columns are index/label cols
-					// var first_entry = d3.entries(data[0])[2].key
-					// return heatmapColorScale(d[first_entry])
 					return heatmapColorScale(d[d3.entries(data[0])[slider.property("value") - 2].key])
 				})
 			//
@@ -611,6 +633,8 @@ function end() {
 					return heatmapColorScale(d["total"]) 
 				  })
 	}
+	d3.select("#start-button").text("Click to start");
+	animation = false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
