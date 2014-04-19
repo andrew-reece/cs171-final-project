@@ -628,11 +628,14 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 //////////////////////////////////////////////////////////////////////////////////////
 
 function end() {
-	if(heatmap) { heatmap.style("fill", 
-				  function(d) { 
-					return heatmapColorScale(d["total"]) 
-				  })
+	if(heatmap) { 
+	 for(var hm in heatMapArray) {
+		  heatMapArray[hm].style("fill", function(d) { 
+			  return heatmapColorScale(d["total"]); 
+		  });
+    }
 	}
+
 	d3.select("#start-button").text("Click to start");
 	animation = false;
 }
