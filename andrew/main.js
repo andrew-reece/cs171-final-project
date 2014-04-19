@@ -199,7 +199,8 @@ function getAxisLabels() {
 
 function elapse(thiskey, animation) {
 
-  //console.log("thiskey:", thiskey);
+  // console.log("thiskey:", thiskey);
+  // console.log("slider:", slider.property("value"));
 	path.transition()
 		.duration(300)
 		.style("stroke-width", function(d) {
@@ -255,7 +256,6 @@ function renderPage(vardata) {
 
 // reads time series data, assigns node/link info for force graph
 	d3.csv(ts_filename, function(error, data) {
-	
 	// we need an upper bound for frequency count across our entire time series
 	// this lets us set the range for the scale that creates edge weights in force graph
 	// so this loop just keeps track of the highest frequency count in our dataset
@@ -281,7 +281,6 @@ function renderPage(vardata) {
 			keys.push(k);
 			if(YmdXParser(k)) { dateRange.push(k); }
 		}
-		
 	// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
     dateRange.sort(function(a,b) {
       return new Date(a) - new Date(b);
@@ -396,7 +395,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						? setAxis("x", region, 30, 0)
 						: hmap_x
 			var y_axis = (location == "main")
-						? setAxis("y", region, 30, 0)
+						? setAxis("y", region, 30, 10)
 						: hmap_y
 			var offset = (location == "main")
 						? {h:10, x:0,  y:0, rect: {x:5, y:0},   multiplier:{x:5.5,y:0}}
@@ -416,29 +415,11 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// onto the d3 axis tickValues so the graph displays them instead of generics
 		
 			var axis_labels = d3.values(master_labels[name])
-			
-		// if array len = 0, that means there's no need to map, the originals are
-		// the actual values (true for sad, stressed, and exercise hrs)
-		
-			if (axis_labels.length > 0) {
-			
-				yAxis.tickValues(axis_labels)
-				
-				// .slice(0) copies array before reversing
-				// otherwise .reverse() reverses the original array, too
-				xAxis.tickValues(axis_labels.slice(0).reverse())
-				
-			} else { // tickValues(null) takes array values as ticks
-			
-			// we want null arg for sad, stressed, etc, where ticks and values are equal
-				yAxis.tickValues(null)
-				xAxis.tickValues(null)
-			}
-			
+
 		// call drawHeatmap function, which actually renders the heatmap
 		
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset)
+						hmpath, location, region, x_axis, y_axis, offset, axis_labels)
 		}
 	}
 }
@@ -514,8 +495,8 @@ function clearGraph() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function clearHeatmap() {
-	d3.selectAll(".heatmap").remove()
-	d3.selectAll(".axis-instance").remove()
+	d3.select("#svg-1").selectAll(".heatmap").remove()
+	d3.select("#svg-1").selectAll(".axis-instance").remove()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -537,32 +518,38 @@ function clearNetworkDetails() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function drawHeatmap(vardata, var_names, var_range, var_idx, 
-					 hmpath, location, region, x_axis, y_axis, offset) {	
+						hmpath, location, region, x_axis, y_axis, offset, axis_labels) {	
 
-	// set hm dimension params
-	var map_height = var_names.length * hm.size + offset.h
-	var max_label_length = d3.max(var_names, function(d) {return d.length})
-	var x_axis_vert_offset = max_label_length * offset.multiplier.x 
+  d3.csv(hmpath, function(error, data) {
+    // if array len = 0, that means there's no need to map, the originals are
+		// the actual values (true for sad, stressed, and exercise hrs)
+		
+		if (axis_labels.length > 0) {
+			
+		  yAxis.tickValues(axis_labels)
+				
+      // .slice(0) copies array before reversing
+      // otherwise .reverse() reverses the original array, too
+      xAxis.tickValues(axis_labels.slice(0).reverse())
+				
+		} else { // tickValues(null) takes array values as ticks
+			
+			// we want null arg for sad, stressed, etc, where ticks and values are equal
+      yAxis.tickValues(null)
+      xAxis.tickValues(null)
+		}
 
-	// define scale domains and ranges
-	y.domain(var_names).range(var_range)
-	x.domain(var_names.reverse()).range(var_range.reverse())
-
-/*
-	// for testing only
-	if (hmpath == "data/fav_music-comdata-heatmap.csv") {
-		console.log('found music')
-		console.log(var_names)
-		console.log(var_range)
-		console.log('domain range')
-		console.log(y.domain())
-		console.log(y.range())
-		console.log('dims')
-		console.log('height: '+map_height)
-		region.attr("height", map_height)
-		console.log('region height: '+region.attr("height"))
-	}
-*/
+	  // set hm dimension params
+	  var map_height = var_names.length * hm.size + offset.h
+	  var max_label_length = d3.max(var_names, function(d) {return d.length})
+	  var x_axis_vert_offset = max_label_length * offset.multiplier.x 
+	  // must slice to make shallow copy as arrays are pass by reference
+	  var var_names_r = var_names.slice()
+	  var var_range_r = var_range.slice()
+    
+	  // define scale domains and ranges
+	  y.domain(var_names).range(var_range)
+	  x.domain(var_names_r.reverse()).range(var_range_r.reverse())
 
 	// set axes
 	x_axis.attr("height", map_height)
@@ -576,6 +563,7 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	
 	// get hmap data
 	d3.csv(hmpath, function(error, data) {
+
 		// draw map	
 		heatmap = region.selectAll(".heatmap")
 			.data(data)
@@ -595,8 +583,10 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 				.style("stroke", "black")
 				.style("fill", function(d) { 
 				// needs to be [2] here because first two columns are index/label cols
-					var first_entry = d3.entries(data[0])[2].key
-					return heatmapColorScale(d[first_entry])
+					// var first_entry = d3.entries(data[0])[2].key
+					// return heatmapColorScale(d[first_entry])
+					console.log(data[0]);
+					return heatmapColorScale(d[keys[slider.property("value") - 2]])
 				})
 			//
 			// for testing only - shows cell pairwise values in notice box (upper right)
@@ -715,8 +705,8 @@ function renderAllHeatmaps(vardata) {
 			.each(function(d,i) {
 				var multiplier_x = [0, 1, 2, 0, 1, 2]
 				var multiplier_y = [0, 0, 0, 1, 1, 1]
-				var xoffset = multiplier_x[i]*250
-				var yoffset = multiplier_y[i]*230
+				var xoffset = multiplier_x[i]*260
+				var yoffset = multiplier_y[i]*280
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
 }
