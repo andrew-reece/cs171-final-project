@@ -766,7 +766,11 @@ function renderForceGraph() {
 	path = svg.append("g").selectAll("path")
 		.data(force.links())
 	  .enter().append("path")
-		.attr("class", "link")
+		.attr("class", function(d) {
+			var e1 = "edge"+d.source.name
+			var e2 = "edge"+d.target.name
+			return "link "+e1+" "+e2
+		})
 		.style("stroke-width", function(d) {
 			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
 		})
@@ -841,10 +845,11 @@ function setFilters(nodedata) {
 					if (selected) {
 						d3.select("#id"+master_subjects[i].user_id).style("display", "none")
 						d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
-
+						d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
 					} else if (filtered.indexOf(thisfilter) > -1) {
 						d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
 						d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
+						d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
 
 					}
 				}
