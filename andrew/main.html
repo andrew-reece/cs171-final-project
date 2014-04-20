@@ -36,22 +36,36 @@
 		
 		<div id="filter-box">
 			<div id="fb-far-left">
-				<span class="fb-cat">School Year</span><br />
+				<span class="fb-cat" id="fb-year_school">School Year</span><br />
 				<input type="checkbox" class="filter" name="year_school" value="FRESH" />Freshman<br />
 				<input type="checkbox" class="filter" name="year_school" value="SOPH" />Sophomore<br />
 				<input type="checkbox" class="filter" name="year_school" value="JUN" />Junior<br />
 				<input type="checkbox" class="filter" name="year_school" value="SEN" />Senior<br />
 				<input type="checkbox" class="filter" name="year_school" value="GRAD" />Grad student<br />
-				<br />
-				<span class="fb-cat">Exercise</span><br />
-				<input type="checkbox" class="filter" name="aerobic_per_week" value="0" />No exericse<br />
-				<input type="checkbox" class="filter" name="aerobic_per_week" value="3" />Light exercise<br />
-				<input type="checkbox" class="filter" name="aerobic_per_week" value="6" />Med exercise<br />
-				<input type="checkbox" class="filter" name="aerobic_per_week" value="5" />Crazy exercise
 				
+				<span class="fb-cat" id="fb-aerobic_per_week">Exercise</span><br />
+				<input type="checkbox" class="filter" name="aerobic_per_week" value="0" />No exercise<br />
+				<input type="checkbox" class="filter agg" name="aerobic_per_week" value="1.0-2.0" />Light exercise<br />
+				<input type="checkbox" class="filter agg" name="aerobic_per_week" value="3.0-4.0-5.0" />Avg exercise<br />
+				<input type="checkbox" class="filter agg" name="aerobic_per_week" value="6.0-7.0" />Crazy exercise
 			</div>
+			
 			<div id="fb-center-left">
-				<span class="fb-cat">Politics</span><br />
+				<span class="fb-cat" id="fb-stressed">Stressed</span><br />
+					<input type="checkbox" class="filter" name="stressed" value="0" />No stress<br />
+					<input type="checkbox" class="filter agg" name="stressed" value="0.1-0.2-0.3" />Mild stress<br />
+					<input type="checkbox" class="filter agg" name="stressed" value="0.4-0.5-0.6-0.7" />Stressed<br />
+					<input type="checkbox" class="filter agg" name="stressed" value="0.8-0.9-1.0" />Stressball!!<br />
+				<br />
+				<span class="fb-cat" id="fb-sad">Sad</span><br />
+					<input type="checkbox" class="filter" name="sad" value="0" />Not sad<br />
+					<input type="checkbox" class="filter agg" name="sad" value="0.1-0.2-0.3" />Mildly sad<br />
+					<input type="checkbox" class="filter agg" name="sad" value="0.4-0.5-0.6-0.7" />Sad<br />
+					<input type="checkbox" class="filter agg" name="sad" value="0.8-0.9-1.0" />Super sad
+			</div>
+			
+			<div id="fb-center-right">
+				<span class="fb-cat" id="fb-libcon">Politics</span><br />
 				
 				<input type="checkbox" value="con-check" onclick="multiFilter(this.value)"/>Conservative<br />
 					<input class="filter sub-check con-check" type="checkbox" name="libcon" value="CON3" />Extreme<br />
@@ -65,8 +79,9 @@
 					<input class="filter sub-check lib-check" name="libcon" type="checkbox" value="LIB2" />Average<br />
 					<input class="filter sub-check lib-check" name="libcon" type="checkbox" value="LIB3" />Extreme<br />	
 			</div>
-			<div id="fb-center-right">
-				<span class="fb-cat">Musical Taste</span><br />
+			
+			<div id="fb-far-right">
+				<span class="fb-cat" id="fb-fav_music">Musical Taste</span><br />
 					<input type="checkbox" class="filter" name="fav_music" value="CLASS" />Classical<br />
 					<input type="checkbox" class="filter" name="fav_music" value="CLSRCK" />Classic Rock<br />
 					<input type="checkbox" class="filter" name="fav_music" value="CNFLK" />Country/Folk<br />
@@ -78,19 +93,6 @@
 					<input type="checkbox" class="filter" name="fav_music" value="SHOWTUN" />Showtunes<br />
 					<input type="checkbox" class="filter" name="fav_music" value="ELECTR" />Electronic<br />
 					<input type="checkbox" class="filter" name="fav_music" value="OTHER" />Other<br />
-			</div>
-			<div id="fb-far-right">
-				<span class="fb-cat">Stressed</span><br />
-					<input type="checkbox" class="filter" name="stressed" value="0" />No stress<br />
-					<input type="checkbox" class="filter" name="stressed" value="1" />Mild stress<br />
-					<input type="checkbox" class="filter" name="stressed" value="2" />Med stress<br />
-					<input type="checkbox" class="filter" name="stressed" value="3" />Stressball!<br />
-				<br />
-				<span class="fb-cat">Sad</span><br />
-					<input type="checkbox" class="filter" name="sad" value="0" />Not sad<br />
-					<input type="checkbox" class="filter" name="sad" value="1" />Mildly sad<br />
-					<input type="checkbox" class="filter" name="sad" value="2" />Med sad<br />
-					<input type="checkbox" class="filter" name="sad" value="3" />Super sad
 			</div>
 		</div>
 		<br />

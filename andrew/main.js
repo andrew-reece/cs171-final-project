@@ -277,6 +277,7 @@ function renderPage(vardata) {
 
 // sets filter checkbox functionality based on node data
 	setFilters(nodes)
+	setFilterTooltips(master_vardata)
 	
 // 
 // CREATE TIME SLIDER
@@ -632,6 +633,69 @@ function end() {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: filterNodes
+// Purpose:  shows/hides nodes based on filter checkboxes
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function filterNodes(obj) {
+
+	var selected= d3.select(obj).property("checked")
+	var filname = d3.select(obj).attr("name")
+	
+	if (d3.select(obj).classed("agg")) { 
+	
+		var filterset = d3.select(obj).attr("value").split("-")
+		filterset.forEach( function(f) {
+			var filval = f
+			var thisfilter = filname+"-"+filval
+			filterNodesInner(selected, filname, filval, thisfilter)
+		})
+		
+	} else {
+	
+		var filval  = d3.select(obj).attr("value")
+		var thisfilter = filname+"-"+filval
+		filterNodesInner(selected, filname, filval, thisfilter)
+		
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: filterNodesInner
+// Purpose:  nucleus function inside filterNodes()
+//			 this is so aggregate filters (ie. 'Mildly Stressed') that need to set
+//			 more than one filter at a time can use a loop inside filterNodes()
+//			 that calls the actual filtering behavior.
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function filterNodesInner(selected, filname, filval, thisfilter) {
+
+	for (var i = 0; i < master_subjects.length; i++) {
+		if (mapLabel(master_subjects[i][filname], filname) == filval) {
+			if (selected) {
+				d3.select("#id"+master_subjects[i].user_id).style("display", "none")
+				d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
+				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
+			} else if (filtered.indexOf(thisfilter) > -1) {
+				d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
+				d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
+				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
+			}
+		}
+	}
+	
+	if (selected) {
+		filtered.push(thisfilter)
+	} else if (filtered.indexOf(thisfilter) > -1) {
+		filtered.pop(thisfilter)
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: highlightTab(obj)
 // Purpose:  highlights tab on hover
 //
@@ -716,6 +780,8 @@ function multiFilter(cl) {
 		.property("checked", function() {
 			return (d3.select(this).property("checked")) ? false: true
 		})
+		// multi-filter doesn't trigger an onchange event, 
+		// so we need to run filterNodes manually for each item that gets checked here. 
 		.each(function() {filterNodes(this, nodes)})
 }
 
@@ -854,35 +920,28 @@ function setFilters(nodedata) {
 	
 	d3.selectAll(".filter")
 		.on("change", function() {
-			filterNodes(this, nodedata)
+			filterNodes(this)
 		})
-
+	
 }
 
-function filterNodes(obj, nodedata) {
-	var selected= d3.select(obj).property("checked")
-	var filname = d3.select(obj).attr("name")
-	var filval  = d3.select(obj).attr("value")
-	var thisfilter = filname+"-"+filval
-	for (var i = 0; i < master_subjects.length; i++) {
-		if (mapLabel(master_subjects[i][filname], filname) == filval) {
-			if (selected) {
-				d3.select("#id"+master_subjects[i].user_id).style("display", "none")
-				d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
-				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
-			} else if (filtered.indexOf(thisfilter) > -1) {
-				d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
-				d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
-				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
-			}
-		}
-	}
-	
-	if (selected) {
-		filtered.push(thisfilter)
-	} else if (filtered.indexOf(thisfilter) > -1) {
-		filtered.pop(thisfilter)
-	}
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setFilterTooltips
+// Purpose:  sets mouseover tooltips (using 'title' attr) to describe grouped filters
+//			 tooltip text comes from variables.json
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function setFilterTooltips(vardata) {
+
+	d3.selectAll(".fb-cat")
+		.datum(function() { 
+			var thisvar = d3.select(this).attr("id").substr(3)
+			var thisidx = d3.values(vardata.name).indexOf(thisvar)
+			var thisinfo = vardata.filter_cats[thisidx]
+			return thisinfo})
+		.attr("title", function(d) { return d })
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

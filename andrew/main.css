@@ -165,13 +165,14 @@ h4 {
 			position:absolute;
 			top:60px;
 			left:0px;
-			width:520px;
+			width:500px;
 			display:inline-block;
-			height: 335px;
+			height: 325px;
 			border: solid rgb(110,110,110) 1px;
 			background-color:white;
 			color:steelblue;
-			padding:5px;
+			padding:10px;
+			padding-top:15px;
 			visibility:hidden;
 			z-index:-10;
 			text-align:left;
@@ -183,7 +184,7 @@ h4 {
 				left:0px;
 				width:130px;
 				display:inline-block;
-				height:335px;
+				height:inherit;
 				vertical-align:inherit;
 			}
 			
@@ -191,9 +192,9 @@ h4 {
 				position:relative;
 				top:0px;
 				left:0px;
-				width:130px;
+				width:110px;
 				display:inline-block;
-				height:335px;
+				height:inherit;
 				vertical-align:inherit;
 			}
 			
@@ -201,9 +202,9 @@ h4 {
 				position:relative;
 				top:0px;
 				left:0px;
-				width:130px;
+				width:120px;
 				display:inline-block;
-				height:335px;
+				height:inherit;
 				vertical-align:inherit;
 			}
 			
@@ -211,9 +212,9 @@ h4 {
 				position:relative;
 				top:0px;
 				left:0px;
-				width:100px;
+				width:120px;
 				display:inline-block;
-				height:335px;
+				height:inherit;
 				vertical-align:inherit;
 			}
 			
