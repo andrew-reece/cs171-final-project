@@ -114,6 +114,12 @@ HARD CODE */
 	
 	var filterbox = d3.select("#filter-box")
 	
+<<<<<<< HEAD
+=======
+// init array holding current filtered-out variables
+	var filtered = []
+	
+>>>>>>> filter-box
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
   var elapse_seed = 4
@@ -294,6 +300,10 @@ function renderPage(vardata) {
 		  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
 		  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
 		});	
+
+// sets filter checkbox functionality based on node data
+	setFilters(nodes)
+	setFilterTooltips(master_vardata)
 	
 // 
 // CREATE TIME SLIDER
@@ -419,7 +429,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						? setAxis("x", region, 30, 0)
 						: hmap_x
 			var y_axis = (location == "main")
-						? setAxis("y", region, 30, 10)
+						? setAxis("y", region, 30, 0)
 						: hmap_y
 			var offset = (location == "main")
 						? {h:10, x:0,  y:0, rect: {x:5, y:0},   multiplier:{x:5.5,y:0}}
@@ -439,11 +449,29 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// onto the d3 axis tickValues so the graph displays them instead of generics
 		
 			var axis_labels = d3.values(master_labels[name])
-
+			
+		// if array len = 0, that means there's no need to map, the originals are
+		// the actual values (true for sad, stressed, and exercise hrs)
+		
+			if (axis_labels.length > 0) {
+			
+				yAxis.tickValues(axis_labels)
+				
+				// .slice(0) copies array before reversing
+				// otherwise .reverse() reverses the original array, too
+				xAxis.tickValues(axis_labels.slice(0).reverse())
+				
+			} else { // tickValues(null) takes array values as ticks
+			
+			// we want null arg for sad, stressed, etc, where ticks and values are equal
+				yAxis.tickValues(null)
+				xAxis.tickValues(null)
+			}
+			
 		// call drawHeatmap function, which actually renders the heatmap
 		
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset, axis_labels)
+						hmpath, location, region, x_axis, y_axis, offset)
 		}
 	}
 }
@@ -519,8 +547,8 @@ function clearGraph() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function clearHeatmap() {
-	d3.select("#svg-1").selectAll(".heatmap").remove()
-	d3.select("#svg-1").selectAll(".axis-instance").remove()
+	d3.selectAll(".heatmap").remove()
+	d3.selectAll(".axis-instance").remove()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -542,27 +570,34 @@ function clearNetworkDetails() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function drawHeatmap(vardata, var_names, var_range, var_idx, 
-						hmpath, location, region, x_axis, y_axis, offset, axis_labels) {	
+					 hmpath, location, region, x_axis, y_axis, offset) {	
 
-  d3.csv(hmpath, function(error, data) {
-    // if array len = 0, that means there's no need to map, the originals are
-		// the actual values (true for sad, stressed, and exercise hrs)
-		
-		if (axis_labels.length > 0) {
-			
-		  yAxis.tickValues(axis_labels)
-				
-      // .slice(0) copies array before reversing
-      // otherwise .reverse() reverses the original array, too
-      xAxis.tickValues(axis_labels.slice(0).reverse())
-				
-		} else { // tickValues(null) takes array values as ticks
-			
-			// we want null arg for sad, stressed, etc, where ticks and values are equal
-      yAxis.tickValues(null)
-      xAxis.tickValues(null)
-		}
+	// set hm dimension params
+	var map_height = var_names.length * hm.size + offset.h
+	var max_label_length = d3.max(var_names, function(d) {return d.length})
+	var x_axis_vert_offset = max_label_length * offset.multiplier.x 
 
+	// define scale domains and ranges
+	y.domain(var_names).range(var_range)
+	x.domain(var_names.reverse()).range(var_range.reverse())
+
+/*
+	// for testing only
+	if (hmpath == "data/fav_music-comdata-heatmap.csv") {
+		console.log('found music')
+		console.log(var_names)
+		console.log(var_range)
+		console.log('domain range')
+		console.log(y.domain())
+		console.log(y.range())
+		console.log('dims')
+		console.log('height: '+map_height)
+		region.attr("height", map_height)
+		console.log('region height: '+region.attr("height"))
+	}
+*/
+
+<<<<<<< HEAD
 	  // set hm dimension params
 	  var map_height = var_names.length * hm.size + offset.h
 	  var max_label_length = d3.max(var_names, function(d) {return d.length})
@@ -575,6 +610,8 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	  y.domain(var_names).range(var_range)
 	  x.domain(var_names_r.reverse()).range(var_range_r.reverse())
 
+=======
+>>>>>>> filter-box
 	// set axes
 	x_axis.attr("height", map_height)
 	x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
@@ -586,8 +623,12 @@ function drawHeatmap(vardata, var_names, var_range, var_idx,
 	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
 	
 	// get hmap data
+<<<<<<< HEAD
 	// d3.csv(hmpath, function(error, data) {
 
+=======
+	d3.csv(hmpath, function(error, data) {
+>>>>>>> filter-box
 		// draw map	
 		heatmap = region.selectAll(".heatmap")
 			.data(data)
@@ -638,6 +679,69 @@ function end() {
 
 	d3.select("#start-button").text("Click to start");
 	animation = false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: filterNodes
+// Purpose:  shows/hides nodes based on filter checkboxes
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function filterNodes(obj) {
+
+	var selected= d3.select(obj).property("checked")
+	var filname = d3.select(obj).attr("name")
+	
+	if (d3.select(obj).classed("agg")) { 
+	
+		var filterset = d3.select(obj).attr("value").split("-")
+		filterset.forEach( function(f) {
+			var filval = f
+			var thisfilter = filname+"-"+filval
+			filterNodesInner(selected, filname, filval, thisfilter)
+		})
+		
+	} else {
+	
+		var filval  = d3.select(obj).attr("value")
+		var thisfilter = filname+"-"+filval
+		filterNodesInner(selected, filname, filval, thisfilter)
+		
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: filterNodesInner
+// Purpose:  nucleus function inside filterNodes()
+//			 this is so aggregate filters (ie. 'Mildly Stressed') that need to set
+//			 more than one filter at a time can use a loop inside filterNodes()
+//			 that calls the actual filtering behavior.
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function filterNodesInner(selected, filname, filval, thisfilter) {
+
+	for (var i = 0; i < master_subjects.length; i++) {
+		if (mapLabel(master_subjects[i][filname], filname) == filval) {
+			if (selected) {
+				d3.select("#id"+master_subjects[i].user_id).style("display", "none")
+				d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
+				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
+			} else if (filtered.indexOf(thisfilter) > -1) {
+				d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
+				d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
+				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
+			}
+		}
+	}
+	
+	if (selected) {
+		filtered.push(thisfilter)
+	} else if (filtered.indexOf(thisfilter) > -1) {
+		filtered.pop(thisfilter)
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -715,6 +819,24 @@ function makeHeatmapDropdown(vardata) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: multiFilter(cl)
+// Purpose:  checks all filter checkboxes under main class 
+//			 (ie. checking "Conservative" checks all conservative sub-groups)
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function multiFilter(cl) {
+	d3.selectAll("."+cl)
+		.property("checked", function() {
+			return (d3.select(this).property("checked")) ? false: true
+		})
+		// multi-filter doesn't trigger an onchange event, 
+		// so we need to run filterNodes manually for each item that gets checked here. 
+		.each(function() {filterNodes(this, nodes)})
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: renderAllHeatmaps()
 // Purpose:  draws all heatmaps for main viewbox
 //
@@ -731,8 +853,8 @@ function renderAllHeatmaps(vardata) {
 			.each(function(d,i) {
 				var multiplier_x = [0, 1, 2, 0, 1, 2]
 				var multiplier_y = [0, 0, 0, 1, 1, 1]
-				var xoffset = multiplier_x[i]*260
-				var yoffset = multiplier_y[i]*280
+				var xoffset = multiplier_x[i]*250
+				var yoffset = multiplier_y[i]*230
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
 }
@@ -774,10 +896,15 @@ function renderForceGraph() {
 
 	initSVG(0,0)
 
+	
 	path = svg.append("g").selectAll("path")
 		.data(force.links())
 	  .enter().append("path")
-		.attr("class", "link")
+		.attr("class", function(d) {
+			var e1 = "edge"+d.source.name
+			var e2 = "edge"+d.target.name
+			return "link "+e1+" "+e2
+		})
 		.style("stroke-width", function(d) {
 			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
 		})
@@ -793,6 +920,7 @@ function renderForceGraph() {
 	circle = svg.append("g").selectAll("circle")
 		.data(force.nodes())
 	  .enter().append("circle")
+	  	.attr("id", function(d) {return "id"+d.name})
 		.attr("r", r)
 		.style("fill", function(d) {return "steelblue"})
 		.on("mouseover", function(d) {
@@ -809,6 +937,7 @@ function renderForceGraph() {
 		.data(force.nodes())
 		.enter()
 		.append("text")
+			.attr("id", function(d) {return "txt"+d.name})
 			.attr("x", 12)
 			.attr("y", 3)
 			.style("font-size", "12pt")
@@ -828,6 +957,41 @@ function setAxis(dim, location, xoffset, yoffset) {
 						.attr("class", dim+"-axis")
 						.attr("transform", "translate("+xoffset+","+yoffset+")")
 	return axis
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setFilters
+// Purpose:  sets node filtering via filter checkboxes
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function setFilters(nodedata) {
+	
+	d3.selectAll(".filter")
+		.on("change", function() {
+			filterNodes(this)
+		})
+	
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setFilterTooltips
+// Purpose:  sets mouseover tooltips (using 'title' attr) to describe grouped filters
+//			 tooltip text comes from variables.json
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function setFilterTooltips(vardata) {
+
+	d3.selectAll(".fb-cat")
+		.datum(function() { 
+			var thisvar = d3.select(this).attr("id").substr(3)
+			var thisidx = d3.values(vardata.name).indexOf(thisvar)
+			var thisinfo = vardata.filter_cats[thisidx]
+			return thisinfo})
+		.attr("title", function(d) { return d })
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -861,23 +1025,23 @@ function setNetworkDetails(d, multi) {
 	var userinfo = { 
 			s:{	idx:null,
 				id: (multi) ? d.source.name : d.name,
-				music:"NA",
-				floor:"NA",
-				year:"NA",
-				pol:"NA",
-				sad:"NA",
-				stress:"NA",
-				exercise:"NA"
+				music: "&lt;empty&gt;",
+				floor: "&lt;empty&gt;",
+				year: "&lt;empty&gt;",
+				pol: "&lt;empty&gt;",
+				sad: "&lt;empty&gt;",
+				stress: "&lt;empty&gt;",
+				exercise: "&lt;empty&gt;",
 			  },
 			t:{	idx:null,
 				id: (multi) ? d.target.name : "&lt;empty&gt;",
-				music:(multi) ? "NA": "&lt;empty&gt;",
-				floor:(multi) ? "NA": "&lt;empty&gt;",
-				year:(multi) ? "NA": "&lt;empty&gt;",
-				pol:(multi) ? "NA": "&lt;empty&gt;",
-				sad:(multi) ? "NA": "&lt;empty&gt;",
-				stress:(multi) ? "NA": "&lt;empty&gt;",
-				exercise:(multi) ? "NA": "&lt;empty&gt;"
+				music: "&lt;empty&gt;",
+				floor: "&lt;empty&gt;",
+				year: "&lt;empty&gt;",
+				pol: "&lt;empty&gt;",
+				sad: "&lt;empty&gt;",
+				stress: "&lt;empty&gt;",
+				exercise: "&lt;empty&gt;"
 			  }
 			}
 						
@@ -972,6 +1136,19 @@ function setTabEvents() {
 		.on("mouseover", function() { return highlightTab(this) })	
 		.on("mouseout", function()  { return highlightTab(this) })	
 }
+
+function summonFilterBox() {
+	var visible = filterbox.style("visibility")
+	filterbox.style("visibility", function() {return (visible=="visible") ? "hidden" : "visible"})
+	filterbox.style("z-index", function() {return (visible=="visible") ? -10 : 10}) 
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: summonFilterBox()
+// Purpose:  raises/closes window containing node filtering options
+//
+//////////////////////////////////////////////////////////////////////////////////////
 
 function summonFilterBox() {
 	var visible = filterbox.style("visibility")
