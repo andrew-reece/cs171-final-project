@@ -553,6 +553,7 @@ function clearNetworkDetails() {
   function drawHeatmap(vardata, var_names, var_range, var_idx, 
   						hmpath, location, region, x_axis, y_axis, offset, axis_labels) {	
   
+    // get hmap data
     d3.csv(hmpath, function(error, data) {
       // if array len = 0, that means there's no need to map, the originals are
   		// the actual values (true for sad, stressed, and exercise hrs)
@@ -564,7 +565,7 @@ function clearNetworkDetails() {
         // .slice(0) copies array before reversing
         // otherwise .reverse() reverses the original array, too
         xAxis.tickValues(axis_labels.slice(0).reverse())
-  				
+  		  //xAxis.tickValues(axis_labels)
   		} else { // tickValues(null) takes array values as ticks
   			
   			// we want null arg for sad, stressed, etc, where ticks and values are equal
@@ -582,8 +583,14 @@ function clearNetworkDetails() {
       
   	  // define scale domains and ranges
   	  y.domain(var_names).range(var_range)
-  	  x.domain(var_names_r.reverse()).range(var_range_r.reverse())
-  
+  	  // x.domain(var_names_r.reverse()).range(var_range_r.reverse())
+  	  x.domain(var_names_r.reverse()).range(var_range)
+      // x.domain(var_names).range(var_range)
+      console.log("var_names:", var_names);
+      console.log("var_range:", var_range);
+      console.log("xdomain:", x.domain());
+      console.log("xrange:", x.range());
+
   	// set axes
   	x_axis.attr("height", map_height)
   	x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
@@ -593,10 +600,7 @@ function clearNetworkDetails() {
   		.style("text-anchor", "end")
   		.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
   	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
-  	
-  	// get hmap data
-  	// d3.csv(hmpath, function(error, data) {
-  
+  	  
   		// draw map	
   		heatmap = region.selectAll(".heatmap")
   			.data(data)
