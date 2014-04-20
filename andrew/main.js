@@ -447,27 +447,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// onto the d3 axis tickValues so the graph displays them instead of generics
 		
 			var axis_labels = d3.values(master_labels[name])
-			
-		// if array len = 0, that means there's no need to map, the originals are
-		// the actual values (true for sad, stressed, and exercise hrs)
-		
-/*
-			if (axis_labels.length > 0) {
-			
-				yAxis.tickValues(axis_labels)
-				
-				// .slice(0) copies array before reversing
-				// otherwise .reverse() reverses the original array, too
-				xAxis.tickValues(axis_labels.slice(0).reverse())
-				
-			} else { // tickValues(null) takes array values as ticks
-			
-			// we want null arg for sad, stressed, etc, where ticks and values are equal
-				yAxis.tickValues(null)
-				xAxis.tickValues(null)
-			}
-*/
-			
+						
 		// call drawHeatmap function, which actually renders the heatmap
 		
 			drawHeatmap(vardata, var_names, var_range, var_idx, 
