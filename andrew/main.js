@@ -451,6 +451,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// if array len = 0, that means there's no need to map, the originals are
 		// the actual values (true for sad, stressed, and exercise hrs)
 		
+/*
 			if (axis_labels.length > 0) {
 			
 				yAxis.tickValues(axis_labels)
@@ -465,6 +466,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 				yAxis.tickValues(null)
 				xAxis.tickValues(null)
 			}
+*/
 			
 		// call drawHeatmap function, which actually renders the heatmap
 		
