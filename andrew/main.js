@@ -576,13 +576,10 @@ function clearNetworkDetails() {
   	  var map_height = var_names.length * hm.size + offset.h
   	  var max_label_length = d3.max(var_names, function(d) {return d.length})
   	  var x_axis_vert_offset = max_label_length * offset.multiplier.x 
-  	  // must slice to make shallow copy as arrays are pass by reference
-  	  var var_names_r = var_names.slice()
-  	  var var_range_r = var_range.slice()
       
   	  // define scale domains and ranges
   	  y.domain(var_names).range(var_range)
-  	  x.domain(var_names_r.reverse()).range(var_range)
+  	  x.domain(var_names.slice().reverse()).range(var_range)
 
   	// set axes
   	x_axis.attr("height", map_height)
