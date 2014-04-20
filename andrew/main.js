@@ -138,6 +138,10 @@ HARD CODE */
 
 // notice box for testing only
 	var notice = d3.select("#notice")
+	
+// variable to determine if we should run the animation
+    var animation = false;
+    
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
 //////////////////////////////////////////////////////////////////////////////////////
@@ -149,7 +153,26 @@ HARD CODE */
 //      STARTUP
 //		* these functions get things going
 //////////////////////////////////////////////////////////////////////////////////////
-
+ 
+    // factored start-button event handler out of main.html as it needs more logic
+    // this could be added to one of the intiialization functions but is just here for
+    // now
+    d3.select("#start-button")
+  		.on("click", function() {
+  		  animation = animation == false ? true : false;
+  		  if(animation) { 
+  		      d3.select("#start-button").text("Click to stop");
+  
+            // if we are at the end, start from the beginning
+  		      if(slider.property("value") == numkeys - 1) { slider.property("value", elapse_seed); }
+  
+            return elapse(slider.property("value")); 
+        } else {
+            d3.select("#start-button").text("Click to start");
+        }
+  		}
+    )
+    
 	setTabEvents() // sets up tab behavior for main graph viewport
 	getVarData() // this feeds into renderPage()
 
@@ -200,48 +223,49 @@ function getAxisLabels() {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function elapse(thiskey, animation) {
-
-  //console.log("thiskey:", thiskey);
-	path.transition()
-		.duration(300)
-		.style("stroke-width", function(d) {
-			var weight = edgeScale(d[keys[thiskey]])
-			if (weight >= 5) {
-				d3.select(this).style("stroke",color(weight))
-			}
-			return weight
-
-		})
-
-// updates date in datebox
-	datebox.html(function() {
-		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
-		return thisdate
-		})
-
-// if single pane heatmap is selected, this updates heatmap based on time series	
-	if(heatmap) {
-	  for(var hm in heatMapArray) {
-	   // console.log("heatmap:", heatMapArray[hm]);
-		  heatMapArray[hm].style("fill", function(d) { 
-			  return heatmapColorScale(d[keys[thiskey]]); 
-		  });
+function elapse(thiskey) {
+    // console.log("thiskey:", thiskey);
+    // console.log("slider:", slider.property("value"));
+  	path.transition()
+  		.duration(300)
+  		.style("stroke-width", function(d) {
+  			var weight = edgeScale(d[keys[thiskey]])
+  			if (weight >= 5) {
+  				d3.select(this).style("stroke",color(weight))
+  			}
+  			return weight
+  
+  		})
+  
+  // updates date in datebox
+  	datebox.html(function() {
+  		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
+  		return thisdate
+  		})
+  
+  // if single pane heatmap is selected, this updates heatmap based on time series	
+  	if(heatmap) {
+  	  for(var hm in heatMapArray) {
+  	   // console.log("heatmap:", heatMapArray[hm]);
+  		  heatMapArray[hm].style("fill", function(d) { 
+  			  return heatmapColorScale(d[keys[thiskey]]); 
+  		  });
+      }
     }
-  }
-// if time series is selected as animation (rather than discrete intervals on slider),
-// this triggers recursion that runs until time is exhausted
-	if (animation) {
-	  	slider.property("value", thiskey)
-		svg.transition()
-			.duration(300)
-			.each("end", function() {
-				thiskey++
-				return (thiskey <= numkeys) 
-					? elapse(thiskey,true) 
-					: end()
-			})	
-	}
+  // if time series is selected as animation (rather than discrete intervals on slider),
+  // this triggers recursion that runs until time is exhausted
+  	if (animation) {
+  	  slider.property("value", thiskey)
+  		svg.transition()
+  			.duration(300)
+  			.each("end", function() {
+  				thiskey++
+  
+  				return (thiskey < numkeys) 
+  					? elapse(thiskey) 
+  					: end()
+  			})	
+  	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
