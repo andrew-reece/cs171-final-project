@@ -565,7 +565,6 @@ function clearNetworkDetails() {
         // .slice(0) copies array before reversing
         // otherwise .reverse() reverses the original array, too
         xAxis.tickValues(axis_labels.slice(0).reverse())
-  		  //xAxis.tickValues(axis_labels)
   		} else { // tickValues(null) takes array values as ticks
   			
   			// we want null arg for sad, stressed, etc, where ticks and values are equal
@@ -583,13 +582,7 @@ function clearNetworkDetails() {
       
   	  // define scale domains and ranges
   	  y.domain(var_names).range(var_range)
-  	  // x.domain(var_names_r.reverse()).range(var_range_r.reverse())
   	  x.domain(var_names_r.reverse()).range(var_range)
-      // x.domain(var_names).range(var_range)
-      console.log("var_names:", var_names);
-      console.log("var_range:", var_range);
-      console.log("xdomain:", x.domain());
-      console.log("xrange:", x.range());
 
   	// set axes
   	x_axis.attr("height", map_height)
