@@ -365,6 +365,9 @@ function renderPage(vardata) {
 		// set domain for edge weight scale, based on freqmax (see top of this function)
 		edgeScale.domain([0,freqmax])
 
+    // store data for chord diagram
+    chData = data
+		
 		// draw actual force layout
 		renderForceGraph()
 		
