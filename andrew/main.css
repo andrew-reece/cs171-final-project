@@ -41,6 +41,21 @@ td {
   stroke-width: 1.5px;
 }
 
+/* chord diagram */
+#circle circle {
+   fill: none;
+   pointer-events: all;
+}
+
+path.chord {
+   stroke: #000;
+   stroke-width: .10px;
+   transition: opacity 0.3s;
+}
+#circle:hover path.fade {
+   opacity: 0;
+}
+
 circle {
   fill: #ccc;
   stroke: #333;
