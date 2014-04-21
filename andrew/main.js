@@ -274,8 +274,8 @@ function elapse(thiskey) {
     
     // set chord diagram filter levels
 
-   filterLevel = thiskey;
-   console.log(filterLevel)
+   // filterLevel = thiskey;
+   // console.log(filterLevel)
    //filterComm(chData);
 
 
@@ -801,30 +801,31 @@ function end() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function filterComm(data) {
-//console.log(data)
-user = "all";
-var comm = [];
-
-console.log(filterLevel)
-var key = timeScale(filterLevel)
-console.log(key)
-
-for (var i = 0; i<data.length; i++) {
-if(+data[i]["source"] == +user || +data[i]["target"] == +user || user == "all") {
-var dataobject = data[i];
-//console.log(dataobject);
-
-commObject = {};
-commObject["source"] = +dataobject["source"];
-commObject["target"] = +dataobject["target"];
-commObject["freq"] = +dataobject[key];
-
-comm.push(commObject);
-}
-}
-
-//console.log(comm)
-matrixMap(comm);
+  //console.log(data)
+  user = "all";
+  var comm = [];
+  
+  filterLevel = slider.property("value")
+  console.log("filterlevel:", filterLevel)
+  var key = timeScale(filterLevel)
+  console.log("key:", key)
+  
+  for (var i = 0; i<data.length; i++) {
+    if(+data[i]["source"] == +user || +data[i]["target"] == +user || user == "all") {
+      var dataobject = data[i];
+      //console.log(dataobject);
+      
+      commObject = {};
+      commObject["source"] = +dataobject["source"];
+      commObject["target"] = +dataobject["target"];
+      commObject["freq"] = +dataobject[key];
+      
+      comm.push(commObject);
+    }
+  }
+  
+  //console.log(comm)
+  matrixMap(comm);
 }
 
 
