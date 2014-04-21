@@ -933,7 +933,8 @@ function initSVG(x_offset, y_offset) {
 			.attr("id", "graph-viewbox")
 			.attr("width", width)
 			.attr("height", height)
-			.append("g")
+			
+	svg.append("g")
 			.attr("transform", "translate("+x_offset+","+y_offset+")")
 			.attr("width", width)
 			.attr("height", height)
@@ -1112,8 +1113,16 @@ function renderAllHeatmaps(vardata) {
 function renderChordGraph() {
 
 console.log("rendering chord")
- svg.append("circle")
-    .attr("r", outerRadius);
+
+// svg.append("g")
+//   .attr("id", "circle")
+//   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+   
+   svg.append("circle")
+   .attr("r", outerRadius);
+      
+// svg.append("circle")
+//    .attr("r", outerRadius);
     
 filterComm(chData)
    
