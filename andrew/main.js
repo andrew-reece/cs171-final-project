@@ -805,26 +805,28 @@ function filterComm(data) {
   user = "all";
   var comm = [];
   
+  console.log("filterComm data:", data)
+  
   filterLevel = slider.property("value")
   console.log("filterlevel:", filterLevel)
   var key = timeScale(filterLevel)
   console.log("key:", key)
   
   for (var i = 0; i<data.length; i++) {
-    if(+data[i]["source"] == +user || +data[i]["target"] == +user || user == "all") {
+    if(+data[i]["source"]["name"] == +user || +data[i]["target"]["name"] == +user || user == "all") {
       var dataobject = data[i];
       //console.log(dataobject);
       
       commObject = {};
-      commObject["source"] = +dataobject["source"];
-      commObject["target"] = +dataobject["target"];
+      commObject["source"] = +dataobject["source"]["name"];
+      commObject["target"] = +dataobject["target"]["name"];
       commObject["freq"] = +dataobject[key];
       
       comm.push(commObject);
     }
   }
   
-  //console.log(comm)
+  console.log("filterComm:",comm)
   matrixMap(comm);
 }
 
