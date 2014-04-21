@@ -37,6 +37,7 @@
 		
 // initialize global svg var
 	var svg
+	var svg_chord
 
 // master vars hold persistent user/variable data after load via csv/json
 	var master_vardata, master_subjects, master_labels
@@ -1114,11 +1115,11 @@ function renderChordGraph() {
 
 console.log("rendering chord")
 
-// svg.append("g")
-//   .attr("id", "circle")
-//   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+svg_chord = svg.append("g")
+   .attr("id", "circle")
+   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
    
-   svg.append("circle")
+   svg_chord.append("circle")
    .attr("r", outerRadius);
       
 // svg.append("circle")
@@ -1449,11 +1450,11 @@ layout.matrix(matrix);
      	 .domain(d3.range(users.length))
      	 .range(colorbrewer.Paired[12]);  
            
- 	 svg.selectAll("g.group").remove();
- 	 svg.selectAll("g.path").remove();
+ 	 svg_chord.selectAll("g.group").remove();
+ 	 svg_chord.selectAll("g.path").remove();
  	
 /* Create/update "group" elements */
-   	var groupG = svg.selectAll("g.group") 
+   	var groupG = svg_chord.selectAll("g.group") 
        	.data(layout.groups(), function (d) {
            return d.index;
            //use a key function in case the 
@@ -1529,7 +1530,7 @@ layout.matrix(matrix);
            });
    
    /* Create/update the chord paths */
-   var chordPaths = svg.selectAll("path.chord")
+   var chordPaths = svg_chord.selectAll("path.chord")
        .data(layout.chords(), chordKey );
            //specify a key function to match chords
            //between updates 
