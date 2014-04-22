@@ -273,13 +273,9 @@ function elapse(thiskey) {
       }
     }
     
-    // set chord diagram filter levels
-
-   // filterLevel = thiskey;
-   // console.log(filterLevel)
-   //filterComm(chData);
-
-
+  //update chord data
+  filterComm(chData);
+    
 
   // if time series is selected as animation (rather than discrete intervals on slider),
   // this triggers recursion that runs until time is exhausted
