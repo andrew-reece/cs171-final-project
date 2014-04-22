@@ -142,6 +142,25 @@ HARD CODE */
 // variable to determine if we should run the animation
     var animation = false;
     
+// store data for chord functions
+var chData
+
+//  variables for chord diagram
+var innerRadius = Math.min(width, height) * .38,
+outerRadius = innerRadius * 1.1,
+students_g, text_g, ticks_g,
+filterLevel, filterDate,
+last_layout, user
+
+// chord diagram: arc path data generator for the groups
+var arc = d3.svg.arc()
+   .innerRadius(innerRadius)
+   .outerRadius(outerRadius);
+
+// chord diagram: chord path data generator for the chords
+var path2 = d3.svg.chord()
+   .radius(innerRadius);
+    
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
 //////////////////////////////////////////////////////////////////////////////////////
@@ -252,12 +271,16 @@ function elapse(thiskey) {
   		  });
       }
     }
+    
+    //update chord data
+  filterComm(chData);
+    
   // if time series is selected as animation (rather than discrete intervals on slider),
   // this triggers recursion that runs until time is exhausted
   	if (animation) {
   	  slider.property("value", thiskey)
   		svg.transition()
-  			.duration(300)
+  			.duration(1500)
   			.each("end", function() {
   				thiskey++
   
@@ -336,6 +359,9 @@ function renderPage(vardata) {
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
 		edgeScale.domain([0,freqmax])
+		
+	    // store data for chord diagram
+    	chData = data
 
 		// draw actual force layout
 		renderForceGraph()
@@ -358,6 +384,49 @@ function renderPage(vardata) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: arcTween(oldLayout)
+// Purpose:  transition function for updating Chord Graph
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function arcTween(oldLayout) {
+   //this function will be called once per update cycle
+       
+   //Create a key:value version of the old layout's groups array
+   //so we can easily find the matching group 
+   //even if the group index values don't match the array index
+   //(because of sorting)
+   var oldGroups = {};
+   
+   if (oldLayout) {
+       oldLayout.groups().forEach( function(groupData) {
+           oldGroups[ groupData.index ] = groupData;
+       });
+   }
+   
+   return function (d, i) {
+       var tween;
+       var old = oldGroups[d.index];
+       if (old) { //there's a matching old group
+           tween = d3.interpolate(old, d);
+       }
+       else {
+           //create a zero-width arc object
+           var emptyArc = {startAngle:d.startAngle,
+                           endAngle:d.startAngle};
+           tween = d3.interpolate(emptyArc, d);
+       }
+       
+       return function (t) {
+           return arc( tween(t) );
+       };
+   };
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -508,6 +577,85 @@ function changeTab(tabname) {
 	d3.select("#"+tabname).classed("selected", true)
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: chordKey(data)
+// Purpose:  creates a relationship between source and target for the chord
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function chordKey(data) {
+   return (data.source.index < data.target.index) ?
+       data.source.index  + "-" + data.target.index:
+       data.target.index  + "-" + data.source.index;
+   
+   //create a key that will represent the relationship
+   //between these two groups *regardless*
+   //of which group is called 'source' and which 'target'
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: chordTween(data)
+// Purpose:  transition function for chord diagram
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function chordTween(oldLayout) {
+   //this function will be called once per update cycle
+   
+   //Create a key:value version of the old layout's chords array
+   //so we can easily find the matching chord 
+   //(which may not have a matching index)
+   
+   var oldChords = {};
+   
+   if (oldLayout) {
+       oldLayout.chords().forEach( function(chordData) {
+           oldChords[ chordKey(chordData) ] = chordData;
+       });
+   }
+   
+   return function (d, i) {
+       //this function will be called for each active chord
+       
+       var tween;
+       var old = oldChords[ chordKey(d) ];
+       if (old) {
+           //old is not undefined, i.e.
+           //there is a matching old chord value
+           
+           //check whether source and target have been switched:
+           if (d.source.index != old.source.index ){
+               //swap source and target to match the new data
+               old = {
+                   source: old.target,
+                   target: old.source
+               };
+           }
+           
+           tween = d3.interpolate(old, d);
+       }
+       else {
+           //create a zero-width chord object
+           var emptyChord = {
+               source: { startAngle: d.source.startAngle,
+                        endAngle: d.source.startAngle},
+               target: { startAngle: d.target.startAngle,
+                        endAngle: d.target.startAngle}
+           };
+           tween = d3.interpolate( emptyChord, d );
+       }
+
+       return function (t) {
+           //this function calculates the intermediary shapes
+           return path2(tween(t));
+       };
+   };
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: clearGraph()
@@ -644,6 +792,43 @@ function end() {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: filterComm(data)
+// Purpose:  filters the data for use in the chord graph, based on the slider
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function filterComm(data) {
+  //console.log(data)
+  user = "all";
+  var comm = [];
+  
+  //console.log("filterComm data:", data)
+  
+  filterLevel = slider.property("value")
+  console.log("filterlevel:", filterLevel)
+  var key = timeScale(filterLevel)
+  //console.log("key:", key)
+  
+  for (var i = 0; i<data.length; i++) {
+    if(+data[i]["source"]["name"] == +user || +data[i]["target"]["name"] == +user || user == "all") {
+      var dataobject = data[i];
+      //console.log(dataobject);
+      
+      commObject = {};
+      commObject["source"] = +dataobject["source"]["name"];
+      commObject["target"] = +dataobject["target"]["name"];
+      commObject["freq"] = +dataobject[key];
+      
+      comm.push(commObject);
+    }
+  }
+  
+  //console.log("filterComm:",comm)
+  matrixMap(comm);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: filterNodes
 // Purpose:  shows/hides nodes based on filter checkboxes
 //
@@ -723,6 +908,21 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: getDefaultChordLayout()
+// Purpose:  basis for updating chord diagram's layout
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function getDefaultChordLayout() {
+   return d3.layout.chord()
+   .padding(0.03)
+   .sortSubgroups(d3.descending)
+   .sortChords(d3.ascending);
+} 
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: highlightTab(obj)
@@ -796,6 +996,86 @@ function makeHeatmapDropdown(vardata) {
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: matrixMap(comm)
+// Purpose:  creates square matrix for chord diagram
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function matrixMap(comm) {
+
+   var matrix = [];
+   var users = [];
+   
+   /* get all the unique users (both senders & receivers)
+   because that is going to be the number of arrays in the
+   square matrix. */
+   
+   //first add all unique source IDs
+   for (var i = 0; i< comm.length; i++) {
+     if (comm[i]["freq"] != 0) {
+       var add = 1;
+       for (var u = 0; u < users.length; u++) {
+         if (comm[i]["source"] == users[u]) {
+           add = 0;
+         };
+       }
+       if (add == 1) {
+       users.push(+comm[i]["source"]);
+      }
+     }
+   }
+
+   //then add any unique Target IDs that weren't already added
+   for (var i = 0; i< comm.length; i++) {
+    if (comm[i]["freq"] != 0) {
+       var add = 1;
+       for (var u = 0; u < users.length; u++) {
+         if (comm[i]["target"] == users[u]) {
+           add = 0;
+         };
+       }
+       if (add == 1) {
+       users.push(comm[i]["target"]);
+       }
+     }
+   }
+   
+   users.sort(function(a,b) {
+     return a - b;
+   })
+   
+   matrix.length = users.length;
+   for (var i = 0; i< matrix.length; i++) {
+     matrix[i] = [];
+     matrix[i].length = matrix.length;
+     for (var j = 0; j<matrix.length; j++) {
+       matrix[i][j] = 0;
+     }
+   };
+   
+ //populate the matrix with the frequency value
+ //for the source/user combination
+   for (var u = 0; u<users.length; u++) {
+     for (var c = 0; c<comm.length; c++) {
+       if (comm[c]["source"] == users[u]) {
+         for (var u2 = 0; u2<users.length; u2++) {
+           if (comm[c]["target"] == users[u2]) {
+             matrix[u][u2] = comm[c]["freq"];
+           }
+         }
+       }
+     }
+   };
+   
+   //console.log(matrix)
+   
+updateChord(matrix, users)
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: multiFilter(cl)
@@ -846,11 +1126,17 @@ function renderAllHeatmaps(vardata) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function renderChordGraph() {
-	svg.append("image")
-		.attr("transform", "translate(20,10)")
-		.attr("width", 750)
-		.attr("height", 550)
-		.attr("xlink:href","images/chord.png")
+
+svg_chord = svg.append("g")
+   .attr("id", "circle")
+   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+   
+   svg_chord.append("circle")
+   .attr("r", outerRadius);
+
+    
+filterComm(chData)
+   
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1158,6 +1444,185 @@ function summonFilterBox() {
 	function transform(d) {
 	  return "translate(" + d.x + "," + d.y + ")";
 	}
+	
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: updateChord(matrix, users)
+// Purpose:  updates the chord graph with new date selection
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+// some ideas pulled from http://fleetinbeing.net/d3e/chord.html
+// and http://stackoverflow.com/questions/21813723/change-and-transition-dataset-in-chord-diagram-with-d3
+
+function updateChord(matrix, users) {
+var layout = getDefaultChordLayout();
+layout.matrix(matrix);
+
+ 	 var fill = d3.scale.ordinal()
+     	 .domain(d3.range(users.length))
+     	 .range(colorbrewer.Paired[12]);  
+           
+ 	 svg_chord.selectAll("g.group").remove();
+ 	 svg_chord.selectAll("g.path").remove();
+ 	
+/* Create/update "group" elements */
+   	var groupG = svg_chord.selectAll("g.group") 
+       	.data(layout.groups(), function (d) {
+           return d.index;
+           //use a key function in case the 
+           //groups are sorted differently between updates
+       });
+       
+   groupG.exit()
+       .transition()
+           .duration(1500)
+           .attr("opacity", 0)
+           .remove(); //remove after transitions are complete
+           
+   var newGroups = groupG.enter().append("g")
+       .attr("class", "group");
+   //the enter selection is stored in a variable so we can
+   //enter the <path>, <text>, and <title> elements as well
+
+   //Create the title tooltip for the new groups
+   newGroups.append("title");
+   
+   //Update the (tooltip) title text based on the data
+   groupG.select("title")
+       .text(function(d, i) {
+           return parseInt(d.value) 
+               + " calls from " 
+               + "user " + users[i];
+       });            
+
+   //create the arc paths and set the constant attributes
+   //(those based on the group index, not on the value)
+   newGroups.append("path")
+       .attr("id", function (d) {
+           return "group" + d.index;
+           //using d.index and not i to maintain consistency
+           //even if groups are sorted
+       })
+       .style("fill", function(d) { return fill(d.index); });
+       
+ //update the paths to match the layout
+  groupG.select("path") 
+       .transition()
+       .duration(1500)
+       .attr("opacity", 0.5) //optional, just to observe the transition
+       .attrTween("d", arcTween( last_layout ))
+       .transition().duration(100).attr("opacity", 1); //reset opacity
+       
+  //create the group labels
+   newGroups.append("svg:text")
+       .attr("xlink:href", function (d) {
+           return "#group" + d.index;
+       })
+       .attr("dy", ".35em")
+       .attr("color", "#fff")
+       .text(function (d) {
+         if (users[d.index] == "0") {return "unknown user";}
+       else {return "user " + users[d.index];} });
+     
+   //position group labels to match layout
+   groupG.select("text")
+       .transition()
+           .duration(1500)
+           .attr("transform", function(d) {
+               d.angle = (d.startAngle + d.endAngle) / 2;
+               //store the midpoint angle in the data object
+               
+               return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
+                   " translate(" + (innerRadius + 30) + ")" + 
+                   (d.angle > Math.PI ? " rotate(180)" : " rotate(0)"); 
+               //include the rotate zero so that transforms can be interpolated
+           })
+           .attr("text-anchor", function (d) {
+               return d.angle > Math.PI ? "end" : "begin";
+           });
+   
+   /* Create/update the chord paths */
+   var chordPaths = svg_chord.selectAll("path.chord")
+       .data(layout.chords(), chordKey );
+           //specify a key function to match chords
+           //between updates 
+   
+ //create the new chord paths
+   var newChords = chordPaths.enter()
+       .append("path")
+       .attr("class", "chord");
+   
+   // Add title tooltip for each new chord.
+   newChords.append("title");
+   
+   // Update all chord title texts
+   chordPaths.select("title")
+       .text(function(d) {
+           if (users[d.target.index] !== users[d.source.index]) {
+               return [parseInt(d.source.value),
+                       " calls from ",
+                       "user ", users[d.source.index],
+                       " to ",
+                       "user ", users[d.target.index],
+                       "\n",
+                       parseInt(d.target.value),
+                       " calls from ",
+                       "user ", users[d.target.index],
+                       " to ",
+                       "user ", users[d.source.index]
+                       ].join(""); 
+                   //joining an array of many strings is faster than
+                   //repeated calls to the '+' operator, 
+                   //and makes for neater code!
+           } 
+           else { //source and target are the same
+               return parseInt(d.source.value) 
+                   + " calls to/from " 
+                   + "user " + users[d.source.index];
+           }
+       });
+
+   //handle exiting paths:
+   chordPaths.exit().transition()
+       .duration(1500)
+       .attr("opacity", 0)
+       .remove();
+
+   //update the path shape
+   chordPaths.transition()
+       .duration(1500)
+       .attr("opacity", 0.5) //optional, just to observe the transition
+       .style("fill", function(d) { return fill(d.source.index); })
+       .attrTween("d", chordTween(last_layout))
+       .transition().duration(100).attr("opacity", 1); //reset opacity
+   
+   
+   //add the mouseover/fade out behaviour to the groups
+   //this is reset on every update, so it will use the latest
+   //chordPaths selection
+   groupG.on("mouseover", function(d) {
+       chordPaths.classed("fade", function (p) {
+           //returns true if *neither* the source or target of the chord
+           //matches the group that has been moused-over
+           return ((p.source.index != d.index) && (p.target.index != d.index));
+       });
+   });
+
+   //the "unfade" is handled with CSS :hover class on g#circle
+   //you could also do it using a mouseout event:
+   /*
+   g.on("mouseout", function() {
+       if (this == g.node() )
+           //only respond to mouseout of the entire circle
+           //not mouseout events for sub-components
+           chordPaths.classed("fade", false);
+   });
+   */
+   
+   last_layout = layout; //save for next update  
+
+}
 	
 //////////////////////////////////////////////////////////////////////////////////////
 //      END HELPER FUNCTIONS
