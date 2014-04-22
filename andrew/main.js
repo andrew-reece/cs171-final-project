@@ -145,6 +145,9 @@ HARD CODE */
 // store data for chord functions
 var chData
 
+// svg for chord diagram
+var svg_chord
+
 //  variables for chord diagram
 var innerRadius = Math.min(width, height) * .38,
 outerRadius = innerRadius * 1.1,
@@ -273,7 +276,9 @@ function elapse(thiskey) {
     }
     
     //update chord data
-  filterComm(chData);
+	if(svg_chord) { 
+  filterComm(chData)
+  };
     
   // if time series is selected as animation (rather than discrete intervals on slider),
   // this triggers recursion that runs until time is exhausted
@@ -805,7 +810,7 @@ function filterComm(data) {
   //console.log("filterComm data:", data)
   
   filterLevel = slider.property("value")
-  console.log("filterlevel:", filterLevel)
+  //console.log("filterlevel:", filterLevel)
   var key = timeScale(filterLevel)
   //console.log("key:", key)
   
@@ -877,6 +882,8 @@ function filterNodes(obj) {
 
 function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 
+	console.log(master_subjects)
+
 	for (var i = 0; i < master_subjects.length; i++) {
 		if (reset) {
 			d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
@@ -902,11 +909,16 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	} else {
 		if (selected) {
 			filtered.push(thisfilter)
+			//console.log("filtered")
+			//console.log(filtered)
 		} else if (filtered.indexOf(thisfilter) > -1) {
 			filtered.pop(thisfilter)
+			//console.log("filtered")
+			//console.log(filtered)
 		}
 	}
 }
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////
