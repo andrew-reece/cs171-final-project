@@ -651,23 +651,31 @@ function end() {
 
 function filterNodes(obj) {
 
-	var selected= d3.select(obj).property("checked")
-	var filname = d3.select(obj).attr("name")
+	var reset = (obj == "reset") ? true : false
 	
-	if (d3.select(obj).classed("agg")) { 
+	if (!(reset)) {
+		var selected= d3.select(obj).property("checked")
+		var filname = d3.select(obj).attr("name")
+	}
+	
+	if (reset) {
+	
+		filterNodesInner(null, null, null, null, true)
+		
+	} else if (d3.select(obj).classed("agg")) { 
 	
 		var filterset = d3.select(obj).attr("value").split("-")
 		filterset.forEach( function(f) {
 			var filval = f
 			var thisfilter = filname+"-"+filval
-			filterNodesInner(selected, filname, filval, thisfilter)
+			filterNodesInner(selected, filname, filval, thisfilter, false)
 		})
-		
+
 	} else {
 	
 		var filval  = d3.select(obj).attr("value")
 		var thisfilter = filname+"-"+filval
-		filterNodesInner(selected, filname, filval, thisfilter)
+		filterNodesInner(selected, filname, filval, thisfilter, false)
 		
 	}
 }
@@ -682,26 +690,36 @@ function filterNodes(obj) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function filterNodesInner(selected, filname, filval, thisfilter) {
+function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 
 	for (var i = 0; i < master_subjects.length; i++) {
-		if (mapLabel(master_subjects[i][filname], filname) == filval) {
-			if (selected) {
-				d3.select("#id"+master_subjects[i].user_id).style("display", "none")
-				d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
-				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
-			} else if (filtered.indexOf(thisfilter) > -1) {
-				d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
-				d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
-				d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
+		if (reset) {
+			d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
+			d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
+			d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
+		} else {
+			if (mapLabel(master_subjects[i][filname], filname) == filval) {
+				if (selected) {
+					d3.select("#id"+master_subjects[i].user_id).style("display", "none")
+					d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
+					d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
+				} else if (filtered.indexOf(thisfilter) > -1) {
+					d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
+					d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
+					d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
+				}
 			}
 		}
 	}
-	
-	if (selected) {
-		filtered.push(thisfilter)
-	} else if (filtered.indexOf(thisfilter) > -1) {
-		filtered.pop(thisfilter)
+	if (reset) {
+		filtered = []
+		d3.selectAll(".filter").property("checked", false)
+	} else {
+		if (selected) {
+			filtered.push(thisfilter)
+		} else if (filtered.indexOf(thisfilter) > -1) {
+			filtered.pop(thisfilter)
+		}
 	}
 }
 
@@ -933,7 +951,10 @@ function setFilters(nodedata) {
 		.on("change", function() {
 			filterNodes(this)
 		})
-	
+	d3.select("#filter-reset")
+		.on("click", function() {
+			filterNodes("reset")
+		})
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -228,6 +228,15 @@ h4 {
 				margin-left:20px;
 			}
 			
+			a#filter-reset {
+				text-decoration:none;
+				color:rgb(110,110,110)
+			}
+			
+			a#filter-reset:hover {
+				color:darkgray;
+			}
+			
 		#heatmap-dropdown {
 			margin-left:10px;
 			vertical-align:top;
