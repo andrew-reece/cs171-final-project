@@ -147,7 +147,7 @@ HARD CODE */
 var chData
 
 //  variables for chord diagram
-var innerRadius = Math.min(width, height) * .41,
+var innerRadius = Math.min(width, height) * .38,
 outerRadius = innerRadius * 1.1,
 students_g, text_g, ticks_g,
 filterLevel, filterDate,
@@ -282,7 +282,7 @@ function elapse(thiskey) {
   	if (animation) {
   	  slider.property("value", thiskey)
   		svg.transition()
-  			.duration(300)
+  			.duration(1500)
   			.each("end", function() {
   				thiskey++
   
@@ -802,12 +802,12 @@ function filterComm(data) {
   user = "all";
   var comm = [];
   
-  console.log("filterComm data:", data)
+  //console.log("filterComm data:", data)
   
   filterLevel = slider.property("value")
   console.log("filterlevel:", filterLevel)
   var key = timeScale(filterLevel)
-  console.log("key:", key)
+  //console.log("key:", key)
   
   for (var i = 0; i<data.length; i++) {
     if(+data[i]["source"]["name"] == +user || +data[i]["target"]["name"] == +user || user == "all") {
@@ -823,7 +823,7 @@ function filterComm(data) {
     }
   }
   
-  console.log("filterComm:",comm)
+  //console.log("filterComm:",comm)
   matrixMap(comm);
 }
 
@@ -1052,7 +1052,7 @@ function matrixMap(comm) {
      }
    };
    
-   console.log(matrix)
+   //console.log(matrix)
    
 updateChord(matrix, users)
 }
