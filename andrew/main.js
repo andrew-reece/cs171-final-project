@@ -713,11 +713,13 @@ function clearNetworkDetails() {
   		
   		if (axis_labels.length > 0) {
   			
-  		  yAxis.tickValues(axis_labels)
+  		  // yAxis.tickValues(axis_labels)
+  		  xAxis.tickValues(axis_labels)
   				
         // .slice(0) copies array before reversing
         // otherwise .reverse() reverses the original array, too
-        xAxis.tickValues(axis_labels.slice(0).reverse())
+        // xAxis.tickValues(axis_labels.slice(0).reverse())
+        yAxis.tickValues(axis_labels.slice(0).reverse())
   		} else { // tickValues(null) takes array values as ticks
   			
   			// we want null arg for sad, stressed, etc, where ticks and values are equal
@@ -731,8 +733,10 @@ function clearNetworkDetails() {
   	  var x_axis_vert_offset = max_label_length * offset.multiplier.x 
       
   	  // define scale domains and ranges
-  	  y.domain(var_names).range(var_range)
-  	  x.domain(var_names.slice().reverse()).range(var_range)
+  	  // y.domain(var_names).range(var_range)
+  	  // x.domain(var_names.slice().reverse()).range(var_range)
+  	  x.domain(var_names).range(var_range)
+  	  y.domain(var_names.slice().reverse()).range(var_range)
 
   	// set axes
   	x_axis.attr("height", map_height)
