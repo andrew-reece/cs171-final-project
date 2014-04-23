@@ -30,7 +30,13 @@
 
 	<div id="controls">
 		<span class="subtitle" style="line-height:35px;">Control Panel</span>
-			<br />
+		<br />
+		Data
+			<label class="data-choices">
+				<input type="radio" class="data-choice" name="datachoice" value="com" checked />Communication 
+				<input type="radio" class="data-choice" name="datachoice" value="prox" />Proximity
+			</label>
+		<br />
 
 		Filter <div id="filter-clicker" onclick="summonFilterBox()">...</div>
 		 <span style="margin-left:20px;font-size:10pt;">&lt; Click to open, then select categories to omit &gt;</span>
@@ -105,7 +111,7 @@
 		</select>
 		<br />
 		Time Slider <input id="date-filter" type="range" name="dateFilter" min="0" max="50" step="1" value="0">
-		<br />
+		
 		Animation
 		<div id="start-button">Click to start</div>
 	</div>

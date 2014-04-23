@@ -162,6 +162,12 @@ h4 {
 		border-top: solid steelblue 1px;
 	}
 	
+		.data-choices {
+			margin-left:40px;
+			font-size:11pt;
+			color:steelblue;
+		}
+		
 		#filter-clicker {
 			position:relative;
 			top:3.5px;
@@ -178,7 +184,7 @@ h4 {
 		
 		#filter-box {
 			position:absolute;
-			top:60px;
+			top:90px;
 			left:0px;
 			width:500px;
 			display:inline-block;
@@ -257,10 +263,14 @@ h4 {
 			vertical-align:top;
 		}
 		
+		#date-filter {
+			margin-right:5px;
+		}
+		
 		#start-button {
 			position: relative;
 			top:0px;
-			left:10px;
+			left:5px;
 			width:85px;
 			display:inline-block;
 			height:15px;
@@ -275,18 +285,23 @@ h4 {
 		
 	#date {
 		position: relative;
-		top:10px;
+		top:5px;
 		left:0px;
-		width:370px;
-		padding-bottom:10px;
+		width:400px;
+		padding-bottom:5px;
 		border-bottom: solid steelblue 1px;
 	}
 	
+		.date-box {
+			margin-left:10px;
+			font-size:15pt;
+		}
+		
 	#details {
 		position: relative;
 		top:20px;
 		left:0px;
-		width:370px;
+		width:400px;
 		padding-bottom:80px;
 		border-bottom: solid steelblue 1px;
 	}	
@@ -295,7 +310,7 @@ h4 {
 			position: relative;
 			top:10px;
 			left:1px;
-			width:350px;
+			width:370px;
 			display:inline-block;
 			height:80px;
 			padding-bottom:50px;
@@ -325,8 +340,7 @@ h4 {
 		color:purple;
 		z-index:200;
 		font-size:20pt;
-	}
-	
+	}	
  .x-axis {
   fill: none;
   stroke: #000;

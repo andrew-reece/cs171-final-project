@@ -25,15 +25,12 @@
 ////////////////////////////////////////////////////////
 //
 //
-// 	ONLY CHANGE THIS ts VARIABLE TO SWITCH TIME SERIES BETWEEN com & prox
+// 	ONLY CHANGE THIS FUNCTION ARG TO SWITCH TIME SERIES BETWEEN com & prox
 //
-	var ts = "com" // switch to "prox" for proxdata
+	setTimeSeriesData("com") // switch arg to "prox" to load proxdata as default
 //
 //
 ////////////////////////////////////////////////////////
-	
-	var ts_type = "-"+ts+"data"	
-	var ts_filename = "data/"+ts+"-pairs.csv"
 		
 // initialize global svg var
 	var svg
@@ -43,7 +40,8 @@
 	
 // force-directed graph objects
 	var nodes = {}, links = []
-	var path, circle, text
+	var path, circle, text, force
+	var redraw = false
 	
 // default node radius
 	var r = 6
@@ -195,6 +193,14 @@ var path2 = d3.svg.chord()
   		}
     )
     
+    // if dataset is switched, reload everything
+    d3.selectAll(".data-choice")
+    	.on("click", function() {
+    		setTimeSeriesData(this.value)
+    		redraw = true
+    		getVarData()
+    	})
+    	
 	setTabEvents() // sets up tab behavior for main graph viewport
 	getVarData() // this feeds into renderPage()
 
@@ -1015,6 +1021,22 @@ function makeHeatmapDropdown(vardata) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: mapLabel(raw, thisvar)
+// Purpose:  converts generic variable names to meaningful labels (ie. TYPE1 -> LIB1
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function mapLabel(raw, thisvar) {
+	if (raw.substr(0,4) == "TYPE") {
+		var idx = d3.values(master_labels.type).indexOf( raw )
+		return master_labels[thisvar][idx]
+	} else {
+		return raw
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: matrixMap(comm)
 // Purpose:  creates square matrix for chord diagram
 //
@@ -1164,7 +1186,52 @@ filterComm(chData)
 
 function renderForceGraph() {	
 
-	var force = d3.layout.force()
+	if (redraw) {
+		force .nodes(d3.values(nodes))
+			  .links(links)
+			  .alpha(0.01)
+			  .start()
+			  
+		path = path.data(force.links())
+				.style("stroke-width", function(d) { return edgeScale(d[keys[4]]) })
+		path.exit().remove()
+		path.enter().append("path")
+		.attr("class", function(d) {
+			var e1 = "edge"+d.source.name
+			var e2 = "edge"+d.target.name
+			return "link "+e1+" "+e2
+		})
+		.style("stroke-width", function(d) {
+			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
+		})
+		.on("mouseover", function(d) {
+			d3.select(this).style("stroke", "purple")
+			setNetworkDetails(d,true) 
+		})
+		.on("mouseout", function(d) {
+			d3.select(this).style("stroke", "#666")
+			clearNetworkDetails()
+		})
+		circle = circle.data(force.nodes())
+		circle.exit().remove()
+		circle.enter().append("circle")
+	  	.attr("id", function(d) {return "id"+d.name})
+		.attr("r", r)
+		.style("fill", function(d) {return "steelblue"})
+		.on("mouseover", function(d) {
+			d3.select(this).style("fill", "purple")
+			setNetworkDetails(d,false) 
+		})
+		.on("mouseout", function(d) {
+			d3.select(this).style("fill", "steelblue")
+			clearNetworkDetails()
+		})
+		.call(force.drag);
+		text = text.data(force.nodes())
+		
+	} else {
+	
+	force = d3.layout.force()
 		.nodes(d3.values(nodes))
 		.links(links)
 		.size([width, height])
@@ -1174,7 +1241,7 @@ function renderForceGraph() {
 		.gravity(.3)
 		.on("tick", tick)
 		.start();
-
+	
 	initSVG(0,0)
 
 	
@@ -1213,7 +1280,7 @@ function renderForceGraph() {
 			clearNetworkDetails()
 		})
 		.call(force.drag);
-
+		
 	text = svg.append("g").selectAll("text")
 		.data(force.nodes())
 		.enter()
@@ -1223,6 +1290,7 @@ function renderForceGraph() {
 			.attr("y", 3)
 			.style("font-size", "12pt")
 			.text(function(d) { return d.name; });
+	}
 }
 	
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1395,15 +1463,6 @@ function setNetworkDetails(d, multi) {
 			)
 }
 
-function mapLabel(raw, thisvar) {
-	if (raw.substr(0,4) == "TYPE") {
-		var idx = d3.values(master_labels.type).indexOf( raw )
-		return master_labels[thisvar][idx]
-	} else {
-		return raw
-	}
-}
-
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: setTabEvents
@@ -1419,6 +1478,19 @@ function setTabEvents() {
 		})
 		.on("mouseover", function() { return highlightTab(this) })	
 		.on("mouseout", function()  { return highlightTab(this) })	
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setTimeSeriesData(tslabel)
+// Purpose:  sets global vars that define var/filepaths for time series datasets
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function setTimeSeriesData(tslabel) {
+	ts = tslabel
+	ts_type = "-"+ts+"data"	
+	ts_filename = "data/"+ts+"-pairs.csv"
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
