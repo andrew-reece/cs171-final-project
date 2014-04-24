@@ -114,6 +114,7 @@ HARD CODE */
 	
 // init array holding current filtered-out variables
 	var filtered = []
+	var filtered_nodes = []
 	
 // set index for elapse function
 // this is the column at which it should start drawing from time series dataset
@@ -236,7 +237,21 @@ function getVarData() {
 
 function getSubjectData() {
 	var fpath = "data/subjects-master.csv"
-	d3.csv(fpath, function(error, data) { master_subjects = data; getAxisLabels(); })
+	d3.csv(fpath, function(error, data) { 
+		data.forEach( function(d) {
+			nodes[d.user_id] = { name: 				d.user_id,
+								 year_school:		d.year_school,
+								 fav_music: 		d.fav_music,
+								 floor: 			d.floor,
+								 libcon:			d.libcon,
+								 sad:				d.sad,
+								 stressed:			d.stressed,
+								 aerobic_per_week: 	d.aerobic_per_week
+								}
+		})
+		master_subjects = data; 
+		getAxisLabels(); 
+	})
 }
 
 function getAxisLabels() {
@@ -329,10 +344,9 @@ function renderPage(vardata) {
 	// i don't remember where it's from.
 	
 		links.forEach(function(link) {
-		  link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
-		  link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+		  link.source = nodes[link.source];
+		  link.target = nodes[link.target];
 		});	
-
 // sets filter checkbox functionality based on node data
 	setFilters(nodes)
 	setFilterTooltips(master_vardata)
@@ -693,12 +707,12 @@ function clearHeatmap() {
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: clearNetworkDetails()
-// Purpose:  clears out network details pane
+// Purpose:  clears out network detail table cells
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
 function clearNetworkDetails() {
-	deetbox.html("")
+	d3.selectAll(".network-detail").html("")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -851,28 +865,37 @@ function filterComm(data) {
 
 function filterNodes(obj) {
 
+	// is the function call from the reset button?
 	var reset = (obj == "reset") ? true : false
 	
+	// if not, then get the specific on/off status and name of the calling filter
 	if (!(reset)) {
 		var selected= d3.select(obj).property("checked")
 		var filname = d3.select(obj).attr("name")
 	}
 	
+	// if reset, call filterNodesInner() with only the reset parameter set
+	// (we don't need anything else, as it applies to all filters)
 	if (reset) {
 	
 		filterNodesInner(null, null, null, null, true)
-		
+	
+	// if it's an aggregate filter (eg. Conservative or Liberal)...
 	} else if (d3.select(obj).classed("agg")) { 
 	
+		// break down the aggregate into its parts
 		var filterset = d3.select(obj).attr("value").split("-")
+		// call filterNodesInner() for each part
 		filterset.forEach( function(f) {
 			var filval = f
 			var thisfilter = filname+"-"+filval
 			filterNodesInner(selected, filname, filval, thisfilter, false)
 		})
 
+	// in the case of a specific filter...
 	} else {
 	
+		// call filterNodesInner() for just the single filter
 		var filval  = d3.select(obj).attr("value")
 		var thisfilter = filname+"-"+filval
 		filterNodesInner(selected, filname, filval, thisfilter, false)
@@ -892,41 +915,58 @@ function filterNodes(obj) {
 
 function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 
-	console.log(master_subjects)
-
-	for (var i = 0; i < master_subjects.length; i++) {
-		if (reset) {
-			d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
-			d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
-			d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
-		} else {
-			if (mapLabel(master_subjects[i][filname], filname) == filval) {
-				if (selected) {
-					d3.select("#id"+master_subjects[i].user_id).style("display", "none")
-					d3.select("#txt"+master_subjects[i].user_id).style("display", "none")
-					d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "none")
-				} else if (filtered.indexOf(thisfilter) > -1) {
-					d3.select("#id"+master_subjects[i].user_id).style("display", "inherit")
-					d3.select("#txt"+master_subjects[i].user_id).style("display", "inline")
-					d3.selectAll(".edge"+master_subjects[i].user_id).style("display", "inline")
-				}
+	// both .node and .link class have all the variable information about each subject
+	// so we can use d3.selectAll for nodes and links (ie. edges) to check if the current
+	// filter applies to a given graph element.  if so, we blank it out, if not, leave be.
+	
+	// the node label (ie. '34') visibility is controlled within the node display setting
+	// edges only display if both endpoint-nodes are also visible.
+	
+	d3.selectAll(".node")
+	  .style("display", function(d) {
+	  
+		 if (reset) {	// if reset button is clicked
+		 
+			d3.select("#txt"+d.name).style("display", "inline") // update label text
+		 	return "inline"
+		 	
+		 // does the calling filter apply to this node?
+		 } else if (mapLabel( d[filname], filname) == filval) { 
+		 
+		 	if (selected) {	// selected = checkbox is checked
+		 	
+				d3.select("#txt"+d.name).style("display", "none")
+				return "none"
+				
+		 	} else {		// else checkbox is unchecked, ie. drop the filter
+	
+				d3.select("#txt"+d.name).style("display", "inline")
+				return "inline"
+		 	}
+		 } 
+		 // otherwise, just stick with what we've already got
+		 else { return d3.select(this).style("display") }
+		 
+	  })
+		
+	d3.selectAll(".link")
+		.style("display", function(d,i) {
+		
+			if (reset) { return "inline" } // reset makes all edges visible
+			
+			else {
+			
+				// check to ensure both node-endings are visible
+				if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
+					(d3.select("#id"+d.target.name).style("display") == "inline")) {
+					
+					return "inline"
+				} 
+				
+				// otherwise hide the edge between them	
+				else { return "none" }
 			}
-		}
-	}
-	if (reset) {
-		filtered = []
-		d3.selectAll(".filter").property("checked", false)
-	} else {
-		if (selected) {
-			filtered.push(thisfilter)
-			//console.log("filtered")
-			//console.log(filtered)
-		} else if (filtered.indexOf(thisfilter) > -1) {
-			filtered.pop(thisfilter)
-			//console.log("filtered")
-			//console.log(filtered)
-		}
-	}
+		})	 
 }
 
 
@@ -1186,68 +1226,74 @@ filterComm(chData)
 
 function renderForceGraph() {	
 
+	// redraw triggers when user switches datasets
+	// this remakes the force graph with new node/link values
+	
 	if (redraw) {
+	
 		force .nodes(d3.values(nodes))
 			  .links(links)
-			  .alpha(0.01)
 			  .start()
 			  
 		path = path.data(force.links())
-				.style("stroke-width", function(d) { return edgeScale(d[keys[4]]) })
 		path.exit().remove()
-		path.enter().append("path")
-		.attr("class", function(d) {
-			var e1 = "edge"+d.source.name
-			var e2 = "edge"+d.target.name
-			return "link "+e1+" "+e2
-		})
-		.style("stroke-width", function(d) {
-			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
-		})
-		.on("mouseover", function(d) {
-			d3.select(this).style("stroke", "purple")
-			setNetworkDetails(d,true) 
-		})
-		.on("mouseout", function(d) {
-			d3.select(this).style("stroke", "#666")
-			clearNetworkDetails()
-		})
+
+		renderForceLinks()
+		
 		circle = circle.data(force.nodes())
 		circle.exit().remove()
-		circle.enter().append("circle")
-	  	.attr("id", function(d) {return "id"+d.name})
-		.attr("r", r)
-		.style("fill", function(d) {return "steelblue"})
-		.on("mouseover", function(d) {
-			d3.select(this).style("fill", "purple")
-			setNetworkDetails(d,false) 
-		})
-		.on("mouseout", function(d) {
-			d3.select(this).style("fill", "steelblue")
-			clearNetworkDetails()
-		})
-		.call(force.drag);
+		
+		renderForceNodes()
+		
 		text = text.data(force.nodes())
 		
 	} else {
 	
-	force = d3.layout.force()
-		.nodes(d3.values(nodes))
-		.links(links)
-		.size([width, height])
-		.linkDistance(400)
-		.charge(-50)
-		.friction(.2)
-		.gravity(.3)
-		.on("tick", tick)
-		.start();
+		force = d3.layout.force()
+			.nodes(d3.values(nodes))
+			.links(links)
+			.size([width, height])
+			.linkDistance(400)
+			.charge(-50)
+			.friction(.2)
+			.gravity(.3)
+			.on("tick", tick)
+			.start();
 	
-	initSVG(0,0)
+		initSVG(0,0)
 
+		path = svg.append("g").selectAll("path")
+			.data(force.links())
+
+		renderForceLinks()
+		
+		circle = svg.append("g").selectAll("circle")
+			.data(force.nodes())
+		
+		renderForceNodes()
+		
+		text = svg.append("g").selectAll("text")
+			.data(force.nodes())
+			.enter()
+			.append("text")
+				.attr("id", function(d) {return "txt"+d.name})
+				.attr("x", 12)
+				.attr("y", 3)
+				.style("font-size", "12pt")
+				.text(function(d) { return d.name; });
+	}
+}
 	
-	path = svg.append("g").selectAll("path")
-		.data(force.links())
-	  .enter().append("path")
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: renderForceLinks()
+// Purpose:  helper function for renderForce(), draws edges
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function renderForceLinks() {
+
+	path.enter().append("path")
 		.attr("class", function(d) {
 			var e1 = "edge"+d.source.name
 			var e2 = "edge"+d.target.name
@@ -1264,35 +1310,35 @@ function renderForceGraph() {
 			d3.select(this).style("stroke", "#666")
 			clearNetworkDetails()
 		})
-		
-	circle = svg.append("g").selectAll("circle")
-		.data(force.nodes())
-	  .enter().append("circle")
-	  	.attr("id", function(d) {return "id"+d.name})
-		.attr("r", r)
-		.style("fill", function(d) {return "steelblue"})
-		.on("mouseover", function(d) {
-			d3.select(this).style("fill", "purple")
-			setNetworkDetails(d,false) 
-		})
-		.on("mouseout", function(d) {
-			d3.select(this).style("fill", "steelblue")
-			clearNetworkDetails()
-		})
-		.call(force.drag);
-		
-	text = svg.append("g").selectAll("text")
-		.data(force.nodes())
-		.enter()
-		.append("text")
-			.attr("id", function(d) {return "txt"+d.name})
-			.attr("x", 12)
-			.attr("y", 3)
-			.style("font-size", "12pt")
-			.text(function(d) { return d.name; });
-	}
 }
-	
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: renderForceNodes()
+// Purpose:  helper function for renderForce(), draws nodes
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function renderForceNodes() {
+	circle.enter()
+		.append("circle")
+			.attr("class", "node")
+			.attr("id", function(d) {return "id"+d.name})
+			.attr("r", r)
+			.style("fill", function(d) {return "steelblue"})
+			.on("mouseover", function(d) {
+				d3.select(this).style("fill", "purple")
+				setNetworkDetails(d,false) 
+			})
+			.on("mouseout", function(d) {
+				d3.select(this).style("fill", "steelblue")
+				clearNetworkDetails()
+			})
+			.call(force.drag);
+}
+
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: setAxis
@@ -1373,94 +1419,35 @@ function setHmapArea(container, x_offset, y_offset) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function setNetworkDetails(d, multi) {
-	var userinfo = { 
-			s:{	idx:null,
-				id: (multi) ? d.source.name : d.name,
-				music: "&lt;empty&gt;",
-				floor: "&lt;empty&gt;",
-				year: "&lt;empty&gt;",
-				pol: "&lt;empty&gt;",
-				sad: "&lt;empty&gt;",
-				stress: "&lt;empty&gt;",
-				exercise: "&lt;empty&gt;",
-			  },
-			t:{	idx:null,
-				id: (multi) ? d.target.name : "&lt;empty&gt;",
-				music: "&lt;empty&gt;",
-				floor: "&lt;empty&gt;",
-				year: "&lt;empty&gt;",
-				pol: "&lt;empty&gt;",
-				sad: "&lt;empty&gt;",
-				stress: "&lt;empty&gt;",
-				exercise: "&lt;empty&gt;"
-			  }
-			}
-						
-	for (var i = 0; i < master_subjects.length; i++) {
-		if (master_subjects[i].user_id == userinfo.s.id) {
-			userinfo.s.idx = i
-			userinfo.s.music = master_subjects[i].fav_music
-			userinfo.s.floor = master_subjects[i].floor
-			userinfo.s.year = master_subjects[i].year_school
-			userinfo.s.pol = master_subjects[i].libcon
-			userinfo.s.sad = master_subjects[i].sad
-			userinfo.s.stress = master_subjects[i].stressed
-			userinfo.s.exercise = master_subjects[i].aerobic_per_week	
-		} else if (master_subjects[i].user_id == userinfo.t.id) {
-			userinfo.t.idx = i
-			userinfo.t.music = master_subjects[i].fav_music
-			userinfo.t.floor = master_subjects[i].floor
-			userinfo.t.year = master_subjects[i].year_school
-			userinfo.t.pol = master_subjects[i].libcon
-			userinfo.t.sad = master_subjects[i].sad
-			userinfo.t.stress = master_subjects[i].stressed
-			userinfo.t.exercise = master_subjects[i].aerobic_per_week
-		}
-	}
-	var targetdata = (multi) 
-		? userinfo.t
-		: {id:"",year:"",floor:"",pol:"",music:"",sad:"",stress:"",exercise:""}
+function setNetworkDetails(d, isedge) {
+
+	// this function displays info for both single nodes and for edge pairwise relationships
+	// 'd' is the edge object, passed in from renderForce()
+
+	// 'isedge' boolean determines whether target data is displayed or not
+	var targetdata = (isedge) 
+		? d.target
+		: {	name:"",year_school:"",floor:"",libcon:"",
+			fav_music:"",sad:"",stressed:"",aerobic_per_week:"" }
 	
-		
-	deetbox.html(
-				"<table id='details-table'>"+
-					"<tr class='head'>"+
-						"<th> </th><th>Source Node</th><th>Target Node</th>" +
-					"</tr><tr>" +
-						"<td class='rowhead'>User ID</td>" +
-						"<td>"+mapLabel(userinfo.s.id, "user_id") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.id, "user_id") + "</td>" + 
-					"</tr><tr class='zebra'>" +
-						"<td class='rowhead'>Year</td>" +
-						"<td>"+mapLabel(userinfo.s.year,"year_school") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.year, "year_school") + "</td>" + 
-					"</tr><tr>" +
-						"<td class='rowhead'>Dorm Floor</td>" +
-						"<td>"+mapLabel(userinfo.s.floor, "floor") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.floor, "floor") + "</td>" + 
-					"</tr><tr class='zebra'>" +
-						"<td class='rowhead'>Politics</td>" +
-						"<td>"+mapLabel(userinfo.s.pol, "libcon") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.pol, "libcon") + "</td>" + 
-					"</tr><tr>" +
-						"<td class='rowhead'>Fav Music</td>" +
-						"<td>"+mapLabel(userinfo.s.music, "fav_music") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.music, "fav_music") + "</td>" + 
-					"</tr><tr class='zebra'>" +
-						"<td class='rowhead'>Sad</td>" +
-						"<td>"+mapLabel(userinfo.s.sad, "sad") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.sad, "sad") + "</td>" + 
-					"</tr><tr>" +
-						"<td class='rowhead'>Stressed</td>" +
-						"<td>"+mapLabel(userinfo.s.stress, "stress") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.stress, "stress") + "</td>" + 
-					"</tr><tr class='zebra'>" +
-						"<td class='rowhead'>Exercise</td>" +
-						"<td>"+mapLabel(userinfo.s.exercise, "stress") + "</td>" +
-						"<td>"+mapLabel(userinfo.t.exercise, "stress") + "</td>" + 
-				"</table>"
-			)
+	// source/target objects have other properties besides the ones we want
+	// so 'cats' array is to check that we're only using desired properties
+	var cats = ['name','year_school','floor','libcon','fav_music','sad','stressed','aerobic_per_week']
+
+	// each table cell has a unique id that includes the variable name it displays
+	// here we loop through source/target objects, and display their attribute values in the appropriate table cells		
+	d3.entries(d.source).forEach( function(el) {
+		if (cats.indexOf(el.key) > -1) {
+			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key) )
+		}
+	})
+	
+	d3.entries(targetdata).forEach( function(el) {
+		if (cats.indexOf(el.key) > -1) {
+			d3.select("#td-t-"+el.key).html( mapLabel(el.value, el.key) )
+		}
+	})
+	
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
