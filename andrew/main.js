@@ -841,6 +841,8 @@ function filterComm(data) {
 
 function filterNodes(obj) {
 
+	console.log(obj)
+
 	var reset = (obj == "reset") ? true : false
 	
 	if (!(reset)) {
@@ -882,7 +884,7 @@ function filterNodes(obj) {
 
 function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 
-	console.log(master_subjects)
+	//console.log(master_subjects)
 
 	for (var i = 0; i < master_subjects.length; i++) {
 		if (reset) {
@@ -915,6 +917,24 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 			filtered.pop(thisfilter)
 			//console.log("filtered")
 			//console.log(filtered)
+		}
+	}
+	
+	if(svg_chord) {
+		for (var i = 0; i < master_subjects.length; i++) {
+			if (reset) {
+				d3.selectAll(".chord"+master_subjects[i].user_id).style("display", "inline")
+			}
+			else {
+				if (mapLabel(master_subjects[i][filname], filname) == filval) {
+					if (selected) { 
+						d3.selectAll(".chord"+master_subjects[i].user_id).style("display", "none")
+					}
+					else if (filtered.indexOf(thisfilter) > -1) { 
+						d3.selectAll(".chord"+master_subjects[i].user_id).style("display", "inline")
+					}
+				}
+			}
 		}
 	}
 }
@@ -1145,9 +1165,11 @@ svg_chord = svg.append("g")
    
    svg_chord.append("circle")
    .attr("r", outerRadius);
+   
+   console.log(chData)
 
-    
-filterComm(chData)
+	setFilters(chData)
+	filterComm(chData)
    
 }
 
@@ -1244,6 +1266,8 @@ function setAxis(dim, location, xoffset, yoffset) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function setFilters(nodedata) {
+
+	console.log(nodedata)
 	
 	d3.selectAll(".filter")
 		.on("change", function() {
@@ -1471,6 +1495,9 @@ function updateChord(matrix, users) {
 var layout = getDefaultChordLayout();
 layout.matrix(matrix);
 
+//console.log("matrix: " + matrix)
+//console.log("users: " + users)
+
  	 var fill = d3.scale.ordinal()
      	 .domain(d3.range(users.length))
      	 .range(colorbrewer.Paired[12]);  
@@ -1560,10 +1587,17 @@ layout.matrix(matrix);
            //specify a key function to match chords
            //between updates 
    
- //create the new chord paths
+ // create the new chord paths
+ // give them a class that can be used by filtering function
+ // similar to how edges are classed in force graph
    var newChords = chordPaths.enter()
        .append("path")
-       .attr("class", "chord");
+       		.attr("class", function(d) {
+			var c1 = "chord"+users[d.source.index]
+			var c2 = "chord"+users[d.target.index]
+			return "chord "+c1+" "+c2
+		});
+       //.attr("class", "chord");
    
    // Add title tooltip for each new chord.
    newChords.append("title");
