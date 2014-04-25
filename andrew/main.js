@@ -1169,7 +1169,7 @@ function multiFilter(cl) {
 		})
 		// multi-filter doesn't trigger an onchange event, 
 		// so we need to run filterNodes manually for each item that gets checked here. 
-		.each(function() {filterNodes(this, nodes)})
+		.each(function() {filterNodes(this)})
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
