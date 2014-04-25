@@ -198,6 +198,7 @@ var path2 = d3.svg.chord()
     d3.selectAll(".data-choice")
     	.on("click", function() {
     		keys = []
+    		dateRange = []
     		setTimeSeriesData(this.value)
     		redraw = true
     		getVarData()
@@ -370,6 +371,7 @@ function renderPage(vardata) {
     })
     
     console.log(keys)
+    console.log(dateRange)
     
     // create our timeScale
       timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
