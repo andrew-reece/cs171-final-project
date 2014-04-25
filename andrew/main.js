@@ -370,8 +370,8 @@ function renderPage(vardata) {
       return new Date(a) - new Date(b);
     })
     
-    console.log(keys)
-    console.log(dateRange)
+    // console.log(keys)
+    // console.log(dateRange)
     
     // create our timeScale
       timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
@@ -1550,7 +1550,8 @@ layout.matrix(matrix);
 /* Create/update "group" elements */
    	var groupG = svg_chord.selectAll("g.group") 
        	.data(layout.groups(), function (d) {
-           return d.index;
+           // return d.index;
+           return users[d.index];
            //use a key function in case the 
            //groups are sorted differently between updates
        });
@@ -1581,12 +1582,13 @@ layout.matrix(matrix);
    //(those based on the group index, not on the value)
    newGroups.append("path")
        .attr("id", function (d) {
-           return "group" + d.index;
+           // return "group" + d.index;
+           return "group" + users[d.index];
            //using d.index and not i to maintain consistency
            //even if groups are sorted
        })
-       .style("fill", function(d) { return fill(d.index); });
-       
+       // .style("fill", function(d) { return fill(d.index); });
+       .style("fill", function(d) { return fill(users[d.index]); });
  //update the paths to match the layout
   groupG.select("path") 
        .transition()
@@ -1598,7 +1600,8 @@ layout.matrix(matrix);
   //create the group labels
    newGroups.append("svg:text")
        .attr("xlink:href", function (d) {
-           return "#group" + d.index;
+           // return "#group" + d.index;
+           return "#group" + users[d.index];
        })
        .attr("dy", ".35em")
        .attr("color", "#fff")
@@ -1686,7 +1689,8 @@ layout.matrix(matrix);
        chordPaths.classed("fade", function (p) {
            //returns true if *neither* the source or target of the chord
            //matches the group that has been moused-over
-           return ((p.source.index != d.index) && (p.target.index != d.index));
+           // return ((p.source.index != d.index) && (p.target.index != d.index));
+           return ((users[p.source.index] != users[d.index]) && (users[p.target.index] != users[d.index]));
        });
    });
 
