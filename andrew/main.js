@@ -887,7 +887,7 @@ function matrixMap(comm) {
    
    //first add all unique source IDs
    for (var i = 0; i< comm.length; i++) {
-     if (comm[i]["freq"] != 0) {
+//     if (comm[i]["freq"] != 0) {
        var add = 1;
        for (var u = 0; u < users.length; u++) {
          if (comm[i]["source"] == users[u]) {
@@ -897,12 +897,12 @@ function matrixMap(comm) {
        if (add == 1) {
        users.push(+comm[i]["source"]);
       }
-     }
+//     }
    }
 
    //then add any unique Target IDs that weren't already added
    for (var i = 0; i< comm.length; i++) {
-    if (comm[i]["freq"] != 0) {
+//    if (comm[i]["freq"] != 0) {
        var add = 1;
        for (var u = 0; u < users.length; u++) {
          if (comm[i]["target"] == users[u]) {
@@ -912,7 +912,7 @@ function matrixMap(comm) {
        if (add == 1) {
        users.push(comm[i]["target"]);
        }
-     }
+//     }
    }
    
    users.sort(function(a,b) {
@@ -1550,8 +1550,8 @@ layout.matrix(matrix);
      	 .domain(d3.range(users.length))
      	 .range(colorbrewer.Paired[12]);  
            
- 	 svg_chord.selectAll("g.group").remove();
- 	 svg_chord.selectAll("g.path").remove();
+// 	 svg_chord.selectAll("g.group").remove();
+// 	 svg_chord.selectAll("g.path").remove();
  	
 /* Create/update "group" elements */
    	var groupG = svg_chord.selectAll("g.group") 
@@ -1595,11 +1595,12 @@ layout.matrix(matrix);
        })
        // .style("fill", function(d) { return fill(d.index); });
        .style("fill", function(d) { return fill(users[d.index]); });
+
  //update the paths to match the layout
   groupG.select("path") 
        .transition()
        .duration(chordDuration)
-       .attr("opacity", 0.5) //optional, just to observe the transition
+//       .attr("opacity", 0.5) //optional, just to observe the transition
        .attrTween("d", arcTween( last_layout ))
        .transition().duration(100).attr("opacity", 1); //reset opacity
        
@@ -1615,6 +1616,7 @@ layout.matrix(matrix);
        .text(function (d) {
          if (users[d.index] == "0") {return "unknown user";}
        else {return "user " + users[d.index];} })
+/*
         .attr("transform", function(d) {
                d.angle = (d.startAngle + d.endAngle) / 2;
                //store the midpoint angle in the data object
@@ -1627,26 +1629,27 @@ layout.matrix(matrix);
         .attr("text-anchor", function (d) {
                return d.angle > Math.PI ? "end" : "begin";
            })
+*/
        ;
      
    //position group labels to match layout
-//    groupG.select("text")
-//        .transition()
-//            .duration(chordDuration)
-//            .attr("transform", function(d) {
-//                d.angle = (d.startAngle + d.endAngle) / 2;
-//                //store the midpoint angle in the data object
-//                
-//                return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
-//                    " translate(" + (innerRadius + 30) + ")" + 
-//                    (d.angle > Math.PI ? " rotate(180)" : " rotate(0)"); 
-//                //include the rotate zero so that transforms can be interpolated
-//            })
-//            .attr("text-anchor", function (d) {
-//                return d.angle > Math.PI ? "end" : "begin";
-//            })
+    groupG.select("text")
+        .transition()
+            .duration(chordDuration)
+            .attr("transform", function(d) {
+                d.angle = (d.startAngle + d.endAngle) / 2;
+                //store the midpoint angle in the data object
+                
+                return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
+                    " translate(" + (innerRadius + 30) + ")" + 
+                    (d.angle > Math.PI ? " rotate(180)" : " rotate(0)"); 
+                //include the rotate zero so that transforms can be interpolated
+            })
+            .attr("text-anchor", function (d) {
+                return d.angle > Math.PI ? "end" : "begin";
+            })
 //            .attr("visibility", "visible")
-//            ;
+            ;
    
    /* Create/update the chord paths */
    var chordPaths = svg_chord.selectAll("path.chord")
