@@ -162,6 +162,9 @@ var arc = d3.svg.arc()
 // chord diagram: chord path data generator for the chords
 var path2 = d3.svg.chord()
    .radius(innerRadius);
+   
+// chord diagram: transition duration (needs to be a little slower than force graph)
+var chordDuration = 1500;
     
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
@@ -198,6 +201,7 @@ var path2 = d3.svg.chord()
     d3.selectAll(".data-choice")
     	.on("click", function() {
     		keys = []
+    		dateRange = []
     		setTimeSeriesData(this.value)
     		redraw = true
     		getVarData()
@@ -309,7 +313,10 @@ function elapse(thiskey) {
   	if (animation) {
   	  slider.property("value", thiskey)
   		svg.transition()
-  			.duration(300)
+  			.duration(function() {
+  			if (svg_chord) {return chordDuration}
+  			else {return 300}
+  			})
   			.each("end", function() {
   				thiskey++
   
@@ -1556,7 +1563,7 @@ layout.matrix(matrix);
        
    groupG.exit()
        .transition()
-           .duration(1500)
+           .duration(chordDuration)
            .attr("opacity", 0)
            .remove(); //remove after transitions are complete
            
@@ -1589,7 +1596,7 @@ layout.matrix(matrix);
  //update the paths to match the layout
   groupG.select("path") 
        .transition()
-       .duration(1500)
+       .duration(chordDuration)
        .attr("opacity", 0.5) //optional, just to observe the transition
        .attrTween("d", arcTween( last_layout ))
        .transition().duration(100).attr("opacity", 1); //reset opacity
@@ -1601,15 +1608,11 @@ layout.matrix(matrix);
        })
        .attr("dy", ".35em")
        .attr("color", "#fff")
+       //.attr("visibility", "hidden")
        .text(function (d) {
          if (users[d.index] == "0") {return "unknown user";}
-       else {return "user " + users[d.index];} });
-     
-   //position group labels to match layout
-   groupG.select("text")
-       .transition()
-           .duration(0)
-           .attr("transform", function(d) {
+       else {return "user " + users[d.index];} })
+        .attr("transform", function(d) {
                d.angle = (d.startAngle + d.endAngle) / 2;
                //store the midpoint angle in the data object
                
@@ -1618,9 +1621,29 @@ layout.matrix(matrix);
                    (d.angle > Math.PI ? " rotate(180)" : " rotate(0)"); 
                //include the rotate zero so that transforms can be interpolated
            })
-           .attr("text-anchor", function (d) {
+        .attr("text-anchor", function (d) {
                return d.angle > Math.PI ? "end" : "begin";
-           });
+           })
+       ;
+     
+   //position group labels to match layout
+//    groupG.select("text")
+//        .transition()
+//            .duration(chordDuration)
+//            .attr("transform", function(d) {
+//                d.angle = (d.startAngle + d.endAngle) / 2;
+//                //store the midpoint angle in the data object
+//                
+//                return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
+//                    " translate(" + (innerRadius + 30) + ")" + 
+//                    (d.angle > Math.PI ? " rotate(180)" : " rotate(0)"); 
+//                //include the rotate zero so that transforms can be interpolated
+//            })
+//            .attr("text-anchor", function (d) {
+//                return d.angle > Math.PI ? "end" : "begin";
+//            })
+//            .attr("visibility", "visible")
+//            ;
    
    /* Create/update the chord paths */
    var chordPaths = svg_chord.selectAll("path.chord")
@@ -1665,13 +1688,13 @@ layout.matrix(matrix);
 
    //handle exiting paths:
    chordPaths.exit().transition()
-       .duration(1500)
+       .duration(chordDuration)
        .attr("opacity", 0)
        .remove();
 
    //update the path shape
    chordPaths.transition()
-       .duration(1500)
+       .duration(chordDuration)
        .attr("opacity", 0.5) //optional, just to observe the transition
        .style("fill", function(d) { return fill(d.source.index); })
        .attrTween("d", chordTween(last_layout))
