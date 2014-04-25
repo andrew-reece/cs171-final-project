@@ -197,6 +197,7 @@ var path2 = d3.svg.chord()
     // if dataset is switched, reload everything
     d3.selectAll(".data-choice")
     	.on("click", function() {
+    		keys = []
     		setTimeSeriesData(this.value)
     		redraw = true
     		getVarData()
@@ -280,6 +281,8 @@ function elapse(thiskey) {
   
   		})
   
+
+  
   // updates date in datebox
   	datebox.html(function() {
   		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
@@ -306,7 +309,7 @@ function elapse(thiskey) {
   	if (animation) {
   	  slider.property("value", thiskey)
   		svg.transition()
-  			.duration(1500)
+  			.duration(300)
   			.each("end", function() {
   				thiskey++
   
@@ -365,6 +368,8 @@ function renderPage(vardata) {
     dateRange.sort(function(a,b) {
       return new Date(a) - new Date(b);
     })
+    
+    console.log(keys)
     
     // create our timeScale
       timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
