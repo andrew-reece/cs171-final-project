@@ -865,6 +865,84 @@ function filterComm(data) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: matrixMap(comm)
+// Purpose:  creates square matrix for chord diagram
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function matrixMap(comm) {
+
+   var matrix = [];
+   var users = [];
+   
+   /* get all the unique users (both senders & receivers)
+   because that is going to be the number of arrays in the
+   square matrix. */
+   
+   //first add all unique source IDs
+   for (var i = 0; i< comm.length; i++) {
+     if (comm[i]["freq"] != 0) {
+       var add = 1;
+       for (var u = 0; u < users.length; u++) {
+         if (comm[i]["source"] == users[u]) {
+           add = 0;
+         };
+       }
+       if (add == 1) {
+       users.push(+comm[i]["source"]);
+      }
+     }
+   }
+
+   //then add any unique Target IDs that weren't already added
+   for (var i = 0; i< comm.length; i++) {
+    if (comm[i]["freq"] != 0) {
+       var add = 1;
+       for (var u = 0; u < users.length; u++) {
+         if (comm[i]["target"] == users[u]) {
+           add = 0;
+         };
+       }
+       if (add == 1) {
+       users.push(comm[i]["target"]);
+       }
+     }
+   }
+   
+   users.sort(function(a,b) {
+     return a - b;
+   })
+   
+   matrix.length = users.length;
+   for (var i = 0; i< matrix.length; i++) {
+     matrix[i] = [];
+     matrix[i].length = matrix.length;
+     for (var j = 0; j<matrix.length; j++) {
+       matrix[i][j] = 0;
+     }
+   };
+   
+ //populate the matrix with the frequency value
+ //for the source/user combination
+   for (var u = 0; u<users.length; u++) {
+     for (var c = 0; c<comm.length; c++) {
+       if (comm[c]["source"] == users[u]) {
+         for (var u2 = 0; u2<users.length; u2++) {
+           if (comm[c]["target"] == users[u2]) {
+             matrix[u][u2] = comm[c]["freq"];
+           }
+         }
+       }
+     }
+   };
+   
+   //console.log(matrix)
+   
+updateChord(matrix, users)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: filterNodes
 // Purpose:  shows/hides nodes based on filter checkboxes
 //
@@ -1081,85 +1159,6 @@ function mapLabel(raw, thisvar) {
 		return raw
 	}
 }
-
-//////////////////////////////////////////////////////////////////////////////////////
-//
-// FUNCTION: matrixMap(comm)
-// Purpose:  creates square matrix for chord diagram
-//
-//////////////////////////////////////////////////////////////////////////////////////
-
-function matrixMap(comm) {
-
-   var matrix = [];
-   var users = [];
-   
-   /* get all the unique users (both senders & receivers)
-   because that is going to be the number of arrays in the
-   square matrix. */
-   
-   //first add all unique source IDs
-   for (var i = 0; i< comm.length; i++) {
-     if (comm[i]["freq"] != 0) {
-       var add = 1;
-       for (var u = 0; u < users.length; u++) {
-         if (comm[i]["source"] == users[u]) {
-           add = 0;
-         };
-       }
-       if (add == 1) {
-       users.push(+comm[i]["source"]);
-      }
-     }
-   }
-
-   //then add any unique Target IDs that weren't already added
-   for (var i = 0; i< comm.length; i++) {
-    if (comm[i]["freq"] != 0) {
-       var add = 1;
-       for (var u = 0; u < users.length; u++) {
-         if (comm[i]["target"] == users[u]) {
-           add = 0;
-         };
-       }
-       if (add == 1) {
-       users.push(comm[i]["target"]);
-       }
-     }
-   }
-   
-   users.sort(function(a,b) {
-     return a - b;
-   })
-   
-   matrix.length = users.length;
-   for (var i = 0; i< matrix.length; i++) {
-     matrix[i] = [];
-     matrix[i].length = matrix.length;
-     for (var j = 0; j<matrix.length; j++) {
-       matrix[i][j] = 0;
-     }
-   };
-   
- //populate the matrix with the frequency value
- //for the source/user combination
-   for (var u = 0; u<users.length; u++) {
-     for (var c = 0; c<comm.length; c++) {
-       if (comm[c]["source"] == users[u]) {
-         for (var u2 = 0; u2<users.length; u2++) {
-           if (comm[c]["target"] == users[u2]) {
-             matrix[u][u2] = comm[c]["freq"];
-           }
-         }
-       }
-     }
-   };
-   
-   //console.log(matrix)
-   
-updateChord(matrix, users)
-}
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
