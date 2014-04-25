@@ -1603,7 +1603,7 @@ layout.matrix(matrix);
    //position group labels to match layout
    groupG.select("text")
        .transition()
-           .duration(1500)
+           .duration(0)
            .attr("transform", function(d) {
                d.angle = (d.startAngle + d.endAngle) / 2;
                //store the midpoint angle in the data object
