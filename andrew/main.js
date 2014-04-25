@@ -314,7 +314,7 @@ function elapse(thiskey) {
   	  slider.property("value", thiskey)
   		svg.transition()
   			.duration(function() {
-  			if (svg_chord) {return chordDuration}
+  			if (current_graph == "chord-tab") {return chordDuration}
   			else {return 300}
   			})
   			.each("end", function() {
