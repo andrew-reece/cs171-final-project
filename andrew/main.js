@@ -1543,11 +1543,16 @@ function summonFilterBox() {
 // and http://stackoverflow.com/questions/21813723/change-and-transition-dataset-in-chord-diagram-with-d3
 
 function updateChord(matrix, users) {
-var layout = getDefaultChordLayout();
-layout.matrix(matrix);
+  var layout = getDefaultChordLayout();
+  layout.matrix(matrix);
 
+/*
  	 var fill = d3.scale.ordinal()
      	 .domain(d3.range(users.length))
+     	 .range(colorbrewer.Paired[12]);  	
+*/ 
+   var fill = d3.scale.ordinal()
+     	 .domain(d3.range(1,80))
      	 .range(colorbrewer.Paired[12]);  
            
 // 	 svg_chord.selectAll("g.group").remove();
@@ -1601,8 +1606,8 @@ layout.matrix(matrix);
        .transition()
        .duration(chordDuration)
 //       .attr("opacity", 0.5) //optional, just to observe the transition
-       .attrTween("d", arcTween( last_layout ))
-       .transition().duration(100).attr("opacity", 1); //reset opacity
+       .attrTween("d", arcTween( last_layout ));
+//       .transition().duration(100).attr("opacity", 1); //reset opacity
        
   //create the group labels
    newGroups.append("svg:text")
@@ -1701,10 +1706,10 @@ layout.matrix(matrix);
    //update the path shape
    chordPaths.transition()
        .duration(chordDuration)
-       .attr("opacity", 0.5) //optional, just to observe the transition
-       .style("fill", function(d) { return fill(d.source.index); })
-       .attrTween("d", chordTween(last_layout))
-       .transition().duration(100).attr("opacity", 1); //reset opacity
+ //      .attr("opacity", 0.5) //optional, just to observe the transition
+       .style("fill", function(d) { return fill(users[d.source.index]); })
+       .attrTween("d", chordTween(last_layout));
+ //      .transition().duration(100).attr("opacity", 1); //reset opacity
    
    
    //add the mouseover/fade out behaviour to the groups
