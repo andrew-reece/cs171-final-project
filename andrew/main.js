@@ -55,13 +55,6 @@
 // graph dimensions
 	var width = 790, height = 575
 	
-// linear color gradient scale from HW1
-// NB: this is for coloring the edge weights in the force graph that go above threshold
-// 		but that's kind of ugly - we should get rid of that.
-	var color = d3.scale.linear()
-				  .domain([5, 40])
-				  .interpolate(d3.interpolateRgb)
-				  .range(["#fee0d2", "#de2d26"]) // light-dark red via colorbrewer2.org
 				  
 // for setting edgeScale domain, based on max frequency ct for time series variable
 	var freqmax = 0
@@ -165,7 +158,7 @@ var path2 = d3.svg.chord()
    .radius(innerRadius);
    
 // chord diagram: transition duration (needs to be a little slower than force graph)
-var chordDuration = 1500;
+var chordDuration = 700;
     
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
@@ -279,11 +272,7 @@ function elapse(thiskey) {
   		.duration(300)
   		.style("stroke-width", function(d) {
   			var weight = edgeScale(d[keys[thiskey]])
-  			if (weight >= 5) {
-  				d3.select(this).style("stroke",color(weight))
-  			}
   			return weight
-  
   		})
   
 
@@ -1580,7 +1569,7 @@ function updateChord(matrix, users) {
 */ 
    var fill = d3.scale.ordinal()
      	 .domain(d3.range(1,80))
-     	 .range(colorbrewer.Paired[12]);  
+     	 .range(colorbrewer.Paired[11]);  
            
 // 	 svg_chord.selectAll("g.group").remove();
 // 	 svg_chord.selectAll("g.path").remove();
