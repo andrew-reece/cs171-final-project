@@ -1665,8 +1665,7 @@ function updateChord(matrix, users) {
             })
             .attr("text-anchor", function (d) {
                 return d.angle > Math.PI ? "end" : "begin";
-            })
-            ;
+            });
    
    /* Create/update the chord paths */
    var chordPaths = svg_chord.selectAll("path.chord")
@@ -1677,7 +1676,10 @@ function updateChord(matrix, users) {
  //create the new chord paths
    var newChords = chordPaths.enter()
        .append("path")
-       .attr("class", "chord")
+       // .attr("class", "chord")
+       .attr("class", function(d, i) {
+         return "chord " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
+       })
        .on("mouseover", function(d, i) {
          var pairName = getPairName(d, users);
          var infoObject = chDataByPair[pairName];
