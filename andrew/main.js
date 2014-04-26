@@ -1119,6 +1119,20 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
   for(var edge in chData) {
     var d = chData[edge];
     console.log(d);
+    if (reset) { d3.select(".chord").style("display", "inline") } // reset makes all edges visible
+			
+			else {
+			
+				// check to ensure both node-endings are visible
+				if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
+					(d3.select("#id"+d.target.name).style("display") == "inline")) {
+					
+					return "inline"
+				} 
+				
+				// otherwise hide the edge between them	
+				else { return "none" }
+			}
   }
 }
 
@@ -1706,6 +1720,7 @@ function updateChord(matrix, users) {
  //create the new chord paths
    var newChords = chordPaths.enter()
        .append("path")
+       .attr("id", function(d) { return getPairName(d, users); })
        // .attr("class", "chord")
        .attr("class", function(d, i) {
          return "chord " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
