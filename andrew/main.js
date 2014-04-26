@@ -143,6 +143,7 @@ HARD CODE */
     
 // store data for chord functions
 var chData
+var chDataByPair = {}
 
 // svg for chord diagram
 var svg_chord
@@ -400,6 +401,13 @@ function renderPage(vardata) {
 		
 	    // store data for chord diagram
     	chData = data
+    	data.map(function(d,i) {
+    	 var pairName = (+d.source.name < +d.target.name) ?
+                   "user" + +d.source.name  + "-" + "user" + +d.target.name:
+                   "user" + +d.target.name  + "-" + "user" + +d.source.name;
+      	// console.log(pairName, d.source.name, d.target.name);
+      	chDataByPair[pairName] = d;
+    	});
 
 		// draw actual force layout
 		renderForceGraph()
@@ -840,7 +848,7 @@ function end() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function filterComm(data) {
-  //console.log(data)
+  // console.log(data)
   user = "all";
   var comm = [];
   
@@ -918,6 +926,8 @@ function matrixMap(comm) {
    users.sort(function(a,b) {
      return a - b;
    })
+   
+//   console.log("users:", users);
    
    matrix.length = users.length;
    for (var i = 0; i< matrix.length; i++) {
@@ -1546,6 +1556,7 @@ function updateChord(matrix, users) {
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
 
+  console.log(chDataByPair);
 /*
  	 var fill = d3.scale.ordinal()
      	 .domain(d3.range(users.length))
@@ -1665,7 +1676,15 @@ function updateChord(matrix, users) {
  //create the new chord paths
    var newChords = chordPaths.enter()
        .append("path")
-       .attr("class", "chord");
+       .attr("class", "chord")
+       .on("mouseover", function(d, i) {
+         console.log("d:", d, "i:", i);
+         setNetworkDetails(d,true) 
+       })
+       .on("mouseout", function(d) {
+         clearNetworkDetails()
+      })
+      ;
    
    // Add title tooltip for each new chord.
    newChords.append("title");
