@@ -1578,22 +1578,13 @@ function updateChord(matrix, users) {
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
 
-/*
- 	 var fill = d3.scale.ordinal()
-     	 .domain(d3.range(users.length))
-     	 .range(colorbrewer.Paired[12]);  	
-*/ 
    var fill = d3.scale.ordinal()
      	 .domain(d3.range(1,80))
      	 .range(colorbrewer.Paired[11]);  
            
-// 	 svg_chord.selectAll("g.group").remove();
-// 	 svg_chord.selectAll("g.path").remove();
- 	
 /* Create/update "group" elements */
    	var groupG = svg_chord.selectAll("g.group") 
        	.data(layout.groups(), function (d) {
-           // return d.index;
            return users[d.index];
            //use a key function in case the 
            //groups are sorted differently between updates
@@ -1625,7 +1616,6 @@ function updateChord(matrix, users) {
    //(those based on the group index, not on the value)
    newGroups.append("path")
        .attr("id", function (d) {
-           // return "group" + d.index;
            return "group" + users[d.index];
            //using d.index and not i to maintain consistency
            //even if groups are sorted
@@ -1645,37 +1635,18 @@ function updateChord(matrix, users) {
   groupG.select("path") 
        .transition()
        .duration(chordDuration)
-//       .attr("opacity", 0.5) //optional, just to observe the transition
        .attrTween("d", arcTween( last_layout ));
-//       .transition().duration(100).attr("opacity", 1); //reset opacity
        
   //create the group labels
    newGroups.append("svg:text")
        .attr("xlink:href", function (d) {
-           // return "#group" + d.index;
            return "#group" + users[d.index];
        })
        .attr("dy", ".35em")
        .attr("color", "#fff")
-       //.attr("visibility", "hidden")
        .text(function (d) {
          if (users[d.index] == "0") {return "unknown user";}
-       else {return "user " + users[d.index];} })
-/*
-        .attr("transform", function(d) {
-               d.angle = (d.startAngle + d.endAngle) / 2;
-               //store the midpoint angle in the data object
-               
-               return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")" +
-                   " translate(" + (innerRadius + 30) + ")" + 
-                   (d.angle > Math.PI ? " rotate(180)" : " rotate(0)"); 
-               //include the rotate zero so that transforms can be interpolated
-           })
-        .attr("text-anchor", function (d) {
-               return d.angle > Math.PI ? "end" : "begin";
-           })
-*/
-       ;
+       else {return "user " + users[d.index];} });
      
    //position group labels to match layout
     groupG.select("text")
@@ -1693,7 +1664,6 @@ function updateChord(matrix, users) {
             .attr("text-anchor", function (d) {
                 return d.angle > Math.PI ? "end" : "begin";
             })
-//            .attr("visibility", "visible")
             ;
    
    /* Create/update the chord paths */
@@ -1754,10 +1724,8 @@ function updateChord(matrix, users) {
    //update the path shape
    chordPaths.transition()
        .duration(chordDuration)
- //      .attr("opacity", 0.5) //optional, just to observe the transition
        .style("fill", function(d) { return fill(users[d.source.index]); })
        .attrTween("d", chordTween(last_layout));
- //      .transition().duration(100).attr("opacity", 1); //reset opacity
    
    
    //add the mouseover/fade out behaviour to the groups
@@ -1767,7 +1735,6 @@ function updateChord(matrix, users) {
        chordPaths.classed("fade", function (p) {
            //returns true if *neither* the source or target of the chord
            //matches the group that has been moused-over
-           // return ((p.source.index != d.index) && (p.target.index != d.index));
            return ((users[p.source.index] != users[d.index]) && (users[p.target.index] != users[d.index]));
        });
    });
