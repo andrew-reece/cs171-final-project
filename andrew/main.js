@@ -649,6 +649,22 @@ function getPairName(data, users) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: getInfoObject(data, users)
+// Purpose:  returns an object suitable for setNetworkDetails based on the data passed in
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function getInfoObject(data, users) {
+  for (var i = 0; i < chData.length; i++) {    
+    if(chData[i].source.name == users[data.index]) { 
+      return chData[i];
+      break;
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: chordTween(data)
 // Purpose:  transition function for chord diagram
 //
