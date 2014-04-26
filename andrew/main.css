@@ -53,7 +53,7 @@ path.chord {
    transition: opacity 0.3s;
 }
 #circle:hover path.fade {
-   opacity: 0;
+   opacity: .1;
 }
 
 circle {

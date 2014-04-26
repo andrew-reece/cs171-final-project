@@ -1616,7 +1616,8 @@ function updateChord(matrix, users) {
    //(those based on the group index, not on the value)
    newGroups.append("path")
        .attr("id", function (d) {
-           return "group" + users[d.index];
+          // return "group" + users[d.index];
+          return "id" + users[d.index];
            //using d.index and not i to maintain consistency
            //even if groups are sorted
        })
@@ -1642,6 +1643,7 @@ function updateChord(matrix, users) {
        .attr("xlink:href", function (d) {
            return "#group" + users[d.index];
        })
+       .attr("id", function(d) { return "txt" + users[d.index]; })
        .attr("dy", ".35em")
        .attr("color", "#fff")
        .text(function (d) {
@@ -1741,14 +1743,15 @@ function updateChord(matrix, users) {
 
    //the "unfade" is handled with CSS :hover class on g#circle
    //you could also do it using a mouseout event:
-   /*
-   g.on("mouseout", function() {
-       if (this == g.node() )
+/*
+      groupG.on("mouseout", function() {
+       if (this == groupG.node() )
            //only respond to mouseout of the entire circle
            //not mouseout events for sub-components
            chordPaths.classed("fade", false);
    });
-   */
+  
+*/
    
    last_layout = layout; //save for next update  
 
