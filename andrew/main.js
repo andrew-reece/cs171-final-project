@@ -60,7 +60,8 @@
 	var freqmax = 0
 	
 // translates time series frequency counts into edge weights
-	var edgeScale = d3.scale.linear().range([0,40])
+	var edgeScale = d3.scale.linear().range([0,3])
+	var edgeArcScale = d3.scale.linear().range([0, 300])
 		
 // initialize heatmap vars, specs
 	var hmap_data, heatmap, hmdata, hmap_xaxis, hmap_yaxis, hm
@@ -274,6 +275,18 @@ function elapse(thiskey) {
   			var weight = edgeScale(d[keys[thiskey]])
   			return weight
   		})
+  		.attr("d", function(d) {
+  			var w = edgeArcScale(d[keys[thiskey]])
+  			return linkArc(d, w)
+  		})
+  		.style("fill", function(d) {
+  			var weight = edgeScale(d[keys[thiskey]])
+  			if (weight > 1) {return "#666"}
+  		})
+  		.style("stroke", function(d) {
+  			var weight = edgeScale(d[keys[thiskey]])
+  			if (weight > 1) {return "white"}
+  		})
   
 
   
@@ -386,7 +399,12 @@ function renderPage(vardata) {
 		numkeys = keys.length
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
+		/* edgeScale controls the stroke width (so we aren't cluttered with edges
+			of no importance); edgeArcScale controls the radius of the arc which is a filled
+			path for the edge.
+		*/
 		edgeScale.domain([0,freqmax])
+		edgeArcScale.domain([0,freqmax])
 		
 	    // store data for chord diagram
     	chData = data
@@ -1146,14 +1164,21 @@ function initSVG(x_offset, y_offset) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-	function linkArc(d) {
+	function linkArc(d, w) {
+	
+	
 	  var dx = d.target.x - d.source.x,
 		  dy = d.target.y - d.source.y,
-		  dr = Math.sqrt(dx * dx + dy * dy);
-	  return "M" + 
-			 d.source.x + "," + d.source.y + "A" + 
-			 dr + "," + dr + " 0 0,1 " + 
-			 d.target.x + "," + d.target.y;
+		  dr = Math.sqrt(dx * dx + dy * dy),
+		  dw;
+		  
+	if (dr-w < 0) { dw = 0}
+	else {dw = dr -w};
+		  
+	  return "M " + 
+			 d.source.x + "," + d.source.y + " A " + 
+			 dr + "," + dw + " 0 0,1 " + 
+			 d.target.x + "," + d.target.y + " Z";
 	}
 	
 //////////////////////////////////////////////////////////////////////////////////////
