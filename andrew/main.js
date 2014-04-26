@@ -1368,11 +1368,17 @@ function renderForceLinks() {
 			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
 		})
 		.on("mouseover", function(d) {
-			d3.select(this).style("stroke", "purple")
+			if (d3.select(this).style("stroke-width") > "1") {
+				d3.select(this).style("stroke", "purple")
+				d3.select(this).style("fill", "purple")
+			}
 			setNetworkDetails(d,true) 
 		})
 		.on("mouseout", function(d) {
-			d3.select(this).style("stroke", "#666")
+			if (d3.select(this).style("stroke-width") > "1") {
+				d3.select(this).style("stroke", "#666")
+				d3.select(this).style("fill", "#666")
+			}
 			clearNetworkDetails()
 		})
 }
