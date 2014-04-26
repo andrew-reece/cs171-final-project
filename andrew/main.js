@@ -643,6 +643,23 @@ function chordKey(data) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: getPairName(data, users)
+// Purpose:  creates a relationship between source and target for the pairName
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function getPairName(data, users) {
+   return (users(data.source.index) < users(data.target.index)) ?
+       users(data.source.index)  + "-" + users(data.target.index):
+       users(data.target.index)  + "-" + users(data.source.index);
+   
+   //create a key that will represent the relationship
+   //between these two groups *regardless*
+   //of which group is called 'source' and which 'target'
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: chordTween(data)
 // Purpose:  transition function for chord diagram
 //
@@ -1556,7 +1573,6 @@ function updateChord(matrix, users) {
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
 
-  console.log(chDataByPair);
 /*
  	 var fill = d3.scale.ordinal()
      	 .domain(d3.range(users.length))
