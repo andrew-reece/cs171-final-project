@@ -660,6 +660,22 @@ function getPairName(data, users) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: getInfoObject(data, users)
+// Purpose:  returns an object suitable for setNetworkDetails based on the data passed in
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function getInfoObject(data, users) {
+  for (var i = 0; i < chData.length; i++) {    
+    if(chData[i].source.name == users[data.index]) { 
+      return chData[i];
+      break;
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: chordTween(data)
 // Purpose:  transition function for chord diagram
 //
@@ -905,7 +921,7 @@ function matrixMap(comm) {
 
    var matrix = [];
    var users = [];
-   
+      
    /* get all the unique users (both senders & receivers)
    because that is going to be the number of arrays in the
    square matrix. */
@@ -1626,7 +1642,14 @@ function updateChord(matrix, users) {
            //even if groups are sorted
        })
        // .style("fill", function(d) { return fill(d.index); });
-       .style("fill", function(d) { return fill(users[d.index]); });
+       .style("fill", function(d) { return fill(users[d.index]); })
+       .on("mouseover", function(d, i) {
+         var infoObject = getInfoObject(d, users);
+         setNetworkDetails(infoObject,false);
+       })
+       .on("mouseout", function(d) {
+         clearNetworkDetails()
+      });
 
  //update the paths to match the layout
   groupG.select("path") 
