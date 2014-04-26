@@ -1047,7 +1047,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	
 	d3.selectAll(".node")
 	  .style("display", function(d) {
-	  
+
 		 if (reset) {	// if reset button is clicked
 		 
 			d3.select("#txt"+d.name).style("display", "inline") // update label text
@@ -1071,7 +1071,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		 else { return d3.select(this).style("display") }
 		 
 	  })
-		
+	  		
 	d3.selectAll(".link")
 		.style("display", function(d,i) {
 		
@@ -1090,6 +1090,36 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 				else { return "none" }
 			}
 		})	 
+		
+  // filter chord groups/arcs
+  for(var node in nodes) {
+    var d = nodes[node];
+    if (reset) {	// if reset button is clicked
+		 
+		  d3.select("#txt"+d.name).style("display", "inline") // update label text
+			d3.select("#id"+d.name).style("display", "inline") // update node
+		  d3.select(".edge"+d.name).style("display", "inline") // update edge
+
+		 // does the calling filter apply to this node?
+		} else if (mapLabel( d[filname], filname) == filval) { 
+		 
+		 	if (selected) {	// selected = checkbox is checked
+		 	
+				d3.select("#txt"+d.name).style("display", "none")
+				d3.select("#id"+d.name).style("display", "none")
+				
+		 	} else {		// else checkbox is unchecked, ie. drop the filter
+	
+				d3.select("#txt"+d.name).style("display", "inline")
+				d3.select("#id"+d.name).style("display", "inline")
+		 	}
+		} 
+  }
+  
+  for(var edge in chData) {
+    var d = chData[edge];
+    console.log(d);
+  }
 }
 
 
