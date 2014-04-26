@@ -638,7 +638,8 @@ function chordKey(data) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function getPairName(data, users) {
+// function getPairName(data, users) {
+ function getPairName(data) {
    return (users[data.source.index] < users[data.target.index]) ?
        "user" + users[data.source.index]  + "-" + "user" + users[data.target.index]:
        "user" + users[data.target.index]  + "-" + "user" + users[data.source.index];
@@ -655,7 +656,8 @@ function getPairName(data, users) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function getInfoObject(data, users) {
+// function getInfoObject(data, users) {
+function getInfoObject(data) {
   for (var i = 0; i < chData.length; i++) {    
     if(chData[i].source.name == users[data.index]) { 
       return chData[i];
@@ -872,7 +874,6 @@ function end() {
 
 function filterComm(data) {
   // console.log(data)
-  user = "all";
   var comm = [];
   
   //console.log("filterComm data:", data)
@@ -883,17 +884,15 @@ function filterComm(data) {
   //console.log("key:", key)
   
   for (var i = 0; i<data.length; i++) {
-    if(+data[i]["source"]["name"] == +user || +data[i]["target"]["name"] == +user || user == "all") {
-      var dataobject = data[i];
-      //console.log(dataobject);
+    var dataobject = data[i];
+    //console.log(dataobject);
       
-      commObject = {};
-      commObject["source"] = +dataobject["source"]["name"];
-      commObject["target"] = +dataobject["target"]["name"];
-      commObject["freq"] = +dataobject[key];
+    commObject = {};
+    commObject["source"] = +dataobject["source"]["name"];
+    commObject["target"] = +dataobject["target"]["name"];
+    commObject["freq"] = +dataobject[key];
       
-      comm.push(commObject);
-    }
+    comm.push(commObject);
   }
   
   //console.log("filterComm:",comm)
@@ -1122,7 +1121,6 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
   // filter chord edges/paths
 	d3.selectAll(".chord")
 		.style("display", function(d,i) {
-		  console.log(d);
 
 			if (reset) { return "inline" } // reset makes all edges visible
 			
@@ -1625,6 +1623,7 @@ function summonFilterBox() {
 
 // function updateChord(matrix, users) {
 function updateChord(matrix) {
+  
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
 
@@ -1674,7 +1673,8 @@ function updateChord(matrix) {
        // .style("fill", function(d) { return fill(d.index); });
        .style("fill", function(d) { return fill(users[d.index]); })
        .on("mouseover", function(d, i) {
-         var infoObject = getInfoObject(d, users);
+        //  var infoObject = getInfoObject(d, users);
+         var infoObject = getInfoObject(d);
          setNetworkDetails(infoObject,false);
        })
        .on("mouseout", function(d) {
@@ -1726,13 +1726,15 @@ function updateChord(matrix) {
  //create the new chord paths
    var newChords = chordPaths.enter()
        .append("path")
-       .attr("id", function(d) { return getPairName(d, users); })
+       // .attr("id", function(d) { return getPairName(d, users); })
+       .attr("id", function(d) { return getPairName(d); })
        // .attr("class", "chord")
        .attr("class", function(d, i) {
          return "chord " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
        })
        .on("mouseover", function(d, i) {
-         var pairName = getPairName(d, users);
+         // var pairName = getPairName(d, users);
+         var pairName = getPairName(d);
          var infoObject = chDataByPair[pairName];
          setNetworkDetails(infoObject,true);
        })
