@@ -649,9 +649,9 @@ function chordKey(data) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function getPairName(data, users) {
-   return (users(data.source.index) < users(data.target.index)) ?
-       users(data.source.index)  + "-" + users(data.target.index):
-       users(data.target.index)  + "-" + users(data.source.index);
+   return (users[data.source.index] < users[data.target.index]) ?
+       "user" + users[data.source.index]  + "-" + "user" + users[data.target.index]:
+       "user" + users[data.target.index]  + "-" + "user" + users[data.source.index];
    
    //create a key that will represent the relationship
    //between these two groups *regardless*
@@ -1694,13 +1694,13 @@ function updateChord(matrix, users) {
        .append("path")
        .attr("class", "chord")
        .on("mouseover", function(d, i) {
-         console.log("d:", d, "i:", i);
-         setNetworkDetails(d,true) 
+         var pairName = getPairName(d, users);
+         var infoObject = chDataByPair[pairName];
+         setNetworkDetails(infoObject,true);
        })
        .on("mouseout", function(d) {
          clearNetworkDetails()
-      })
-      ;
+      });
    
    // Add title tooltip for each new chord.
    newChords.append("title");
