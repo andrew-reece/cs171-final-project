@@ -137,6 +137,7 @@ HARD CODE */
 // store data for chord functions
 var chData
 var chDataByPair = {}
+var users = []
 
 // svg for chord diagram
 var svg_chord
@@ -909,7 +910,8 @@ function filterComm(data) {
 function matrixMap(comm) {
 
    var matrix = [];
-   var users = [];
+   // var users = [];
+   users = [];
    
    /* get all the unique users (both senders & receivers)
    because that is going to be the number of arrays in the
@@ -976,7 +978,8 @@ function matrixMap(comm) {
    
    //console.log(matrix)
    
-updateChord(matrix, users)
+// updateChord(matrix, users)
+updateChord(matrix)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1116,16 +1119,18 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		} 
   }
   
-  for(var edge in chData) {
-    var d = chData[edge];
-    console.log(d);
-    if (reset) { d3.select(".chord").style("display", "inline") } // reset makes all edges visible
+  // filter chord edges/paths
+	d3.selectAll(".chord")
+		.style("display", function(d,i) {
+		  console.log(d);
+
+			if (reset) { return "inline" } // reset makes all edges visible
 			
 			else {
 			
 				// check to ensure both node-endings are visible
-				if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
-					(d3.select("#id"+d.target.name).style("display") == "inline")) {
+				if ((d3.select("#id"+users[d.source.index]).style("display") == "inline") && 
+					(d3.select("#id"+users[d.target.index]).style("display") == "inline")) {
 					
 					return "inline"
 				} 
@@ -1133,7 +1138,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 				// otherwise hide the edge between them	
 				else { return "none" }
 			}
-  }
+		})	 
 }
 
 
@@ -1618,7 +1623,8 @@ function summonFilterBox() {
 // some ideas pulled from http://fleetinbeing.net/d3e/chord.html
 // and http://stackoverflow.com/questions/21813723/change-and-transition-dataset-in-chord-diagram-with-d3
 
-function updateChord(matrix, users) {
+// function updateChord(matrix, users) {
+function updateChord(matrix) {
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
 
