@@ -1631,7 +1631,15 @@ function updateChord(matrix, users) {
            //even if groups are sorted
        })
        // .style("fill", function(d) { return fill(d.index); });
-       .style("fill", function(d) { return fill(users[d.index]); });
+       .style("fill", function(d) { return fill(users[d.index]); })
+       .on("mouseover", function(d, i) {
+         var infoObject = getInfoObject(d, users);
+         setNetworkDetails(infoObject,false);
+       })
+       .on("mouseout", function(d) {
+         clearNetworkDetails()
+      });
+
 
  //update the paths to match the layout
   groupG.select("path") 
