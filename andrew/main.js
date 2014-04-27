@@ -540,7 +540,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						: hmap_y
 			var offset = (location == "main")
 						? {h:10,x:0,  y:0,   rect: {x:5, y:0}, multiplier:{x:5.5,y:0}}
-						: {h:9, x:40, y:-10, rect: {x:40,y:0}, multiplier:{x:2.5,y:0}}
+						: {h:9, x:40, y:-10, rect: {x:40,y:7}, multiplier:{x:2.5,y:0}}
 
 			if (location == "focus") {
 				// write hmap description from file
