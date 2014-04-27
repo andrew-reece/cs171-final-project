@@ -36,7 +36,7 @@
 	var svg
 
 // master vars hold persistent user/variable data after load via csv/json
-	var master_vardata, master_subjects, master_labels
+	var master_vardata, master_relations, master_labels
 	
 // force-directed graph objects
 	var nodes = {}, links = []
@@ -249,9 +249,13 @@ function getSubjectData() {
 								 aerobic_per_week: 	d.aerobic_per_week
 								}
 		})
-		master_subjects = data; 
-		getAxisLabels(); 
+		getRelationsData(); 
 	})
+}
+
+function getRelationsData() {
+	var fpath = "data/relations.json"
+	d3.json(fpath, function(error, data) { master_relations = data; getAxisLabels(); })
 }
 
 function getAxisLabels() {
@@ -1519,7 +1523,7 @@ function setNetworkDetails(d, isedge) {
 	var targetdata = (isedge) 
 		? d.target
 		: {	name:"",year_school:"",floor:"",libcon:"",
-			fav_music:"",sad:"",stressed:"",aerobic_per_week:"" }
+			fav_music:"",sad:"",stressed:"",aerobic_per_week:"",relations:"" }
 	
 	// source/target objects have other properties besides the ones we want
 	// so 'cats' array is to check that we're only using desired properties
@@ -1531,6 +1535,10 @@ function setNetworkDetails(d, isedge) {
 		if (cats.indexOf(el.key) > -1) {
 			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key) )
 		}
+		// get the current time
+		// get the pair
+		// lookup relations status in friendship.csv
+		// map to a useful label
 	})
 	
 	d3.entries(targetdata).forEach( function(el) {
@@ -1539,7 +1547,25 @@ function setNetworkDetails(d, isedge) {
 		}
 	})
 	
+	if(d.source) {setRelationDetails(d, targetdata, isedge)}
 }
+
+function setRelationDetails(d, targetdata, isedge) {
+	var current_time = keys[slider.property("value")]
+	var thispair = d.source.name+"-"+targetdata.name
+	var rowidx = d3.values(master_relations.pairs).indexOf(thispair)
+	var s_to_t = master_relations[''+current_time][rowidx]
+	
+	d3.select("#td-s-relations").html( mapLabel(s_to_t, "relations") )
+		
+	if (isedge) {	
+		var thispair_reverse = targetdata.name+"-"+d.source.name
+		var rowidx_reverse = d3.values(master_relations.pairs).indexOf(thispair_reverse)
+		var t_to_s = master_relations[current_time][rowidx_reverse]
+		d3.select("#td-t-relations").html( mapLabel(t_to_s, "relations") )
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
