@@ -186,7 +186,7 @@ var chordDuration = 700;
             // if we are at the end, start from the beginning
   		      if(slider.property("value") == numkeys - 1) { slider.property("value", elapse_seed); }
   
-            return elapse(slider.property("value")); 
+            return elapse(elapse_seed); 
         } else {
             d3.select("#start-button").text("Click to start");
         }
@@ -272,8 +272,8 @@ function getAxisLabels() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function elapse(thiskey) {
-    // console.log("thiskey:", thiskey);
-    // console.log("slider:", slider.property("value"));
+   
+   	elapse_seed = thiskey
   	path.transition()
   		.duration(300)
   		.each(function(d) {
@@ -291,10 +291,6 @@ function elapse(thiskey) {
 //   			if (weight > 0.05) {return "#666"}
 //   		})
 
-
-  
-
-  
   // updates date in datebox
   	datebox.html(function() {
   		var thisdate = (thiskey<(keys.length-1)) ? keys[thiskey].substr(0) : "July 2009 [end of study]"
@@ -327,7 +323,7 @@ function elapse(thiskey) {
   			})
   			.each("end", function() {
   				thiskey++
-  
+  				elapse_seed = thiskey
   				return (thiskey < numkeys) 
   					? elapse(thiskey) 
   					: end()
@@ -1668,9 +1664,9 @@ function summonFilterBox() {
 
 	function tick() {
 	  path.each(function(d) {
-	  	if (d[keys[4]] <= 0) { d3.select(this).attr("display", "none")}
+	  	if (d[keys[elapse_seed]] <= 0) { d3.select(this).attr("display", "none")}
 	  	else {
-	  		d3.select(this).attr("d", function(d) { return linkArc(d, 4) })}
+	  		d3.select(this).attr("d", function(d) { return linkArc(d, elapse_seed) })}
 	  });
 	  // r+10 b/c that keeps the numbers of nodes near the viewbox border from getting cut off
 	  // if it's just "r" then the node names (i.e. numbers) can float out of view
