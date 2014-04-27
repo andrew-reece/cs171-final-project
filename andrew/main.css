@@ -12,6 +12,18 @@ table#details-table {
 	width:400px;
 }
 
+table#relations-table {
+	padding:0px;
+	margin-left:15px;
+	width:280px;
+	height:20px;
+}
+
+td.relations-td {
+	padding:0px;
+	margin:0px;
+}
+
 td {
 	color: steelblue;
 }
@@ -315,6 +327,54 @@ h4 {
 			display:inline-block;
 			height:80px;
 			padding-bottom:50px;
+		}
+		
+		hr#hr-left {
+			position:relative;
+			width:85px;
+			margin-top:9px;
+			margin-left:0px;
+			display:inline-block;
+			height:2px;
+			background-color: steelblue;
+		}
+		
+		hr#hr-right {
+			position:relative;
+			width:85px;
+			margin-top:9px;
+			margin-left:0px;
+			display:inline-block;
+			height:2px;
+			background-color: steelblue;
+		}
+		
+		img#nolove-left {
+			position:relative;
+			margin-left:5px;
+			margin-right:5px;
+			width:10px;
+			height:20px;
+			text-align:left;
+			float:left;
+		}
+		
+		img#love {
+			position:relative;
+			margin-left:0px;
+			width:32px;
+			height:20px;
+			text-align:right;
+		}
+		
+		img#nolove-right {
+			position:relative;
+			margin-left:5px;
+			margin-right:5px;
+			width:10px;
+			height:20px;
+			text-align:right;
+			float:right;
 		}
 		
 	#heatmap {
