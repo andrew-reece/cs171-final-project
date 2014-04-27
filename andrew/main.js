@@ -637,12 +637,11 @@ function chordKey(data) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
-// FUNCTION: getPairName(data, users)
+// FUNCTION: getPairName(data)
 // Purpose:  creates a relationship between source and target for the pairName
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-// function getPairName(data, users) {
  function getPairName(data) {
    return (users[data.source.index] < users[data.target.index]) ?
        "user" + users[data.source.index]  + "-" + "user" + users[data.target.index]:
@@ -655,12 +654,11 @@ function chordKey(data) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
-// FUNCTION: getInfoObject(data, users)
+// FUNCTION: getInfoObject(data)
 // Purpose:  returns an object suitable for setNetworkDetails based on the data passed in
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-// function getInfoObject(data, users) {
 function getInfoObject(data) {
   for (var i = 0; i < chData.length; i++) {    
     if(chData[i].source.name == users[data.index]) { 
@@ -915,7 +913,6 @@ function filterComm(data) {
 function matrixMap(comm) {
 
    var matrix = [];
-   // var users = [];
    users = [];
    
    /* get all the unique users (both senders & receivers)
@@ -924,7 +921,6 @@ function matrixMap(comm) {
    
    //first add all unique source IDs
    for (var i = 0; i< comm.length; i++) {
-//     if (comm[i]["freq"] != 0) {
        var add = 1;
        for (var u = 0; u < users.length; u++) {
          if (comm[i]["source"] == users[u]) {
@@ -934,12 +930,10 @@ function matrixMap(comm) {
        if (add == 1) {
        users.push(+comm[i]["source"]);
       }
-//     }
    }
 
    //then add any unique Target IDs that weren't already added
    for (var i = 0; i< comm.length; i++) {
-//    if (comm[i]["freq"] != 0) {
        var add = 1;
        for (var u = 0; u < users.length; u++) {
          if (comm[i]["target"] == users[u]) {
@@ -949,7 +943,6 @@ function matrixMap(comm) {
        if (add == 1) {
        users.push(comm[i]["target"]);
        }
-//     }
    }
    
    users.sort(function(a,b) {
@@ -983,7 +976,6 @@ function matrixMap(comm) {
    
    //console.log(matrix)
    
-// updateChord(matrix, users)
 updateChord(matrix)
 }
 
@@ -1656,7 +1648,7 @@ function summonFilterBox() {
 	
 //////////////////////////////////////////////////////////////////////////////////////
 //
-// FUNCTION: updateChord(matrix, users)
+// FUNCTION: updateChord(matrix)
 // Purpose:  updates the chord graph with new date selection
 //
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1664,7 +1656,6 @@ function summonFilterBox() {
 // some ideas pulled from http://fleetinbeing.net/d3e/chord.html
 // and http://stackoverflow.com/questions/21813723/change-and-transition-dataset-in-chord-diagram-with-d3
 
-// function updateChord(matrix, users) {
 function updateChord(matrix) {
   
   var layout = getDefaultChordLayout();
@@ -1716,7 +1707,6 @@ function updateChord(matrix) {
        // .style("fill", function(d) { return fill(d.index); });
        .style("fill", function(d) { return fill(users[d.index]); })
        .on("mouseover", function(d, i) {
-        //  var infoObject = getInfoObject(d, users);
          var infoObject = getInfoObject(d);
          setNetworkDetails(infoObject,false);
        })
@@ -1769,14 +1759,12 @@ function updateChord(matrix) {
  //create the new chord paths
    var newChords = chordPaths.enter()
        .append("path")
-       // .attr("id", function(d) { return getPairName(d, users); })
        .attr("id", function(d) { return getPairName(d); })
        // .attr("class", "chord")
        .attr("class", function(d, i) {
          return "chord " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
        })
        .on("mouseover", function(d, i) {
-         // var pairName = getPairName(d, users);
          var pairName = getPairName(d);
          var infoObject = chDataByPair[pairName];
          setNetworkDetails(infoObject,true);
