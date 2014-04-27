@@ -326,7 +326,7 @@ function elapse(thiskey) {
   				elapse_seed = thiskey
   				return (thiskey < numkeys) 
   					? elapse(thiskey) 
-  					: end()
+  					: end(elapse_seed = 4)
   			})	
   	}
 }
@@ -1207,13 +1207,11 @@ function initSVG(x_offset, y_offset) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 	function linkArc(d, thiskey) {
-	//console.log(d.source.name + " , " + d.target.name + " " + d.total_freq)
-	//console.log('thiskey:'+thiskey)
+
 	
 	var w = edgeArcScale(d[keys[thiskey]])
 
-	//var s = edgeScale(d[keys[thiskey]])
-	//console.log(w)
+	if (w == w) {
 	
 	  var dx = d.target.x - d.source.x,
 		  dy = d.target.y - d.source.y,
@@ -1224,6 +1222,9 @@ function initSVG(x_offset, y_offset) {
 			 d.target.x + "," + d.target.y + " A " +
 			 (dr - w) + "," + (dr -w) + " 0 0, 0 " +
 			 d.source.x + "," + d.source.y;
+		}
+		
+	else { return "M 0,0 A 0,0 0 0,0 0,0"; }
 		
 	}
 	
@@ -1387,6 +1388,7 @@ function renderForceGraph() {
 			.charge(-50)
 			.friction(.2)
 			.gravity(.3)
+			.alpha(0.0001)
 			.on("tick", tick)
 			.start();
 	
@@ -1474,8 +1476,8 @@ function renderForceNodes() {
 			.on("mouseout", function(d) {
 				d3.select(this).style("fill", "steelblue")
 				clearNetworkDetails()
-			})
-			.call(force.drag);
+			});
+			//.call(force.drag);
 }
 
 
