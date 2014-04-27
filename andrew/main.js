@@ -60,7 +60,8 @@
 	var freqmax = 0
 	
 // translates time series frequency counts into edge weights
-	var edgeScale = d3.scale.linear().range([0,40])
+	var edgeScale = d3.scale.linear().range([0,5])
+	var edgeArcScale = d3.scale.linear().range([0, 100])
 		
 // initialize heatmap vars, specs
 	var hmap_data, heatmap, hmdata, hmap_xaxis, hmap_yaxis, hm
@@ -275,10 +276,22 @@ function elapse(thiskey) {
     // console.log("slider:", slider.property("value"));
   	path.transition()
   		.duration(300)
-  		.style("stroke-width", function(d) {
-  			var weight = edgeScale(d[keys[thiskey]])
-  			return weight
-  		})
+  		.each(function(d) {
+  			if (d[keys[thiskey]] <= 0) { d3.select(this).attr("display", "none")}
+	  		else {
+	  			d3.select(this).attr("display", "inline")
+	  			d3.select(this).attr("d", function(d) { return linkArc(d, thiskey) })}
+	  })
+//   		.attr("d", function(d) {
+//   			return linkArc(d, thiskey)
+//   		})  	
+  		.attr("fill", "#666")	
+//   		.style("fill", function(d) {
+//   			var weight = edgeScale(d[keys[thiskey]])
+//   			if (weight > 0.05) {return "#666"}
+//   		})
+
+
   
 
   
@@ -391,7 +404,12 @@ function renderPage(vardata) {
 		numkeys = keys.length
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
+		/* edgeScale controls the stroke width (so we aren't cluttered with edges
+			of no importance); edgeArcScale controls the radius of the arc which is a filled
+			path for the edge.
+		*/
 		edgeScale.domain([0,freqmax])
+		edgeArcScale.domain([0,freqmax])
 		
 	    // store data for chord diagram
     	chData = data
@@ -1192,15 +1210,27 @@ function initSVG(x_offset, y_offset) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-	function linkArc(d) {
+	function linkArc(d, thiskey) {
+	//console.log(d.source.name + " , " + d.target.name + " " + d.total_freq)
+	//console.log('thiskey:'+thiskey)
+	
+	var w = edgeArcScale(d[keys[thiskey]])
+
+	//var s = edgeScale(d[keys[thiskey]])
+	//console.log(w)
+	
 	  var dx = d.target.x - d.source.x,
 		  dy = d.target.y - d.source.y,
 		  dr = Math.sqrt(dx * dx + dy * dy);
-	  return "M" + 
-			 d.source.x + "," + d.source.y + "A" + 
+	  return "M " + 
+			 d.source.x + "," + d.source.y + " A " + 
 			 dr + "," + dr + " 0 0,1 " + 
-			 d.target.x + "," + d.target.y;
+			 d.target.x + "," + d.target.y + " A " +
+			 (dr - w) + "," + (dr -w) + " 0 0, 0 " +
+			 d.source.x + "," + d.source.y;
+		
 	}
+	
 	
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1403,15 +1433,25 @@ function renderForceLinks() {
 			var e2 = "edge"+d.target.name
 			return "link "+e1+" "+e2
 		})
-		.style("stroke-width", function(d) {
-			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
-		})
+// 		.style("stroke-width", function(d) {
+// 			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
+// 		})
 		.on("mouseover", function(d) {
+// 			if (d3.select(this).style("stroke-width") > "0.05") {
+// 				d3.select(this).style("stroke", "purple")
+// 				d3.select(this).style("fill", "purple")
+// 			}
 			d3.select(this).style("stroke", "purple")
+			d3.select(this).style("fill", "purple")
 			setNetworkDetails(d,true) 
 		})
 		.on("mouseout", function(d) {
+// 			if (d3.select(this).style("stroke-width") > "0.05") {
+// 				d3.select(this).style("stroke", "#666")
+// 				d3.select(this).style("fill", "#666")
+// 			}
 			d3.select(this).style("stroke", "#666")
+			d3.select(this).style("fill", "#666")
 			clearNetworkDetails()
 		})
 }
@@ -1627,7 +1667,11 @@ function summonFilterBox() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 	function tick() {
-	  path.attr("d", linkArc);
+	  path.each(function(d) {
+	  	if (d[keys[4]] <= 0) { d3.select(this).attr("display", "none")}
+	  	else {
+	  		d3.select(this).attr("d", function(d) { return linkArc(d, 4) })}
+	  });
 	  // r+10 b/c that keeps the numbers of nodes near the viewbox border from getting cut off
 	  // if it's just "r" then the node names (i.e. numbers) can float out of view
 	  circle .attr("cx", function(d) { return d.x = Math.max((r+15), Math.min(width - (r+15), d.x)); })

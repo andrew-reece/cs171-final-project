@@ -36,9 +36,10 @@ td {
 	}
 
 .link {
-  fill: none;
+  fill: #666;
   stroke: #666;
-  stroke-width: 1.5px;
+  stroke-width: 0.5px;
+  opacity: .5;
 }
 
 /* chord diagram */
