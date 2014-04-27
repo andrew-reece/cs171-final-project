@@ -9,7 +9,7 @@ table#details-table {
 	padding:5px;
 	border-spacing:0px;
 	font-size:11pt;
-	width:350px;
+	width:400px;
 }
 
 td {
@@ -310,7 +310,7 @@ h4 {
 			position: relative;
 			top:10px;
 			left:1px;
-			width:370px;
+			width:400px;
 			display:inline-block;
 			height:80px;
 			padding-bottom:50px;

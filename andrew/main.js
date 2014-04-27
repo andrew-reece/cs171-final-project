@@ -1215,6 +1215,11 @@ function initSVG(x_offset, y_offset) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function makeHeatmapDropdown(vardata) {
+	// first we need to remove all existing options...otherwise we just extend the dropdown
+	// over and over again, each time we change datasets
+	d3.selectAll("option").remove()
+	
+	// now set the options and build the basis for the heatmaps
 	d3.select("#heatmap-dropdown")
 			.on("change", function() { 
 					heatmap_name = d3.select(this).property("value")
@@ -1241,7 +1246,9 @@ function makeHeatmapDropdown(vardata) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function mapLabel(raw, thisvar) {
-	if (raw.substr(0,4) == "TYPE") {
+	if ((raw == "")&&(thisvar=="relations")) {
+		return master_labels[thisvar][0]
+	} else if ((raw) && (raw.substr(0,4) == "TYPE")) {
 		var idx = d3.values(master_labels.type).indexOf( raw )
 		return master_labels[thisvar][idx]
 	} else {
@@ -1556,13 +1563,13 @@ function setRelationDetails(d, targetdata, isedge) {
 	var rowidx = d3.values(master_relations.pairs).indexOf(thispair)
 	var s_to_t = master_relations[''+current_time][rowidx]
 	
-	d3.select("#td-s-relations").html( mapLabel(s_to_t, "relations") )
+	d3.select("#td-s-relations").html( mapLabel(s_to_t, "relations") +' ->')
 		
 	if (isedge) {	
 		var thispair_reverse = targetdata.name+"-"+d.source.name
 		var rowidx_reverse = d3.values(master_relations.pairs).indexOf(thispair_reverse)
 		var t_to_s = master_relations[current_time][rowidx_reverse]
-		d3.select("#td-t-relations").html( mapLabel(t_to_s, "relations") )
+		d3.select("#td-t-relations").html( '<- '+mapLabel(t_to_s, "relations") )
 	}
 }
 
