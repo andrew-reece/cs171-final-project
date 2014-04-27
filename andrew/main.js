@@ -271,17 +271,19 @@ function elapse(thiskey) {
     // console.log("slider:", slider.property("value"));
   	path.transition()
   		.duration(300)
-  		.style("stroke-width", function(d) {
-  			var weight = edgeScale(d[keys[thiskey]])
-  			return weight
-  		})
+//   		.style("stroke-width", function(d) {
+//   			var weight = edgeScale(d[keys[thiskey]])
+//   			return weight
+//   		})
   		.attr("d", function(d) {
   			return linkArc(d)
-  		})  		
-  		.style("fill", function(d) {
-  			var weight = edgeScale(d[keys[thiskey]])
-  			if (weight > 0.05) {return "#666"}
-  		})
+  		})  	
+  		.style("fill", "#666")	
+//   		.style("fill", function(d) {
+//   			var weight = edgeScale(d[keys[thiskey]])
+//   			if (weight > 0.05) {return "#666"}
+//   		})
+
 
   
 
@@ -1371,17 +1373,21 @@ function renderForceLinks() {
 			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
 		})
 		.on("mouseover", function(d) {
-			if (d3.select(this).style("stroke-width") > "1") {
-				d3.select(this).style("stroke", "purple")
-				d3.select(this).style("fill", "purple")
-			}
+// 			if (d3.select(this).style("stroke-width") > "0.05") {
+// 				d3.select(this).style("stroke", "purple")
+// 				d3.select(this).style("fill", "purple")
+// 			}
+			d3.select(this).style("stroke", "purple")
+			d3.select(this).style("fill", "purple")
 			setNetworkDetails(d,true) 
 		})
 		.on("mouseout", function(d) {
-			if (d3.select(this).style("stroke-width") > "1") {
-				d3.select(this).style("stroke", "#666")
-				d3.select(this).style("fill", "#666")
-			}
+// 			if (d3.select(this).style("stroke-width") > "0.05") {
+// 				d3.select(this).style("stroke", "#666")
+// 				d3.select(this).style("fill", "#666")
+// 			}
+			d3.select(this).style("stroke", "#666")
+			d3.select(this).style("fill", "#666")
 			clearNetworkDetails()
 		})
 }
