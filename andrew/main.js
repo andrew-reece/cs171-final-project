@@ -61,7 +61,7 @@
 	
 // translates time series frequency counts into edge weights
 	var edgeScale = d3.scale.linear().range([0,5])
-	var edgeArcScale = d3.scale.linear().range([0, 50])
+	var edgeArcScale = d3.scale.linear().range([0, 100])
 		
 // initialize heatmap vars, specs
 	var hmap_data, heatmap, hmdata, hmap_xaxis, hmap_yaxis, hm
@@ -280,12 +280,9 @@ function elapse(thiskey) {
   		})  		
   		.style("fill", function(d) {
   			var weight = edgeScale(d[keys[thiskey]])
-  			if (weight > 0.5) {return "#666"}
+  			if (weight > 0.05) {return "#666"}
   		})
-//   		.style("stroke", function(d) {
-//   			var weight = edgeScale(d[keys[thiskey]])
-//   			if (weight > 0.5) {return "white"}
-//   		})
+
   
 
   
