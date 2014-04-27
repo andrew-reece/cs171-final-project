@@ -161,7 +161,14 @@ var path2 = d3.svg.chord()
    
 // chord diagram: transition duration (needs to be a little slower than force graph)
 var chordDuration = 700;
-    
+
+// friendship scale
+var friend_domain = ["TYPEa","TYPEb","TYPEc","TYPEd","TYPEe","TYPEf"]
+var friend_range_L  = [130, 142, 154, 166, 178, 190, 200]
+var friend_range_R  = [340, 330, 318, 306, 294, 282, 270]
+var friendScale_L = d3.scale.ordinal().domain(friend_domain).range(friend_range_L)
+var friendScale_R = d3.scale.ordinal().domain(friend_domain).range(friend_range_R)
+
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
 //////////////////////////////////////////////////////////////////////////////////////
@@ -774,7 +781,7 @@ function clearHeatmap() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function clearNetworkDetails() {
-	d3.selectAll(".network-detail").html("")
+	d3.selectAll(".network-detail").html(function() {return (!(d3.select(this).classed("relations-td"))) ? "" : d3.select(this).html()})
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -881,6 +888,7 @@ function end() {
 	}
 	d3.select("#start-button").text("Click to start");
   	animation = false;
+  	elapse_seed = 4 // resets to default start position @ index 4 on time series dsets
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1275,9 +1283,7 @@ function makeHeatmapDropdown(vardata) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function mapLabel(raw, thisvar) {
-	if ((raw == "")&&(thisvar=="relations")) {
-		return master_labels[thisvar][0]
-	} else if ((raw) && (raw.substr(0,4) == "TYPE")) {
+	if ((raw) && (raw.substr(0,4) == "TYPE")) {
 		var idx = d3.values(master_labels.type).indexOf( raw )
 		return master_labels[thisvar][idx]
 	} else {
@@ -1603,13 +1609,17 @@ function setRelationDetails(d, targetdata, isedge) {
 	var rowidx = d3.values(master_relations.pairs).indexOf(thispair)
 	var s_to_t = master_relations[''+current_time][rowidx]
 	
-	d3.select("#td-s-relations").html( mapLabel(s_to_t, "relations") +' ->')
+	d3.select("#ball-left")
+			.transition().duration(500)
+			.style("left", friendScale_L(s_to_t)+"px")
 		
 	if (isedge) {	
 		var thispair_reverse = targetdata.name+"-"+d.source.name
 		var rowidx_reverse = d3.values(master_relations.pairs).indexOf(thispair_reverse)
 		var t_to_s = master_relations[current_time][rowidx_reverse]
-		d3.select("#td-t-relations").html( '<- '+mapLabel(t_to_s, "relations") )
+		d3.select("#ball-right")
+			.transition().duration(500)
+			.style("left", friendScale_R(t_to_s)+"px")
 	}
 }
 

@@ -329,24 +329,32 @@ h4 {
 			padding-bottom:50px;
 		}
 		
-		hr#hr-left {
-			position:relative;
-			width:85px;
-			margin-top:9px;
-			margin-left:0px;
-			display:inline-block;
-			height:2px;
-			background-color: steelblue;
+		.relations-ball {
+			position:absolute;
+			top:164.3px;
+			font-size:35pt;
+			width:5px;
+			display:inline;
+			height:5px;
+			color:steelblue;
 		}
 		
-		hr#hr-right {
+		#ball-left {
+			left:130px;
+		}
+		
+		#ball-right {
+			left:340px;
+		}
+		
+		hr {
 			position:relative;
 			width:85px;
 			margin-top:9px;
 			margin-left:0px;
 			display:inline-block;
 			height:2px;
-			background-color: steelblue;
+			background-color: rgb(110,110,110);
 		}
 		
 		img#nolove-left {
