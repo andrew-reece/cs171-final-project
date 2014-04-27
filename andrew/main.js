@@ -1230,6 +1230,13 @@ function makeHeatmapDropdown(vardata) {
 				})
 	var select = document.getElementById("heatmap-dropdown")
 	
+	// set default option
+	var option = document.createElement("option")
+	option.text = "Select heatmap"
+	option.value= ""
+	select.add(option)
+	
+	// set an option for each heatmap
 	for (var i = 0; i < d3.entries(vardata.name).length; i++) {
 		var option = document.createElement("option")
 		option.text = vardata.nickname[i]
