@@ -60,8 +60,8 @@
 	var freqmax = 0
 	
 // translates time series frequency counts into edge weights
-	var edgeScale = d3.scale.linear().range([0,3])
-	var edgeArcScale = d3.scale.linear().range([0, 100])
+	var edgeScale = d3.scale.linear().range([0,5])
+	var edgeArcScale = d3.scale.linear().range([0, 50])
 		
 // initialize heatmap vars, specs
 	var hmap_data, heatmap, hmdata, hmap_xaxis, hmap_yaxis, hm
@@ -276,17 +276,16 @@ function elapse(thiskey) {
   			return weight
   		})
   		.attr("d", function(d) {
-  			var w = edgeArcScale(d[keys[thiskey]])
-  			return linkArc(d, w)
-  		})
+  			return linkArc(d)
+  		})  		
   		.style("fill", function(d) {
   			var weight = edgeScale(d[keys[thiskey]])
-  			if (weight > 1) {return "#666"}
+  			if (weight > 0.5) {return "#666"}
   		})
-  		.style("stroke", function(d) {
-  			var weight = edgeScale(d[keys[thiskey]])
-  			if (weight > 1) {return "white"}
-  		})
+//   		.style("stroke", function(d) {
+//   			var weight = edgeScale(d[keys[thiskey]])
+//   			if (weight > 0.5) {return "white"}
+//   		})
   
 
   
@@ -352,6 +351,7 @@ function renderPage(vardata) {
 			freqmax = (freqmax < parseInt(d.total_freq)) ? parseInt(d.total_freq) : freqmax 
 		})
 		links = data
+		console.log(links)
 		
 	// this is node graph mumbo from a bostock page - i used it in HW2. 
 	// i don't remember where it's from.
@@ -1164,18 +1164,24 @@ function initSVG(x_offset, y_offset) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-	function linkArc(d, w) {
+	function linkArc(d) {
+	//console.log(d.source.name + " , " + d.target.name + " " + d.total_freq)
+	
+	var w = edgeArcScale(d.total_freq)
+	var s = edgeScale(d.total_freq)
 	
 	  var dx = d.target.x - d.source.x,
 		  dy = d.target.y - d.source.y,
 		  dr = Math.sqrt(dx * dx + dy * dy);
-
-		  
 	  return "M " + 
-			 d.source.x + "," + d.source.y + " Q " + 
-			 d.source.y + "," + (d.source.y - w) +  " " +
-			 d.target.x + "," + d.target.y + " Z";
+			 d.source.x + "," + d.source.y + " A " + 
+			 dr + "," + dr + " 0 0,1 " + 
+			 d.target.x + "," + d.target.y + " A " +
+			 (dr - w) + "," + (dr -w) + " 0 0, 0 " +
+			 d.source.x + "," + d.source.y;
 	}
+	
+	
 	
 //////////////////////////////////////////////////////////////////////////////////////
 //
