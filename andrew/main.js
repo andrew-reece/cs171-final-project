@@ -800,7 +800,9 @@ function clearNetworkDetails() {
   	  // set hm dimension params
   	  var map_height = var_names.length * hm.size + offset.h
   	  var max_label_length = d3.max(var_names, function(d) {return d.length})
-  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x 
+  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x
+  	  var x_axis_horz_offset = (location == "main") ? 0 : -5
+  
       
   	  // define scale domains and ranges
   	  // y.domain(var_names).range(var_range)
@@ -815,7 +817,7 @@ function clearNetworkDetails() {
   	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
   	x_axis.selectAll("text")
   		.style("text-anchor", "end")
-  		.attr("transform", "translate(0,"+x_axis_vert_offset+")rotate(-90)")		
+  		.attr("transform", "translate("+x_axis_horz_offset+","+x_axis_vert_offset+")rotate(-90)")		
   	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
   	  
   		// draw map	
