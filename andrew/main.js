@@ -1007,6 +1007,7 @@ function filterNodes(obj) {
 	// (we don't need anything else, as it applies to all filters)
 	if (reset) {
 	
+	  d3.selectAll(".filter").property("checked", false);
 		filterNodesInner(null, null, null, null, true)
 	
 	// if it's an aggregate filter (eg. Conservative or Liberal)...
