@@ -61,7 +61,7 @@
 	
 // translates time series frequency counts into edge weights
 	var edgeScale = d3.scale.linear().range([0,5])
-	var edgeArcScale = d3.scale.linear().range([0, 100])
+	var edgeArcScale = d3.scale.linear().range([20, 40])
 		
 // initialize heatmap vars, specs
 	var hmap_data, heatmap, hmdata, hmap_xaxis, hmap_yaxis, hm
@@ -276,7 +276,7 @@ function elapse(thiskey) {
 //   			return weight
 //   		})
   		.attr("d", function(d) {
-  			return linkArc(d)
+  			return linkArc(d, thiskey)
   		})  	
   		.style("fill", "#666")	
 //   		.style("fill", function(d) {
@@ -1163,11 +1163,11 @@ function initSVG(x_offset, y_offset) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-	function linkArc(d) {
+	function linkArc(d, thiskey) {
 	//console.log(d.source.name + " , " + d.target.name + " " + d.total_freq)
-	
-	var w = edgeArcScale(d.total_freq)
-	var s = edgeScale(d.total_freq)
+	//console.log('thiskey:'+thiskey)
+	var w = edgeArcScale(d[keys[thiskey]])
+	var s = edgeScale(d[keys[thiskey]])
 	
 	  var dx = d.target.x - d.source.x,
 		  dy = d.target.y - d.source.y,
@@ -1581,7 +1581,7 @@ function summonFilterBox() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 	function tick() {
-	  path.attr("d", linkArc);
+	  path.attr("d", function(d) { return linkArc(d, 4) });
 	  // r+10 b/c that keeps the numbers of nodes near the viewbox border from getting cut off
 	  // if it's just "r" then the node names (i.e. numbers) can float out of view
 	  circle .attr("cx", function(d) { return d.x = Math.max((r+15), Math.min(width - (r+15), d.x)); })
