@@ -165,7 +165,7 @@ var chordDuration = 700;
 // friendship scale
 var friend_domain = ["TYPEa","TYPEb","TYPEc","TYPEd","TYPEe","TYPEf"]
 var friend_range_L  = [130, 142, 154, 166, 178, 190, 200]
-var friend_range_R  = [340, 330, 318, 306, 294, 282, 270]
+var friend_range_R  = [340, 330, 318, 306, 294, 282, 273]
 var friendScale_L = d3.scale.ordinal().domain(friend_domain).range(friend_range_L)
 var friendScale_R = d3.scale.ordinal().domain(friend_domain).range(friend_range_R)
 
@@ -1303,8 +1303,14 @@ function makeHeatmapDropdown(vardata) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function mapLabel(raw, thisvar) {
+	var num_vars = ["sad","stressed","aerobic_per_week"]
 	if ((raw) && (raw.substr(0,4) == "TYPE")) {
 		var idx = d3.values(master_labels.type).indexOf( raw )
+		return master_labels[thisvar][idx]
+	} else if ((raw) && (num_vars.indexOf(thisvar) > -1)) {
+		if ((thisvar == "sad") || (thisvar == "stressed")) { var type = "mood_type" }
+		else { var type = "exer_type" }
+		var idx = d3.values(master_labels[type]).indexOf( raw )
 		return master_labels[thisvar][idx]
 	} else {
 		return raw
@@ -1625,6 +1631,13 @@ function setNetworkDetails(d, isedge) {
 	if(sourcedata) {setRelationDetails(d, targetdata, isedge)}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setRelationsDetails(d, targetdata, isedge)
+// Purpose:  adjusts friendship slider at bottom of network details
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
 function setRelationDetails(d, targetdata, isedge) {
 	var current_time = keys[slider.property("value")]
 	var thispair = d.source.name+"-"+targetdata.name
@@ -1633,7 +1646,13 @@ function setRelationDetails(d, targetdata, isedge) {
 	
 	d3.select("#ball-left")
 			.transition().duration(500)
-			.style("left", friendScale_L(s_to_t)+"px")
+			.style("left", function() {
+				if (!(d3.select(this).style("left") == friendScale_L(s_to_t)+"px")) {
+					return friendScale_L(s_to_t)+"px"
+				} else {
+					return d3.select(this).style("left")
+				}
+			})
 		
 	if (isedge) {	
 		var thispair_reverse = targetdata.name+"-"+d.source.name
@@ -1641,7 +1660,13 @@ function setRelationDetails(d, targetdata, isedge) {
 		var t_to_s = master_relations[current_time][rowidx_reverse]
 		d3.select("#ball-right")
 			.transition().duration(500)
-			.style("left", friendScale_R(t_to_s)+"px")
+			.style("left", function() {
+				if (!(d3.select(this).style("left") == friendScale_R(t_to_s)+"px")) {
+					return friendScale_R(t_to_s)+"px"
+				} else {
+					return d3.select(this).style("left")
+				}
+			})
 	}
 }
 
