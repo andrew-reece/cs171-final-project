@@ -1602,7 +1602,7 @@ function setNetworkDetails(d, isedge) {
 		}
 	})
 	
-	if(sourcedata) {setRelationDetails(d, targetdata, isedge)}
+	if(isedge) {setRelationDetails(d, targetdata, isedge)}
 }
 
 function setRelationDetails(d, targetdata, isedge) {
