@@ -683,7 +683,7 @@ function chordKey(data) {
 function getInfoObject(data) {
   for (var i = 0; i < chData.length; i++) {    
     if(chData[i].source.name == users[data.index]) { 
-      return chData[i];
+      return chData[i].source;
       break;
     }
   }
@@ -1577,14 +1577,16 @@ function setNetworkDetails(d, isedge) {
 		? d.target
 		: {	name:"",year_school:"",floor:"",libcon:"",
 			fav_music:"",sad:"",stressed:"",aerobic_per_week:"",relations:"" }
-	
+			
+  var sourcedata = (isedge) ? d.source : d;
+			
 	// source/target objects have other properties besides the ones we want
 	// so 'cats' array is to check that we're only using desired properties
 	var cats = ['name','year_school','floor','libcon','fav_music','sad','stressed','aerobic_per_week']
 
 	// each table cell has a unique id that includes the variable name it displays
 	// here we loop through source/target objects, and display their attribute values in the appropriate table cells		
-	d3.entries(d.source).forEach( function(el) {
+	d3.entries(sourcedata).forEach( function(el) {
 		if (cats.indexOf(el.key) > -1) {
 			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key) )
 		}
@@ -1600,7 +1602,7 @@ function setNetworkDetails(d, isedge) {
 		}
 	})
 	
-	if(d.source) {setRelationDetails(d, targetdata, isedge)}
+	if(sourcedata) {setRelationDetails(d, targetdata, isedge)}
 }
 
 function setRelationDetails(d, targetdata, isedge) {
