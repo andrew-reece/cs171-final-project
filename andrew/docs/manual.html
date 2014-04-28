@@ -1,0 +1,21 @@
+<h4>Network Details for chord</h4>
+<b>[brian apr 26]</b>
+<br /><br />
+<p>I am working on getting Network Details to work for the chord graph, 
+similar to how it works for the force directed graph.  </p>
+
+<p>Inside of chord, when you mouseover a path, 
+it only provides you source/target index values.  
+These are indexes within a construct the chord layout builds layout.chords().  
+I wrote a function that will build a unique pair key, 
+always returning a unique key for any set of users, called getPairName().  
+It returns a value like user24-user53.  I then have a copy of chData which is 
+chDataByPair, that is indexed by this format of key.  This allows me to get the 
+pairName, and then use the pairName to index chDataByPair to get the proper object 
+to pass to setNetworkDetails.  Some of this may seem redundant, but I can clean much 
+of it up to use the more rich data structures and get rid of the ones that don’t 
+have as much data. </p> 
+
+<p>Here is an example of mousing over the path between user24 and user58:</p>
+
+<img class="reader" src="images/chord-example.png" />

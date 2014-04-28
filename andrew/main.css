@@ -47,6 +47,10 @@ td {
 		font-weight:900;
 	}
 
+img.reader {
+	width:90%;
+}
+
 .link {
   fill: #666;
   stroke: #666;
@@ -135,6 +139,10 @@ h4 {
 		text-align:center;
 	}
 	
+	.tab.about {
+		left:232px;
+	}
+	
 	.tab-hover {
 		background-color:aliceblue;
 	}
@@ -158,6 +166,20 @@ h4 {
 		border-bottom: solid steelblue 2px;
 	}
 
+	div#graph-reader {
+		position:relative;
+		top:-545px;
+		left:10px;
+		margin-right:25px;
+		padding:15px;
+		font-size:13pt;
+		color:maroon;
+		font-family:helvetica, arial, sans serif;
+		height:520px;
+		z-index:-10;
+		overflow:auto;
+	}
+	
 #right {
 	position: absolute;
 	left:840px;
