@@ -180,9 +180,16 @@ h4 {
 		width:90%;
 	}
 	
+	span.header {
+		font-size:14pt;
+		font-weight:600;
+	}
+	
 	span.byline {
 		font-weight:600;
 		color: rgb(110,110,110);
+		margin-bottom:10px;
+		display:block;
 	}
 	
 #right {
