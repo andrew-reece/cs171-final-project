@@ -1,32 +1,40 @@
 <span class="header">The Evolution of Social Networks</span>
 <br>
 <p>Our project uses the Social Evolution dataset from the <a href="http://realitycommons.media.mit.edu/SocialEvolutionData.html">Reality Commons project at MIT</a>.  This project used technology such as cell phones, Bluetooth devices, and WiFi access points to track the interactions of small communities of people.  The Social Evolution dataset involves a dormitory of about 80 participants.  Their locations, proximities, phone calls, and text messages were tracked, and they also completed surveys indicating their preferences regarding politics, music, eating habits, exercise habits, campus activities, and other topics.  We created a set of interactive visualizations showing these interactions and preferences.  By exploring the data, you can how some of the connections  between pairs of participants may influence, or be influenced by, their personal preferences and habits.</p>
-
+<ul id="toc">
+    <li><a href="#se_data">Social Evolution Data</a></li>
+    <li><a href="#viztypes">Visualization Types</a></li>
+    <ul>
+        <li><a href="#force">Force-Directed Graph</a></li>
+        <li><a href="#chord">Chord Diagram</a></li>
+        <li><a href="#heatmap">Heatmaps</a></li>
+    </ul>
+</ul>
 
     <span class="header">
-        Social Evolution Data
+     <a name="se_data">Social Evolution Data</a>
     </span>
 
 <p>Participants in the Social Evolution project are represented by user IDs--numbers from 1 to 84.  They include freshmen, sophomores, juniors, seniors, and graduate students.</p>
 <p>Communication data is a compilation of phone calls and text messages between participants.</p>
 <p>Proximity data is captured from WiFi access points, indicating when participants were near each other in the dormitory.</p>
 <p></p>
-    <span class="header">
-        Visualization Types
+    <span  class="header">
+        <a name="viztypes">Visualization Types</a>
     </span>
     
     <p>We have three major visualization types on the site.</p>
-    <span class="header2">Force-Directed Graph</span>
+    <span class="header2"><a name="force">Force-Directed Graph</a></span>
     <p>In this type of graph, objects are represented as nodes (typically circles) connected by edges (links), and simulated forces cause pairs of nodes to attract each other (so they maintain a reasonable closeness) while the general population of nodes repels each other so as to remain separate and distinct. </p>
     <p>Our force-directed graph (visible on the "force" tab) shows either the communication or proximity relationships of Social Evolution participants (depending on the Data selection from the Control Panel in the upper right).  Pairs of participants are connected by links; the thickness of the links indicates the number of times the pair called each other (or were near each other) in the given time period.  Hover over a node or a link to highlight it and display information in the Network Details box to the right, showing more details about the participant(s).  (See Network Details)</p>
     
-    <span class="header2">Chord Diagram</span><p>
+    <span class="header2"><a name="chord">Chord Diagram</a></span><p>
         The chord diagram is another way of visualizing relationships. The objects (in our case, participants) are laid out along the circumference of a circle, with colored bands stretching across the circle to show relationships between objects.  This layout can make it easy to pick out a certain object for examination (objects can be ordered around the circle) and to see all the relationships for one object at once.
     </p>
     <p>
         In our chord diagram, participants are arranged in order of user ID around the circumference of the circle.  Color is used to differentiate the users in an ordinal fashion; when viewing a single chord relating two participants, the color of the chord matches that of the participant who initiated the most interaction.  Thus, if user 1 is red and user 61 is blue, and we are viewing communication data in which user 1 initiated most of the calls between them, the chord will be red.  The thickness of the chord reflects the number of interactions.  Hovering over a user will highlight that user's relationship, dimming all other chords.  Hovering over a chord reveals a tooltip displaying the number of calls initiated by each user in the pair.  Hovering over either will also display information in the Network Details box to the right, showing more details about the participant(s).  (See Network Details)
     </p>
-    <span class="header2">Heatmaps</span><p>
+    <span class="header2"><a name="heatmap">Heatmaps</a></span><p>
         
     </p>
     
