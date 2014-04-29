@@ -961,7 +961,8 @@ function defaultHeatmap() {
   				// needs to be [2] here because first two columns are index/label cols
   					return heatmapColorScale(d[d3.entries(data[0])[slider.property("value") - 2].key])
   				})
-  				.call(heatmapInfo, vardata.nickname[var_idx], vardata.units[var_idx])
+  		
+  		if (location == "main") {heatmap.call(heatmapInfo, vardata.nickname[var_idx], vardata.units[var_idx])}
 
   				heatMapArray.push(heatmap);
 
