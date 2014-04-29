@@ -562,7 +562,7 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 						? setAxis("x", region, 30, 0)
 						: hmap_x
 			var y_axis = (location == "main")
-						? setAxis("y", region, 30, 10)
+						? setAxis("y", region, -25, 10)
 						: hmap_y
 			var offset = (location == "main")
 						? {h:10,x:0,  y:0,   rect: {x:0, y:0}, multiplier:{x:3.5,y:0}}
