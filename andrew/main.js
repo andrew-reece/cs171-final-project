@@ -210,7 +210,6 @@ var friendScale_R = d3.scale.ordinal().domain(friend_domain).range(friend_range_
     			be re-rendered next time we go to it.  If we are on force tab,
     			the force graph is simply redrawn on same SVG. */
 			if(current_graph == "force-tab") {redraw = true}
-    		console.log("redraw = " + redraw)
     		getVarData()
     	})
     	
@@ -617,7 +616,10 @@ function changeGraph(obj) {
 // 	render[Whatever]() starts the drawing process 	
 	if (graph == "force-tab") {
 		changeTab(graph)
-		console.log("changeGraph")
+		//console.log("changeGraph")
+		/* if we are changing from another graph
+			to a force graph, need to re-render the
+			force graph (with initSVG), not just redraw */
 		redraw = false;
 		renderForceGraph()
 	} else if (graph == "chord-tab") {
@@ -1374,11 +1376,13 @@ filterComm(chData)
 
 function renderForceGraph() {	
 
-	// redraw triggers when user switches datasets
-	// this remakes the force graph with new node/link values
+	/* when user switches datasets
+		while remaining on the force graph tab,
+	 	redraw the force graph on same SVG 
+	 	with new node/link values */
 	
 	if (redraw) {
-		console.log("redraw")
+		//console.log("redraw")
 		force .nodes(d3.values(nodes))
 			  .links(links)
 			  .start()
@@ -1396,6 +1400,11 @@ function renderForceGraph() {
 		text = text.data(force.nodes())
 		
 	} 
+	
+		/* if "redraw" conditions not met
+		 	(user does not currently have force graph displayed),
+			need to render the entire force graph.  */
+	
 	else {
 	
 		force = d3.layout.force()
