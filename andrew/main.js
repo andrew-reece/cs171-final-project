@@ -1481,7 +1481,10 @@ function renderForceLinks() {
 // 				d3.select(this).style("fill", "#666")
 // 			}
 			d3.select(this).style("stroke", "#666")
-			d3.select(this).style("fill", "#666")
+			d3.select(this).style("fill", "#666")	
+			// if single user, hide relations balls, otherwise show
+			d3.selectAll(".relations-ball")
+				.style("visibility", "hidden")
 			clearNetworkDetails()
 		})
 }
@@ -1507,7 +1510,7 @@ function renderForceNodes() {
 			})
 			.on("mouseout", function(d) {
 				d3.select(this).style("fill", "steelblue")
-				clearNetworkDetails()
+				clearNetworkDetails()	
 			});
 			//.call(force.drag);
 }
@@ -1603,7 +1606,13 @@ function setNetworkDetails(d, isedge) {
 		? d.target
 		: {	name:"",year_school:"",floor:"",libcon:"",
 			fav_music:"",sad:"",stressed:"",aerobic_per_week:"",relations:"" }
-			
+	
+	// if single user, hide relations balls, otherwise show
+	d3.selectAll(".relations-ball")
+		.style("visibility", function() {
+			return (isedge) ? "visible" : "hidden"
+		})
+				
   var sourcedata = (isedge) ? d.source : d;
 			
 	// source/target objects have other properties besides the ones we want
