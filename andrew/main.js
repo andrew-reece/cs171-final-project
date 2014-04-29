@@ -881,6 +881,8 @@ function clearNetworkDetails() {
   				// needs to be [2] here because first two columns are index/label cols
   					return heatmapColorScale(d[d3.entries(data[0])[slider.property("value") - 2].key])
   				})
+  				heatMapArray.push(heatmap);
+
   	})
   }
 //////////////////////////////////////////////////////////////////////////////////////
