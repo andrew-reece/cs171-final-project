@@ -631,10 +631,28 @@ function changeGraph(obj) {
 		changeTab(graph)
 		initSVG(50,40)
 		renderAllHeatmaps(master_vardata)
+	} else if (graph == "manual-tab") {
+		changeTab(graph)
+		renderReader("manual")
+	} else if (graph == "about-tab") {
+		changeTab(graph)
+		renderReader("about")
 	}
 // global var we call on elsewhere
 	current_graph = graph
 	console.log(current_graph)
+}
+
+function renderReader(doc) {
+	if (doc == "manual") {
+		var reader = d3.select("#graph-reader").style("z-index", 10)
+		d3.text("docs/manual.html")
+		.get(function(error,data) {reader.html(data) })
+	} else if (doc == "about") {
+		var reader = d3.select("#graph-reader").style("z-index", 10)
+		d3.text("docs/about.html")
+		.get(function(error,data) {reader.html(data) })
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -771,7 +789,9 @@ function chordTween(oldLayout) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function clearGraph() {
+	d3.select("#graph-reader").style("z-index", -10)
 	d3.select("#graph-viewbox").remove()
+	d3.select("#graph").html("")
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

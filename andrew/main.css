@@ -135,6 +135,10 @@ h4 {
 		text-align:center;
 	}
 	
+	.tab.about {
+		left:232px;
+	}
+	
 	.tab-hover {
 		background-color:aliceblue;
 	}
@@ -158,6 +162,36 @@ h4 {
 		border-bottom: solid steelblue 2px;
 	}
 
+	div#graph-reader {
+		position:relative;
+		top:-545px;
+		left:10px;
+		margin-right:25px;
+		padding:15px;
+		font-size:13pt;
+		color:maroon;
+		font-family:helvetica, arial, sans serif;
+		height:520px;
+		z-index:-10;
+		overflow:auto;
+	}
+	
+	div#graph-reader img {
+		width:90%;
+	}
+	
+	span.header {
+		font-size:14pt;
+		font-weight:600;
+	}
+	
+	span.byline {
+		font-weight:600;
+		color: rgb(110,110,110);
+		margin-bottom:10px;
+		display:block;
+	}
+	
 #right {
 	position: absolute;
 	left:840px;
