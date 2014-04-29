@@ -49,7 +49,9 @@
 // keys array holds column names for time series data
 	var keys = []
 	
-// useful global for time series object manipulation (aka i don't remember what it does)
+
+// numkeys is used to stop the time slider/animation in elapse()
+// it's just the count of how many time series checkpoints there are
 	var numkeys
 	
 // graph dimensions
@@ -128,9 +130,6 @@ HARD CODE */
 	
 // an array to store each heatmap so it can be referenced later
   var heatMapArray = [];
-
-// notice box for testing only
-	var notice = d3.select("#notice")
 	
 // variable to determine if we should run the animation
     var animation = false;
@@ -194,9 +193,9 @@ var friendScale_R = d3.scale.ordinal().domain(friend_domain).range(friend_range_
   		      if(slider.property("value") == numkeys - 1) { slider.property("value", elapse_seed); }
   
             return elapse(elapse_seed); 
-        } else {
-            d3.select("#start-button").text("Click to start");
-        }
+		  } else {
+			  d3.select("#start-button").text("Click to start");
+		  }
   		}
     )
     
@@ -403,7 +402,8 @@ function renderPage(vardata) {
 //
 // END TIME SLIDER
 //
-		// i don't remember what numkeys is for, but it's a global we need elsewhere.
+		// numkeys is used to stop the time slider/animation in elapse()
+		// it's just the count of how many time series checkpoints there are
 		numkeys = keys.length
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
@@ -576,6 +576,8 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// master_labels is an object with these key codes - here we map these values
 		// onto the d3 axis tickValues so the graph displays them instead of generics
 		
+			if (["sad","stressed"].indexOf(name) > -1) { name = "mood_type" }
+			else if (name == "aerobic_per_week") { name = "exer_type" }
 			var axis_labels = d3.values(master_labels[name])
 						
 		// call drawHeatmap function, which actually renders the heatmap
@@ -880,14 +882,6 @@ function clearNetworkDetails() {
   				// needs to be [2] here because first two columns are index/label cols
   					return heatmapColorScale(d[d3.entries(data[0])[slider.property("value") - 2].key])
   				})
-  			//
-  			// for testing only - shows cell pairwise values in notice box (upper right)
-  			//
-  				.on("mouseover", function(d) {
-  					notice.text(d.pairs.split("-")[0]+ ' and '+ d.pairs.split("-")[1])
-  				})
-  				.on("mouseout", function() {notice.text("")})
-  				heatMapArray.push(heatmap);
   	})
   }
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1097,7 +1091,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		 	return "inline"
 		 	
 		 // does the calling filter apply to this node?
-		 } else if (mapLabel( d[filname], filname) == filval) { 
+		 } else if (mapLabel( d[filname], filname, false) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
 		 	
@@ -1144,7 +1138,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		  d3.select(".edge"+d.name).style("display", "inline") // update edge
 
 		 // does the calling filter apply to this node?
-		} else if (mapLabel( d[filname], filname) == filval) { 
+		} else if (mapLabel( d[filname], filname, false) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
 		 	
@@ -1302,11 +1296,12 @@ function makeHeatmapDropdown(vardata) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function mapLabel(raw, thisvar) {
+function mapLabel(raw, thisvar, netdeet) {
+	var extended = (netdeet) ? "_extend" : ""
 	var num_vars = ["sad","stressed","aerobic_per_week"]
 	if ((raw) && (raw.substr(0,4) == "TYPE")) {
 		var idx = d3.values(master_labels.type).indexOf( raw )
-		return master_labels[thisvar][idx]
+		return master_labels[thisvar+extended][idx]
 	} else if ((raw) && (num_vars.indexOf(thisvar) > -1)) {
 		if ((thisvar == "sad") || (thisvar == "stressed")) { var type = "mood_type" }
 		else { var type = "exer_type" }
@@ -1623,7 +1618,7 @@ function setNetworkDetails(d, isedge) {
 	// here we loop through source/target objects, and display their attribute values in the appropriate table cells		
 	d3.entries(sourcedata).forEach( function(el) {
 		if (cats.indexOf(el.key) > -1) {
-			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key) )
+			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key, true) )
 		}
 		// get the current time
 		// get the pair
@@ -1633,7 +1628,7 @@ function setNetworkDetails(d, isedge) {
 	
 	d3.entries(targetdata).forEach( function(el) {
 		if (cats.indexOf(el.key) > -1) {
-			d3.select("#td-t-"+el.key).html( mapLabel(el.value, el.key) )
+			d3.select("#td-t-"+el.key).html( mapLabel(el.value, el.key, true) )
 		}
 	})
 	
