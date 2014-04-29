@@ -206,7 +206,10 @@ var friendScale_R = d3.scale.ordinal().domain(friend_domain).range(friend_range_
     		keys = []
     		dateRange = []
     		setTimeSeriesData(this.value)
-    		redraw = true
+    		/* if we are not on force tab, the force graph will have to 
+    			be re-rendered next time we go to it.  If we are on force tab,
+    			the force graph is simply redrawn on same SVG. */
+			if(current_graph == "force-tab") {redraw = true}
     		getVarData()
     	})
     	
@@ -361,13 +364,15 @@ function renderPage(vardata) {
 		})
 		links = data
 		
-	// this is node graph mumbo from a bostock page - i used it in HW2. 
-	// i don't remember where it's from.
+	/* this is standard usage in many bostock examples of force graphs
+		such as https://gist.github.com/mbostock/2706022 
+		and we used it in HW2. */
 	
 		links.forEach(function(link) {
 		  link.source = nodes[link.source];
 		  link.target = nodes[link.target];
 		});	
+		
 // sets filter checkbox functionality based on node data
 	setFilters(nodes)
 	setFilterTooltips(master_vardata)
@@ -375,8 +380,7 @@ function renderPage(vardata) {
 // 
 // CREATE TIME SLIDER
 //
-	// i think this is for the time slider that brian installed.  
-	// looks like it keeps track of time series checkpoints in an array
+	// keeps track of time series checkpoints in an array
 		for(var k in data[0]) {
 			keys.push(k);
 			if(YmdXParser(k)) { dateRange.push(k); }
@@ -425,7 +429,10 @@ function renderPage(vardata) {
     	});
 
 		// draw actual force layout
-		renderForceGraph()
+		console.log("render page")
+		console.log("current_graph -> " + current_graph)
+ 		if (current_graph == 'force-tab') {renderForceGraph()}
+
 		
 	}) // end d3.csv()
 }
@@ -609,6 +616,11 @@ function changeGraph(obj) {
 // 	render[Whatever]() starts the drawing process 	
 	if (graph == "force-tab") {
 		changeTab(graph)
+		//console.log("changeGraph")
+		/* if we are changing from another graph
+			to a force graph, need to re-render the
+			force graph (with initSVG), not just redraw */
+		redraw = false;
 		renderForceGraph()
 	} else if (graph == "chord-tab") {
 		changeTab(graph)
@@ -622,6 +634,7 @@ function changeGraph(obj) {
 	}
 // global var we call on elsewhere
 	current_graph = graph
+	console.log(current_graph)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1363,11 +1376,13 @@ filterComm(chData)
 
 function renderForceGraph() {	
 
-	// redraw triggers when user switches datasets
-	// this remakes the force graph with new node/link values
+	/* when user switches datasets
+		while remaining on the force graph tab,
+	 	redraw the force graph on same SVG 
+	 	with new node/link values */
 	
 	if (redraw) {
-	
+		//console.log("redraw")
 		force .nodes(d3.values(nodes))
 			  .links(links)
 			  .start()
@@ -1384,7 +1399,13 @@ function renderForceGraph() {
 		
 		text = text.data(force.nodes())
 		
-	} else {
+	} 
+	
+		/* if "redraw" conditions not met
+		 	(user does not currently have force graph displayed),
+			need to render the entire force graph.  */
+	
+	else {
 	
 		force = d3.layout.force()
 			.nodes(d3.values(nodes))
