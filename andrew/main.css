@@ -185,6 +185,11 @@ h4 {
 		font-weight:600;
 	}
 	
+	span.header2 {
+		font-size:12pt;
+		font-weight:600;
+	}
+	
 	span.byline {
 		font-weight:600;
 		color: rgb(110,110,110);
