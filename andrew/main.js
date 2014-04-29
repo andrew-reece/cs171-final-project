@@ -54,7 +54,7 @@
 	var numkeys
 	
 // graph dimensions
-	var width = 790, height = 575
+	var width = 790, height = 620
 				  
 // for setting edgeArcScale domain, based on max frequency ct for time series variable
 	var freqmax = 0
@@ -314,7 +314,6 @@ function elapse(thiskey) {
   // if single pane heatmap is selected, this updates heatmap based on time series	
   	if(heatmap) {
   	  for(var hm in heatMapArray) {
-  	   // console.log("heatmap:", heatMapArray[hm]);
   		  heatMapArray[hm].style("fill", function(d) { 
   			  return heatmapColorScale(d[keys[thiskey]]); 
   		  });
@@ -615,7 +614,6 @@ function changeGraph(obj) {
 // 	render[Whatever]() starts the drawing process 	
 	if (graph == "force-tab") {
 		changeTab(graph)
-		//console.log("changeGraph")
 		/* if we are changing from another graph
 			to a force graph, need to re-render the
 			force graph (with initSVG), not just redraw */
@@ -640,9 +638,8 @@ function changeGraph(obj) {
 		changeTab(graph)
 		renderReader("about")
 	}
-// global var we call on elsewhere
+// global var
 	current_graph = graph
-	console.log(current_graph)
 }
 
 function renderReader(doc) {
@@ -917,11 +914,11 @@ function defaultHeatmap() {
   		}
   
 	  var ifnum = ((hmpath.substr(5,3) == "sad") || (hmpath.substr(5,8) == "stressed") || (hmpath.substr(5,7) == "aerobic"))
-  	  var ifnum_offset = (location=="focus") ? (ifnum) ? 5 : 0 : (ifnum) ? 0 : -10
+  	  var ifnum_xaxis_offset = (location=="focus") ? (ifnum) ? 5 : 0 : (ifnum) ? 0 : -10
   	  // set hm dimension params
   	  var map_height = var_names.length * hm.size + offset.h
   	  var max_label_length = d3.max(var_names, function(d) {return d.length})
-  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x + ifnum_offset
+  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x + ifnum_xaxis_offset
   	  var x_axis_horz_offset = (location == "main") ? 4 : -5
   
       
@@ -964,10 +961,23 @@ function defaultHeatmap() {
   				// needs to be [2] here because first two columns are index/label cols
   					return heatmapColorScale(d[d3.entries(data[0])[slider.property("value") - 2].key])
   				})
+  				.call(heatmapInfo, vardata.nickname[var_idx], vardata.units[var_idx])
+
   				heatMapArray.push(heatmap);
 
   	})
   }
+  
+function heatmapInfo(obj, title, units) {
+	var infobox = d3.select(obj.node().parentNode)
+					.append("g")
+					.attr("transform", "translate(25,10)")
+						.append("text")
+							.style("font-size", "10pt")
+							.text(title+" "+units)
+			
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 //
 // FUNCTION: end()
@@ -997,19 +1007,14 @@ function end() {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function filterComm(data) {
-  // console.log(data)
+
   var comm = [];
   
-  //console.log("filterComm data:", data)
-  
   filterLevel = slider.property("value")
-  //console.log("filterlevel:", filterLevel)
   var key = timeScale(filterLevel)
-  //console.log("key:", key)
   
   for (var i = 0; i<data.length; i++) {
     var dataobject = data[i];
-    //console.log(dataobject);
       
     commObject = {};
     commObject["source"] = +dataobject["source"]["name"];
@@ -1019,7 +1024,6 @@ function filterComm(data) {
     comm.push(commObject);
   }
   
-  //console.log("filterComm:",comm)
   matrixMap(comm);
 }
 
@@ -1069,8 +1073,6 @@ function matrixMap(comm) {
      return a - b;
    })
    
-//   console.log("users:", users);
-   
    matrix.length = users.length;
    for (var i = 0; i< matrix.length; i++) {
      matrix[i] = [];
@@ -1093,8 +1095,6 @@ function matrixMap(comm) {
        }
      }
    };
-   
-   //console.log(matrix)
    
 updateChord(matrix)
 }
@@ -1440,10 +1440,10 @@ function renderAllHeatmaps(vardata) {
 		.append("g")
 			.attr("class", "hmap-grid")
 			.each(function(d,i) {
-				var multiplier_x = [0, 1, 2, 0, 1, 2]
-				var multiplier_y = [0, 0, 0, 1, 1, 1]
+				var multiplier_x = [0, 1.15, 2.12, 0, 1, 2]
+				var multiplier_y = [.05, .15, .2, 1, 1, 1]
 				var xoffset = multiplier_x[i]*260
-				var yoffset = multiplier_y[i]*300
+				var yoffset = multiplier_y[i]*350
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
 }
@@ -1484,8 +1484,6 @@ function renderForceGraph() {
 	 	with new node/link values */
 	
 	if (redraw) {
-		//console.log("redraw")
-		console.log("freqmax -> " + freqmax)
 		
 		force .nodes(d3.values(nodes))
 			  .links(links)
@@ -1510,8 +1508,6 @@ function renderForceGraph() {
 			need to render the entire force graph.  */
 	
 	else {
-	
-		//console.log("freqmax = " + freqmax)
 	
 		force = d3.layout.force()
 			.nodes(d3.values(nodes))
