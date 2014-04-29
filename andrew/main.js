@@ -628,7 +628,7 @@ function changeGraph(obj) {
 	} else if (graph == "heatmap-tab") {
 		grid_ct = 1
 		changeTab(graph)
-		initSVG(50,40)
+		initSVG(50,10)
 		renderAllHeatmaps(master_vardata)	
 	} else if (graph == "screencast-tab") {
 		changeTab(graph)
@@ -916,12 +916,13 @@ function defaultHeatmap() {
         xAxis.tickValues(null)
   		}
   
-	  var ifnum = ((hmpath.substr(5,3) == "sad") || (hmpath.substr(5,8) == "stressed") || (hmpath.substr(5,7) == "aerobic")) ? 5 : 0
+	  var ifnum = ((hmpath.substr(5,3) == "sad") || (hmpath.substr(5,8) == "stressed") || (hmpath.substr(5,7) == "aerobic"))
+  	  var ifnum_offset = (location=="focus") ? (ifnum) ? 5 : 0 : (ifnum) ? 0 : -10
   	  // set hm dimension params
   	  var map_height = var_names.length * hm.size + offset.h
   	  var max_label_length = d3.max(var_names, function(d) {return d.length})
-  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x + ifnum
-  	  var x_axis_horz_offset = (location == "main") ? 0 : -5
+  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x + ifnum_offset
+  	  var x_axis_horz_offset = (location == "main") ? 4 : -5
   
       
   	  // define scale domains and ranges
@@ -939,7 +940,7 @@ function defaultHeatmap() {
   			.style("text-anchor", "end")
   			.attr("transform", "translate("+x_axis_horz_offset+","+x_axis_vert_offset+")rotate(-90)")		
   	y_axis.append("g")
-  			.attr("transform", "translate(50,0)")
+  			.attr("transform", function() { return (location=="focus") ? "translate(50,0)" : "translate(0,0)" })
   			.attr("class", "axis-instance").call(yAxis)	
 
   		// draw map	
@@ -1442,7 +1443,7 @@ function renderAllHeatmaps(vardata) {
 				var multiplier_x = [0, 1, 2, 0, 1, 2]
 				var multiplier_y = [0, 0, 0, 1, 1, 1]
 				var xoffset = multiplier_x[i]*260
-				var yoffset = multiplier_y[i]*280
+				var yoffset = multiplier_y[i]*300
 				return buildHeatmap(d, vardata, location, xoffset, yoffset) 
 			})
 }
