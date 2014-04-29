@@ -49,12 +49,12 @@
 // keys array holds column names for time series data
 	var keys = []
 	
-// useful global for time series object manipulation
+// numkeys is used to stop the time slider/animation in elapse()
+// it's just the count of how many time series checkpoints there are
 	var numkeys
 	
 // graph dimensions
 	var width = 790, height = 575
-	
 				  
 // for setting edgeArcScale domain, based on max frequency ct for time series variable
 	var freqmax = 0
@@ -127,9 +127,6 @@ HARD CODE */
 	
 // an array to store each heatmap so it can be referenced later
   var heatMapArray = [];
-
-// notice box for testing only
-	var notice = d3.select("#notice")
 	
 // variable to determine if we should run the animation
     var animation = false;
@@ -572,7 +569,8 @@ function buildHeatmap(name, vardata, location, xoffset, yoffset) {
 		// values to each generic value for every variable
 		// master_labels is an object with these key codes - here we map these values
 		// onto the d3 axis tickValues so the graph displays them instead of generics
-		
+			if (["sad","stressed"].indexOf(name) > -1) { name = "mood_type" }
+			else if (name == "aerobic_per_week") { name = "exer_type" }
 			var axis_labels = d3.values(master_labels[name])
 						
 		// call drawHeatmap function, which actually renders the heatmap
@@ -883,14 +881,6 @@ function clearNetworkDetails() {
   				// needs to be [2] here because first two columns are index/label cols
   					return heatmapColorScale(d[d3.entries(data[0])[slider.property("value") - 2].key])
   				})
-  			//
-  			// for testing only - shows cell pairwise values in notice box (upper right)
-  			//
-  				.on("mouseover", function(d) {
-  					notice.text(d.pairs.split("-")[0]+ ' and '+ d.pairs.split("-")[1])
-  				})
-  				.on("mouseout", function() {notice.text("")})
-  				heatMapArray.push(heatmap);
   	})
   }
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1100,7 +1090,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		 	return "inline"
 		 	
 		 // does the calling filter apply to this node?
-		 } else if (mapLabel( d[filname], filname) == filval) { 
+		 } else if (mapLabel( d[filname], filname, false) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
 		 	
@@ -1147,7 +1137,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		  d3.select(".edge"+d.name).style("display", "inline") // update edge
 
 		 // does the calling filter apply to this node?
-		} else if (mapLabel( d[filname], filname) == filval) { 
+		} else if (mapLabel( d[filname], filname, false) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
 		 	
@@ -1305,12 +1295,27 @@ function makeHeatmapDropdown(vardata) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function mapLabel(raw, thisvar) {
+function mapLabel(raw, thisvar, netdeet) {
+
+	var extended = (netdeet) ? "_extend" : ""
+	var num_vars = ["sad","stressed","aerobic_per_week"]
+	
 	if ((raw) && (raw.substr(0,4) == "TYPE")) {
+	
 		var idx = d3.values(master_labels.type).indexOf( raw )
+		return master_labels[thisvar+extended][idx]
+		
+	} else if ((raw) && (num_vars.indexOf(thisvar) > -1)) {
+	
+		if ((thisvar == "sad") || (thisvar == "stressed")) { var type = "mood_type" }
+		else { var type = "exer_type" }
+		var idx = d3.values(master_labels[type]).indexOf( raw )
 		return master_labels[thisvar][idx]
+		
 	} else {
+	
 		return raw
+		
 	}
 }
 
@@ -1507,7 +1512,6 @@ function renderForceNodes() {
 				d3.select(this).style("fill", "steelblue")
 				clearNetworkDetails()
 			});
-			//.call(force.drag);
 }
 
 
@@ -1602,6 +1606,12 @@ function setNetworkDetails(d, isedge) {
 		: {	name:"",year_school:"",floor:"",libcon:"",
 			fav_music:"",sad:"",stressed:"",aerobic_per_week:"",relations:"" }
 			
+	// if single user, hide relations balls, otherwise show
+	d3.selectAll(".relations-ball")
+		.style("visibility", function() {
+			return (isedge) ? "visible" : "hidden"
+		})
+			
   var sourcedata = (isedge) ? d.source : d;
 			
 	// source/target objects have other properties besides the ones we want
@@ -1612,7 +1622,7 @@ function setNetworkDetails(d, isedge) {
 	// here we loop through source/target objects, and display their attribute values in the appropriate table cells		
 	d3.entries(sourcedata).forEach( function(el) {
 		if (cats.indexOf(el.key) > -1) {
-			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key) )
+			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key, true) )
 		}
 		// get the current time
 		// get the pair
@@ -1622,14 +1632,22 @@ function setNetworkDetails(d, isedge) {
 	
 	d3.entries(targetdata).forEach( function(el) {
 		if (cats.indexOf(el.key) > -1) {
-			d3.select("#td-t-"+el.key).html( mapLabel(el.value, el.key) )
+			d3.select("#td-t-"+el.key).html( mapLabel(el.value, el.key, true) )
 		}
 	})
 	
 	if(isedge) {setRelationDetails(d, targetdata, isedge)}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////
+//
+// FUNCTION: setRelationsDetails(d, targetdata, isedge)
+// Purpose:  adjusts friendship slider at bottom of network details
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
 function setRelationDetails(d, targetdata, isedge) {
+
 	var current_time = keys[slider.property("value")]
 	var thispair = d.source.name+"-"+targetdata.name
 	var rowidx = d3.values(master_relations.pairs).indexOf(thispair)
@@ -1637,7 +1655,13 @@ function setRelationDetails(d, targetdata, isedge) {
 	
 	d3.select("#ball-left")
 			.transition().duration(500)
-			.style("left", friendScale_L(s_to_t)+"px")
+			.style("left", function() {
+				if (!(d3.select(this).style("left") == friendScale_L(s_to_t)+"px")) {
+					return friendScale_L(s_to_t)+"px"
+				} else {
+					return d3.select(this).style("left")
+				}
+			})
 		
 	if (isedge) {	
 		var thispair_reverse = targetdata.name+"-"+d.source.name
@@ -1645,10 +1669,15 @@ function setRelationDetails(d, targetdata, isedge) {
 		var t_to_s = master_relations[current_time][rowidx_reverse]
 		d3.select("#ball-right")
 			.transition().duration(500)
-			.style("left", friendScale_R(t_to_s)+"px")
+			.style("left", function() {
+				if (!(d3.select(this).style("left") == friendScale_R(t_to_s)+"px")) {
+					return friendScale_R(t_to_s)+"px"
+				} else {
+					return d3.select(this).style("left")
+				}
+			})
 	}
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
