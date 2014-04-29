@@ -165,6 +165,19 @@ var friend_range_R  = [340, 330, 318, 306, 294, 282, 270]
 var friendScale_L = d3.scale.ordinal().domain(friend_domain).range(friend_range_L)
 var friendScale_R = d3.scale.ordinal().domain(friend_domain).range(friend_range_R)
 
+// set links in intro text to open appropriate tabs onclick
+d3.select("#open-manual")
+	.on("click", function() {
+		highlightTab("#manual-tab")
+		changeTab("manual-tab")
+		changeGraph("#manual-tab")
+	})
+d3.select("#open-screencast")
+	.on("click", function() {
+		highlightTab("#screencast-tab")
+		changeTab("screencast-tab")
+		changeGraph("#screencast-tab")
+	})
 //////////////////////////////////////////////////////////////////////////////////////
 //      END GLOBAL VARIABLES
 //////////////////////////////////////////////////////////////////////////////////////
@@ -618,7 +631,10 @@ function changeGraph(obj) {
 		grid_ct = 1
 		changeTab(graph)
 		initSVG(50,40)
-		renderAllHeatmaps(master_vardata)
+		renderAllHeatmaps(master_vardata)	
+	} else if (graph == "screencast-tab") {
+		changeTab(graph)
+		renderReader("screencast")
 	} else if (graph == "manual-tab") {
 		changeTab(graph)
 		renderReader("manual")
@@ -640,6 +656,9 @@ function renderReader(doc) {
 		var reader = d3.select("#graph-reader").style("z-index", 10)
 		d3.text("docs/about.html")
 		.get(function(error,data) {reader.html(data) })
+	} else if (doc == "screencast") {
+		var reader = d3.select("#graph-reader").style("z-index", 10)
+		reader.html('<iframe style="margin-left:45px;margin-top:20px;" width="640" height="480" src="//www.youtube.com/embed/BRtt9BqJdZo" frameborder="1" allowfullscreen></iframe>')
 	}
 }
 
@@ -1200,6 +1219,7 @@ function getDefaultChordLayout() {
 
 function highlightTab(obj) {
 	var hover = d3.select(obj).classed("tab-hover")
+	d3.selectAll(".tab").classed("tab-hover", false)
 	d3.select(obj).classed("tab-hover", function() { return (hover) ? false : true })
 }
 
