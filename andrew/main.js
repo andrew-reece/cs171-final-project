@@ -357,6 +357,11 @@ function renderPage(vardata) {
 // creates options of heatmap <select> element in control panel, based on vardata
 	makeHeatmapDropdown(vardata)
 
+// set default empty heatmap in side panel if none are selected
+	if (d3.select("#heatmap-dropdown").property("value") == "") {
+		defaultHeatmap()
+	}
+
 // reads time series data, assigns node/link info for force graph
 	d3.csv(ts_filename, function(error, data) {
 	
@@ -395,9 +400,6 @@ function renderPage(vardata) {
       return new Date(a) - new Date(b);
     })
     
-    // console.log(keys)
-    // console.log(dateRange)
-    
     // create our timeScale
       timeScale.domain([elapse_seed,(elapse_seed + dateRange.length - 1)]).range(dateRange)
     
@@ -411,7 +413,6 @@ function renderPage(vardata) {
 //
 // END TIME SLIDER
 //
-		// i don't remember what numkeys is for, but it's a global we need elsewhere.
 		numkeys = keys.length
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
@@ -424,13 +425,10 @@ function renderPage(vardata) {
     	 var pairName = (+d.source.name < +d.target.name) ?
                    "user" + +d.source.name  + "-" + "user" + +d.target.name:
                    "user" + +d.target.name  + "-" + "user" + +d.source.name;
-      	// console.log(pairName, d.source.name, d.target.name);
       	chDataByPair[pairName] = d;
     	});
 
 		/* draw actual force layout */
-		//console.log("render page")
-		//console.log("current_graph -> " + current_graph)
  		if (current_graph == 'force-tab') {renderForceGraph()}
 
 		
@@ -826,6 +824,68 @@ function clearNetworkDetails() {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: defaultHeatmap()
+// Purpose:  draws empty "dummy" heatmap when no specific side-pane maps are selected
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function defaultHeatmap() {
+
+	// default text/instructions
+	d3.select("#heatmap-description").text("Select a heatmap from the Control Panel to show pairwise relationships on a specific variable.")
+	
+	// set up dummy data
+	var levels = ["A","B","C","D","E","F","G","H","I"]
+	var values = [.4,.2,.8,.3,.1,.8,.5,.2,.7]
+	var hmrange = []; for(var i=1; i<=levels.length; i++) { hmrange.push(i*15) };
+	var combos = []
+	for (var i=0; i<levels.length; i++) {
+		for (var j=0; j<levels.length; j++) {
+			combos.push({x1:levels[i],x2:levels[j],val:values[i]*values[j]})
+		}
+	}
+	
+	// set scales
+	x.domain(levels).range(hmrange)
+	y.domain(levels).range(hmrange)
+	
+	// restore axis ticks to unspecified
+ 	yAxis.tickValues(null)
+    xAxis.tickValues(null)
+ 	
+ 	// set hm dimension params
+  	var map_height = 9 * 15 + 9 // levels.length * cell height + offset.h
+  	var x_axis_vert_offset = 3.5
+  	var x_axis_horz_offset = -5
+  	  
+  	// set axes
+  	hmap_x	.attr("height", map_height)
+  			.attr("transform", "translate(103,"+(map_height+8)+")")
+ 			.append("g").attr("class", "axis-instance").call(xAxis)
+  	hmap_x	.selectAll("text")
+  			.style("text-anchor", "end")
+  			.attr("transform", "translate(0,30")		
+  	hmap_y.append("g")
+  			.attr("transform", "translate(50,0)")
+  			.attr("class", "axis-instance").call(yAxis)	
+  	  
+	// draw heatmap with dummy data
+	heatmap = hmap_area.selectAll(".heatmap")
+		.data(combos).enter()
+		 .append("rect")
+			.attr("class", "heatmap")
+			.attr("x", function(d) { return x(d.x1) })
+			.attr("y", function(d) { return y(d.x2) })
+			.attr("width",  15)
+			.attr("height", 15)
+			.attr("transform", "translate(90,7)")
+			.style("stroke-width", "1px")
+			.style("stroke", "black")
+			.style("fill", function(d) { return heatmapColorScale(d.val) })
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: drawHeatmap(vardata, var_names, var_range, hmpath)
 // Purpose:  draws heatmap
 //
@@ -856,10 +916,11 @@ function clearNetworkDetails() {
         xAxis.tickValues(null)
   		}
   
+	  var ifnum = ((hmpath.substr(5,3) == "sad") || (hmpath.substr(5,8) == "stressed") || (hmpath.substr(5,7) == "aerobic")) ? 5 : 0
   	  // set hm dimension params
   	  var map_height = var_names.length * hm.size + offset.h
   	  var max_label_length = d3.max(var_names, function(d) {return d.length})
-  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x
+  	  var x_axis_vert_offset = max_label_length * offset.multiplier.x + ifnum
   	  var x_axis_horz_offset = (location == "main") ? 0 : -5
   
       
@@ -870,15 +931,17 @@ function clearNetworkDetails() {
   	  y.domain(var_names.slice().reverse()).range(var_range)
 
   	// set axes
-  	x_axis.attr("height", map_height)
-  	x_axis.attr("transform", "translate("+offset.x+","+map_height+")")
+  	x_axis	.attr("height", map_height)
+  			.attr("transform", "translate("+offset.x+","+map_height+")")
   	
   	x_axis.append("g").attr("class", "axis-instance").call(xAxis)
-  	x_axis.selectAll("text")
-  		.style("text-anchor", "end")
-  		.attr("transform", "translate("+x_axis_horz_offset+","+x_axis_vert_offset+")rotate(-90)")		
-  	y_axis.append("g").attr("class", "axis-instance").call(yAxis)	
-  	  
+  	x_axis	.selectAll("text")
+  			.style("text-anchor", "end")
+  			.attr("transform", "translate("+x_axis_horz_offset+","+x_axis_vert_offset+")rotate(-90)")		
+  	y_axis.append("g")
+  			.attr("transform", "translate(50,0)")
+  			.attr("class", "axis-instance").call(yAxis)	
+
   		// draw map	
   		heatmap = region.selectAll(".heatmap")
   			.data(data)
@@ -1274,7 +1337,7 @@ function initSVG(x_offset, y_offset) {
 	
 //////////////////////////////////////////////////////////////////////////////////////
 //
-// FUNCTION: makeHeatmapDropdown(vardata)
+// FUNCTION: makeHeatmap(vardata)
 // Purpose:  draws and populates heatmap dropdown box in control panel
 //
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1290,7 +1353,8 @@ function makeHeatmapDropdown(vardata) {
 					heatmap_name = d3.select(this).property("value")
 					clearHeatmap()
 					var location = "focus"
-					buildHeatmap(heatmap_name, vardata, location)
+					if (heatmap_name=="") { defaultHeatmap() }
+					else { buildHeatmap(heatmap_name, vardata, location) }
 				})
 	var select = document.getElementById("heatmap-dropdown")
 	

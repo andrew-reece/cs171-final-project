@@ -8,7 +8,9 @@
         <li><a href="#force">Force-Directed Graph</a></li>
         <li><a href="#chord">Chord Diagram</a></li>
         <li><a href="#heatmap">Heatmaps</a></li>
+        <li><a href="#network">Network Details</a></li>
     </ul>
+    <li><a href="#controls">Control Panel</a></li>
 </ul>
 
     <span class="header">
@@ -23,25 +25,41 @@
         <a name="viztypes">Visualization Types</a>
     </span>
     
-    <p>We have three major visualization types on the site.</p>
+    <p>We have three major visualization types on the site, plus supplemental details.</p>
     <span class="header2"><a name="force">Force-Directed Graph</a></span>
     <p>In this type of graph, objects are represented as nodes (typically circles) connected by edges (links), and simulated forces cause pairs of nodes to attract each other (so they maintain a reasonable closeness) while the general population of nodes repels each other so as to remain separate and distinct. </p>
-    <p>Our force-directed graph (visible on the "force" tab) shows either the communication or proximity relationships of Social Evolution participants (depending on the Data selection from the Control Panel in the upper right).  Pairs of participants are connected by links; the thickness of the links indicates the number of times the pair called each other (or were near each other) in the given time period.  Hover over a node or a link to highlight it and display information in the Network Details box to the right, showing more details about the participant(s).  (See Network Details)</p>
+    <p>Our force-directed graph (visible on the "force" tab) shows either the communication or proximity relationships of Social Evolution participants (depending on the Data selection from the Control Panel in the upper right).  Pairs of participants are connected by links; the thickness of the links indicates the number of times the pair called each other (or were near each other) in the given time period.  Hover over a node or a link to highlight it and display information in the Network Details box to the right, showing more details about the participant(s).  (See <a href="network">Network Details</a>)</p>
     
     <span class="header2"><a name="chord">Chord Diagram</a></span><p>
         The chord diagram is another way of visualizing relationships. The objects (in our case, participants) are laid out along the circumference of a circle, with colored bands stretching across the circle to show relationships between objects.  This layout can make it easy to pick out a certain object for examination (objects can be ordered around the circle) and to see all the relationships for one object at once.
     </p>
     <p>
-        In our chord diagram, participants are arranged in order of user ID around the circumference of the circle.  Color is used to differentiate the users in an ordinal fashion; when viewing a single chord relating two participants, the color of the chord matches that of the participant who initiated the most interaction.  Thus, if user 1 is red and user 61 is blue, and we are viewing communication data in which user 1 initiated most of the calls between them, the chord will be red.  The thickness of the chord reflects the number of interactions.  Hovering over a user will highlight that user's relationship, dimming all other chords.  Hovering over a chord reveals a tooltip displaying the number of calls initiated by each user in the pair.  Hovering over either will also display information in the Network Details box to the right, showing more details about the participant(s).  (See Network Details)
+        In our chord diagram, participants are arranged in order of user ID around the circumference of the circle.  Color is used to differentiate the users in an ordinal fashion; when viewing a single chord relating two participants, the color of the chord matches that of the participant who initiated the most interaction.  Thus, if user 1 is red and user 61 is blue, and we are viewing communication data in which user 1 initiated most of the calls between them, the chord will be red.  The thickness of the chord reflects the number of interactions.  Hovering over a user will highlight that user's relationship, dimming all other chords.  Hovering over a chord reveals a tooltip displaying the number of calls initiated by each user in the pair.  Hovering over either will also display information in the Network Details box to the right, showing more details about the participant(s).  (See <a href="network">Network Details</a>)
     </p>
     <span class="header2"><a name="heatmap">Heatmaps</a></span><p>
-        
+        Heatmaps are matrices in which a value is represented by color.
     </p>
+    <p>The heatmaps on our site each represent a descriptive attribute of the participants (such as political preference), with vales for that attribute (such as conservative or liberal) along the x- and y-axes.  The values are the number of interactions between pairs of participant, where one participant has the value on the x-axis and the other participant has the value on the y-axis.  We can use this to see the frequency of interactions between persons who are the same school year, different school years, same political preference, different political preference, etc.</p>
+    
+    <span class="header2"><a name="network">Network Details</a></span><p>
+        The Network Details box appears to the right of the visualization display.  As noted in the descriptions of <a href="#force">Force Directed Graph</a> and <a href="#chord">Chord Diagram</a>, hovering over representations of participants or relationships will cause the Network Details box to display information about those participants.  If one participant is displayed, it is listed under "Source Node".  If a relationship is highlighted, the two participants' data will appear under "Source Node" and "Target Node", indicating the directionality of the relationship.
+    </p>
+    <ul>
+        <li>User ID</li>
+        <li>Year</li>
+        <li>Dorm Floor</li>
+        <li>Politics</li>
+        <li>Fav Music</li>
+        <li>Sad</li>
+        <li>Stressed</li>
+        <li>Exercise</li>
+        <li>Friendship</li>
+    </ul>
+    
+    <span class="header"><a name="controls">Control Panel</a></span>
     
     
-    
-    
-
+<p></p>
 <span class="header">Example Text Below:</span><p></p>
 <span class="header">Network Details for chord</span>
 <span class="byline">[brian apr 26]</span>
