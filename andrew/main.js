@@ -49,18 +49,17 @@
 // keys array holds column names for time series data
 	var keys = []
 	
-// useful global for time series object manipulation (aka i don't remember what it does)
+// useful global for time series object manipulation
 	var numkeys
 	
 // graph dimensions
 	var width = 790, height = 575
 	
 				  
-// for setting edgeScale domain, based on max frequency ct for time series variable
+// for setting edgeArcScale domain, based on max frequency ct for time series variable
 	var freqmax = 0
 	
 // translates time series frequency counts into edge weights
-	var edgeScale = d3.scale.linear().range([0,5])
 	var edgeArcScale = d3.scale.linear().range([0, 100])
 		
 // initialize heatmap vars, specs
@@ -210,6 +209,7 @@ var friendScale_R = d3.scale.ordinal().domain(friend_domain).range(friend_range_
     			be re-rendered next time we go to it.  If we are on force tab,
     			the force graph is simply redrawn on same SVG. */
 			if(current_graph == "force-tab") {redraw = true}
+			freqmax = 0;
     		getVarData()
     	})
     	
@@ -291,15 +291,9 @@ function elapse(thiskey) {
 	  		else {
 	  			d3.select(this).attr("display", "inline")
 	  			d3.select(this).attr("d", function(d) { return linkArc(d, thiskey) })}
-	  })
-//   		.attr("d", function(d) {
-//   			return linkArc(d, thiskey)
-//   		})  	
+	  })  	
   		.attr("fill", "#666")	
-//   		.style("fill", function(d) {
-//   			var weight = edgeScale(d[keys[thiskey]])
-//   			if (weight > 0.05) {return "#666"}
-//   		})
+
 
   // updates date in datebox
   	datebox.html(function() {
@@ -411,14 +405,10 @@ function renderPage(vardata) {
 		numkeys = keys.length
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
-		/* edgeScale controls the stroke width (so we aren't cluttered with edges
-			of no importance); edgeArcScale controls the radius of the arc which is a filled
-			path for the edge.
-		*/
-		edgeScale.domain([0,freqmax])
+
 		edgeArcScale.domain([0,freqmax])
 		
-	    // store data for chord diagram
+	    /* store data for chord diagram */
     	chData = data
     	data.map(function(d,i) {
     	 var pairName = (+d.source.name < +d.target.name) ?
@@ -428,9 +418,9 @@ function renderPage(vardata) {
       	chDataByPair[pairName] = d;
     	});
 
-		// draw actual force layout
-		console.log("render page")
-		console.log("current_graph -> " + current_graph)
+		/* draw actual force layout */
+		//console.log("render page")
+		//console.log("current_graph -> " + current_graph)
  		if (current_graph == 'force-tab') {renderForceGraph()}
 
 		
@@ -1403,6 +1393,8 @@ function renderForceGraph() {
 	
 	if (redraw) {
 		//console.log("redraw")
+		console.log("freqmax -> " + freqmax)
+		
 		force .nodes(d3.values(nodes))
 			  .links(links)
 			  .start()
@@ -1426,6 +1418,8 @@ function renderForceGraph() {
 			need to render the entire force graph.  */
 	
 	else {
+	
+		//console.log("freqmax = " + freqmax)
 	
 		force = d3.layout.force()
 			.nodes(d3.values(nodes))
@@ -1478,23 +1472,12 @@ function renderForceLinks() {
 			var e2 = "edge"+d.target.name
 			return "link "+e1+" "+e2
 		})
-// 		.style("stroke-width", function(d) {
-// 			return edgeScale(d[keys[4]]) // check hard-coding here HARD CODE
-// 		})
 		.on("mouseover", function(d) {
-// 			if (d3.select(this).style("stroke-width") > "0.05") {
-// 				d3.select(this).style("stroke", "purple")
-// 				d3.select(this).style("fill", "purple")
-// 			}
 			d3.select(this).style("stroke", "purple")
 			d3.select(this).style("fill", "purple")
 			setNetworkDetails(d,true) 
 		})
 		.on("mouseout", function(d) {
-// 			if (d3.select(this).style("stroke-width") > "0.05") {
-// 				d3.select(this).style("stroke", "#666")
-// 				d3.select(this).style("fill", "#666")
-// 			}
 			d3.select(this).style("stroke", "#666")
 			d3.select(this).style("fill", "#666")
 			clearNetworkDetails()
