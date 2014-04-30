@@ -195,7 +195,7 @@ d3.select("#open-screencast")
     // now
     d3.select("#start-button")
   		.on("click", function() {
-  		  animation = animation == false ? true : false;
+  		  animation = (animation) ? false : true;
   		  if(animation) { 
   		  // if the slider was at the end, we want to reset it to the beginning,
   		  // but only when animation is clicked.
