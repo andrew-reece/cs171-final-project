@@ -693,6 +693,23 @@ function chordKey(data) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
+// FUNCTION: forceKey(data)
+// Purpose:  creates a relationship between source and target for the force
+//
+//////////////////////////////////////////////////////////////////////////////////////
+
+function forceKey(data) {
+   return (data.source.name < data.target.name) ?
+       data.source.name  + "-" + data.target.name:
+       data.target.name  + "-" + data.source.name;
+   
+   //create a key that will represent the relationship
+   //between these two groups *regardless*
+   //of which group is called 'source' and which 'target'
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+//
 // FUNCTION: getPairName(data)
 // Purpose:  creates a relationship between source and target for the pairName
 //
