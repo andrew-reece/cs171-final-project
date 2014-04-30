@@ -215,8 +215,6 @@ d3.select("#open-screencast")
     // if dataset is switched, reload everything
     d3.selectAll(".data-choice")
     	.on("click", function() {
-    		keys = []
-    		dateRange = []
     		setTimeSeriesData(this.value)
     		/* if we are not on force tab, the force graph will have to 
     			be re-rendered next time we go to it.  If we are on force tab,
@@ -392,11 +390,10 @@ function renderPage(vardata) {
 // 
 // CREATE TIME SLIDER
 //
+
 	// keeps track of time series checkpoints in an array
-		for(var k in data[0]) {
-			keys.push(k);
-			if(YmdXParser(k)) { dateRange.push(k); }
-		}
+	keys = d3.keys(data[0])
+	dateRange = d3.keys(data[0]).slice(4)
 		
 	// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
     dateRange.sort(function(a,b) {
@@ -1324,7 +1321,7 @@ function initSVG(x_offset, y_offset) {
 	var w = edgeArcScale(d[keys[thiskey]])
 
 	if (w == w) {
-	
+	console.log(keys);
 	  var dx = d.target.x - d.source.x,
 		  dy = d.target.y - d.source.y,
 		  dr = Math.sqrt(dx * dx + dy * dy);
@@ -1336,7 +1333,7 @@ function initSVG(x_offset, y_offset) {
 			 d.source.x + "," + d.source.y;
 		}
 		
-	else { return "M 0,0 A 0,0 0 0,0 0,0"; }
+	else { console.log(keys);return "M 0,0 A 0,0 0 0,0 0,0"; }
 		
 	}
 	
