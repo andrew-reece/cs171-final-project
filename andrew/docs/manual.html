@@ -10,7 +10,7 @@
         <li><a href="#heatmap">Heatmaps</a></li>
         <li><a href="#network">Network Details</a></li>
     </ul>
-    <li><a href="#controls">Control Panel</a></li>
+    <li><a href="#cp">Control Panel</a></li>
 </ul>
 
     <span class="header">
@@ -45,40 +45,29 @@
         The Network Details box appears to the right of the visualization display.  As noted in the descriptions of <a href="#force">Force Directed Graph</a> and <a href="#chord">Chord Diagram</a>, hovering over representations of participants or relationships will cause the Network Details box to display information about those participants.  If one participant is displayed, it is listed under "Source Node".  If a relationship is highlighted, the two participants' data will appear under "Source Node" and "Target Node", indicating the directionality of the relationship.
     </p>
     <ul>
-        <li><span class="netdetails">User ID:</span> the numeric ID assigned by the Social Evolution project to maintain privacy.</li>
-        <li><span class="netdetails">Year:</span> the participant's year in school (freshman, sophomore, etc.).</li>
-        <li><span class="netdetails">Dorm Floor:</span> participants lived in nine dormitory sections. </li>
-        <li><span class="netdetails">Politics:</span> participants self-identified on a spectrum from conservative to liberal.  We gave these alphanumeric codes, such as LIB1, LIB2, where the higher number indicates stronger affiliation.</li>
-        <li><span class="netdetails">Fav Music:</span> participants ranked their favorite styles of music, via a survey.  The survey was taken multiple times over 18 months; we averaged their rankings and took their top choice after averaging. </li>
-        <li><span class="netdetails">Sad:</span> in a daily self-report on health symptoms, participants indicated whether they felt sad or not.  The frequency of an individual reporting sadness is scaled to show an overall level of sadness.   </li>
-        <li><span class="netdetails">Stressed:</span> in a daily self-report on health symptoms, participants indicated whether they felt stressed or not.  The frequency of an individual reporting stress is scaled to show the participant's overall level of stress. </li>
-        <li><span class="netdetails">Exercise:</span> in a monthly survey on health habits (eating and exercise), participants reported how many days per week they did at least 20 minutes of aerobic exercise.  The days-per-week of exercise are averaged over time to give the person an overall exercise ranking.</li>
-        <li><span class="netdetails">Friendship:</span> participants were surveyed 6 times at one-to-two month intervals.  For each other participant, they described a relationship such as close friend, someone they socialize with twice per week, political discussant, or someone with whom they share social media (or no answer at all).  In the Network Details box, this is shown on a sliding scale that moves from a person standing alone to two people linked by a heart.</li>
+        <li><span class="listdetails">User ID:</span> the numeric ID assigned by the Social Evolution project to maintain privacy.</li>
+        <li><span class="listdetails">Year:</span> the participant's year in school (freshman, sophomore, etc.).</li>
+        <li><span class="listdetails">Dorm Floor:</span> participants lived in nine dormitory sections. </li>
+        <li><span class="listdetails">Politics:</span> participants self-identified on a spectrum from conservative to liberal.  We gave these alphanumeric codes, such as LIB1, LIB2, where the higher number indicates stronger affiliation.</li>
+        <li><span class="listdetails">Fav Music:</span> participants ranked their favorite styles of music, via a survey.  The survey was taken multiple times over 18 months; we averaged their rankings and took their top choice after averaging. </li>
+        <li><span class="listdetails">Sad:</span> in a daily self-report on health symptoms, participants indicated whether they felt sad or not.  The frequency of an individual reporting sadness is scaled to show an overall level of sadness.   </li>
+        <li><span class="listdetails">Stressed:</span> in a daily self-report on health symptoms, participants indicated whether they felt stressed or not.  The frequency of an individual reporting stress is scaled to show the participant's overall level of stress. </li>
+        <li><span class="listdetails">Exercise:</span> in a monthly survey on health habits (eating and exercise), participants reported how many days per week they did at least 20 minutes of aerobic exercise.  The days-per-week of exercise are averaged over time to give the person an overall exercise ranking.</li>
+        <li><span class="listdetails">Friendship:</span> participants were surveyed 6 times at one-to-two month intervals.  For each other participant, they described a relationship such as close friend, someone they socialize with twice per week, political discussant, or someone with whom they share social media (or no answer at all).  In the Network Details box, this is shown on a sliding scale that moves from a person standing alone to two people linked by a heart.</li>
     </ul>
     
-    <span class="header"><a name="controls">Control Panel</a></span>
-    
+    <span class="header"><a name="cp">Control Panel</a></span><p>
+        The Control Panel section to the right of the site allows you to explore the data by customizing the visualization.
+    </p>
+    <ul>
+        <li><span class="listdetails">Data:</span> allows you to switch between communication and proximity data.  While our primary focus is on communication data, as it reveals an intentional contact between two parties (while proximity may be accidental), the proximity data is also available for site users to explore.  The proximity data is much more dense, as participants' locations were collected every six minutes.</li>
+        <li><span class="listdetails">Filter:</span> opening the filter box brings up a selection of filter options.  These can be selected one at a time to filter out observations with the selected attribute.  Under Politics we offer two aggregate filters which filter all conservative or all liberal options respectively.</li>
+        <li><span class="listdetails">Heatmap:</span>allows the selection of one of six different heatmaps, which is displayed in the heatmap focus
+at the lower right of the visualization.  The choices are Music, Politics, School Year, Depressed, 
+Stressed and Exercise.</li> 
+        <li><span class="listdetails">Time Slider:</span>allows the user to select a point in time from the beginning of the study which is 2008-10-01
+through the end of the study which is July 2009, in two week increments.</li>
+        <li><span class="listdetails">Animation:</span> pressing start launches an animation of the data through the whole time series.</li>
     
 <p></p>
-<span class="header">Example Text Below:</span><p></p>
-<span class="header">Network Details for chord</span>
-<span class="byline">[brian apr 26]</span>
 
-<p>I am working on getting Network Details to work for the chord graph, 
-similar to how it works for the force directed graph.  </p>
-
-<p>Inside of chord, when you mouseover a path, 
-it only provides you source/target index values.  
-These are indexes within a construct the chord layout builds layout.chords().  
-I wrote a function that will build a unique pair key, 
-always returning a unique key for any set of users, called getPairName().  
-It returns a value like user24-user53.  I then have a copy of chData which is 
-chDataByPair, that is indexed by this format of key.  This allows me to get the 
-pairName, and then use the pairName to index chDataByPair to get the proper object 
-to pass to setNetworkDetails.  Some of this may seem redundant, but I can clean much 
-of it up to use the more rich data structures and get rid of the ones that don’t 
-have as much data. </p> 
-
-<p>Here is an example of mousing over the path between user24 and user58:</p>
-
-<img src="images/chord-example.png" />
