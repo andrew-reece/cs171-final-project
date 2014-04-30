@@ -210,6 +210,11 @@ h4 {
 		font-weight: bold;
 	}
 	
+	div.reference {
+		padding: 20px;
+		border: 1px solid grey;
+	}
+	
 #right {
 	position: absolute;
 	left:840px;
