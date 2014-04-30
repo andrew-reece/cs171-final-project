@@ -197,6 +197,9 @@ d3.select("#open-screencast")
   		.on("click", function() {
   		  animation = animation == false ? true : false;
   		  if(animation) { 
+  		  // if the slider was at the end, we want to reset it to the beginning,
+  		  // but only when animation is clicked.
+  		  		 if ( elapse_seed+1 == numkeys ) { elapse_seed = 4 }
   		      d3.select("#start-button").text("Click to stop");
   
             // if we are at the end, start from the beginning
@@ -328,6 +331,8 @@ function elapse(thiskey) {
   // if time series is selected as animation (rather than discrete intervals on slider),
   // this triggers recursion that runs until time is exhausted
   	if (animation) {
+  		//if the force graph is still bouncing, we want it to stabilize before animating.
+  		if(force.alpha()) { force.stop()}
   	  slider.property("value", thiskey)
   		svg.transition()
   			.duration(function() {
@@ -335,11 +340,10 @@ function elapse(thiskey) {
   			else {return 300}
   			})
   			.each("end", function() {
-  				thiskey++
-  				elapse_seed = thiskey
+  				thiskey++			
   				return (thiskey < numkeys) 
   					? elapse(thiskey) 
-  					: end(elapse_seed = 4)
+  					: end()
   			})	
   	}
 }
@@ -413,6 +417,7 @@ function renderPage(vardata) {
 // END TIME SLIDER
 //
 		numkeys = keys.length
+
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
 
@@ -997,7 +1002,7 @@ function end() {
 	}
 	d3.select("#start-button").text("Click to start");
   	animation = false;
-  	elapse_seed = 4 // resets to default start position @ index 4 on time series dsets
+  	
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1315,7 +1320,7 @@ function initSVG(x_offset, y_offset) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 	function linkArc(d, thiskey) {
-
+//console.log(thiskey)
 	
 	var w = edgeArcScale(d[keys[thiskey]])
 
