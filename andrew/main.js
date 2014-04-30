@@ -1321,7 +1321,7 @@ function initSVG(x_offset, y_offset) {
 	var w = edgeArcScale(d[keys[thiskey]])
 
 	if (w == w) {
-	console.log(keys);
+	// console.log(keys);
 	  var dx = d.target.x - d.source.x,
 		  dy = d.target.y - d.source.y,
 		  dr = Math.sqrt(dx * dx + dy * dy);
@@ -1944,7 +1944,7 @@ function updateChord(matrix) {
    
    /* Create/update the chord paths */
    var chordPaths = svg_chord.selectAll("path.chord")
-       .data(layout.chords(), chordKey );
+       .data(layout.chords(), function(d) { return chordKey(d); } );
            //specify a key function to match chords
            //between updates 
    
