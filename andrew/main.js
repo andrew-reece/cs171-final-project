@@ -1320,7 +1320,6 @@ function initSVG(x_offset, y_offset) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 	function linkArc(d, thiskey) {
-//console.log(thiskey)
 	
 	var w = edgeArcScale(d[keys[thiskey]])
 
@@ -1523,7 +1522,7 @@ function renderForceGraph() {
 			.charge(-50)
 			.friction(.2)
 			.gravity(.3)
-			.alpha(0.0001)
+			.alpha(0.01)
 			.on("tick", tick)
 			.start();
 	

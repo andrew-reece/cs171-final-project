@@ -110,7 +110,7 @@ h4 {
 #left {
 	position: absolute;
 	left:20px;
-	top: 20px;
+	top: 30px;
 	width:800px;
 }
 
@@ -213,7 +213,7 @@ h4 {
 #right {
 	position: absolute;
 	left:840px;
-	top: 10px;
+	top: 12px;
 }
 
 	#controls {
@@ -231,6 +231,12 @@ h4 {
 			margin-left:40px;
 			font-size:11pt;
 			color:steelblue;
+		}
+		
+		#experimental {
+			font-size:10pt;
+			color:red;
+			font-family: 'trebuchet ms';
 		}
 		
 		#filter-clicker {
@@ -367,7 +373,7 @@ h4 {
 		top:20px;
 		left:0px;
 		width:400px;
-		padding-bottom:80px;
+		padding-bottom:0px;
 		border-bottom: solid steelblue 1px;
 	}	
 	
@@ -377,8 +383,7 @@ h4 {
 			left:1px;
 			width:400px;
 			display:inline-block;
-			height:80px;
-			padding-bottom:50px;
+			padding-bottom:20px;
 		}
 		
 		.relations-ball {
@@ -439,7 +444,7 @@ h4 {
 		
 	#heatmap {
 		position: relative;
-		top:30px;
+		top:20px;
 		left:0px;
 		width:350px;
 		margin-top: 10px;
@@ -448,6 +453,7 @@ h4 {
 		#heatmap-description {
 			margin-top:10px;
 			width:400px;
+			color:steelblue;
 		}
 	
 		.axis-instance {
@@ -456,13 +462,13 @@ h4 {
 		
  .x-axis {
   fill: none;
-  stroke: #000;
+  stroke: rgb(110,110,110);
   shape-rendering: crispEdges;
  }
  
  .y-axis {
   fill: none;
-  stroke: #000;
+  stroke: rgb(110,110,110);
   shape-rendering: crispEdges;
  }
 
