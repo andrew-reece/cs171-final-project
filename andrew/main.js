@@ -665,6 +665,7 @@ function renderReader(doc) {
 		var reader = d3.select("#graph-reader").style("z-index", 10)
 		d3.text("docs/about.html")
 		.get(function(error,data) {reader.html(data) })
+		d3.selectAll(".btt-link").on("click", function() {d3.select('#graph-reader').property('scrollTop',0)})
 	} else if (doc == "screencast") {
 		var reader = d3.select("#graph-reader").style("z-index", 10)
 		reader.html('<iframe style="margin-left:45px;margin-top:20px;" width="640" height="480" src="//www.youtube.com/embed/BRtt9BqJdZo" frameborder="1" allowfullscreen></iframe>')
