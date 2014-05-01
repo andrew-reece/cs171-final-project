@@ -477,13 +477,13 @@ function arcTween(oldLayout) {
    
    if (oldLayout) {
        oldLayout.groups().forEach( function(groupData) {
-           oldGroups[ groupData.index ] = groupData;
+           oldGroups[ users[groupData.index] ] = groupData;
        });
    }
    
    return function (d, i) {
        var tween;
-       var old = oldGroups[d.index];
+       var old = oldGroups[users[d.index]];
        if (old) { //there's a matching old group
            tween = d3.interpolate(old, d);
        }
