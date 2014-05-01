@@ -397,8 +397,8 @@ function renderPage(vardata) {
 //
 
 	// keeps track of time series checkpoints in an array
-	keys = d3.keys(data[0])
-	dateRange = d3.keys(data[0]).slice(4)
+	keys = d3.keys(data[0]).slice(0,-1)
+	dateRange = d3.keys(data[0]).slice(4,-1)
 		
 	// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
     dateRange.sort(function(a,b) {
@@ -1732,6 +1732,7 @@ function setRelationDetails(d, targetdata, isedge) {
 	var current_time = keys[slider.property("value")]
 	var thispair = d.source.name+"-"+targetdata.name
 	var rowidx = d3.values(master_relations.pairs).indexOf(thispair)
+	
 	var s_to_t = master_relations[''+current_time][rowidx]
 	
 	d3.select("#ball-left")
