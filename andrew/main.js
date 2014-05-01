@@ -436,6 +436,7 @@ function renderPage(vardata) {
 
 		/* draw actual force layout */
  		if (current_graph == 'force-tab') {renderForceGraph()}
+ 		// if (current_graph == 'chord-tab') {filterComm(chData)}
 
 		
 	}) // end d3.csv()
