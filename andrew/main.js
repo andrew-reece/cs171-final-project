@@ -295,6 +295,9 @@ function getAxisLabels() {
 function elapse(thiskey) {
    
    	elapse_seed = thiskey
+   	
+   	//update paths in force graph
+   	if (current_graph == "force-tab") {
   	path.transition()
   		.duration(300)
   		.each(function(d) {
@@ -304,7 +307,7 @@ function elapse(thiskey) {
 	  			d3.select(this).attr("d", function(d) { return linkArc(d, thiskey) })}
 	  })  	
   		.attr("fill", "#666")	
-
+	}
 
   // updates date in datebox
   	datebox.html(function() {
