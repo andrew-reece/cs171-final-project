@@ -439,8 +439,11 @@ function renderPage(vardata) {
 
 		/* draw actual layout */
  		if (current_graph == 'force-tab') {renderForceGraph()}
- 		if (current_graph == 'chord-tab') {filterComm(chData)}
-
+ 		if (current_graph == 'chord-tab') {
+      d3.selectAll(".group").remove();
+ 		  d3.selectAll(".chord").remove();
+ 		  filterComm(chData);
+ 	  }
 		
 	}) // end d3.csv()
 }
