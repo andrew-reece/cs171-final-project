@@ -777,9 +777,9 @@ function chordTween(oldLayout) {
        if (old) {
            //old is not undefined, i.e.
            //there is a matching old chord value
-           
+
            //check whether source and target have been switched:
-           if (d.source.index != old.source.index ){
+           if (users[d.source.index] != users[old.source.index] ){
                //swap source and target to match the new data
                old = {
                    source: old.target,
