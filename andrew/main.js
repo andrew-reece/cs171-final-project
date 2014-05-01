@@ -1200,7 +1200,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		 	return "inline"
 		 	
 		 // does the calling filter apply to this node?
-		 } else if (mapLabel( d[filname], filname, false) == filval) { 
+		 } else if (mapLabel( d[filname], filname, false, true) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
 		 	
@@ -1247,7 +1247,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		  d3.select(".edge"+d.name).style("display", "inline") // update edge
 
 		 // does the calling filter apply to this node?
-		} else if (mapLabel( d[filname], filname, false) == filval) { 
+		} else if (mapLabel( d[filname], filname, false, true) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
 		 	
@@ -1406,8 +1406,13 @@ function makeHeatmapDropdown(vardata) {
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-function mapLabel(raw, thisvar, netdeet) {
+function mapLabel(raw, thisvar, netdeet, filter) {
 
+	// two boolean arguments: netdeet & filter
+	// netdeet:true :: mapLabel is called from netdetails and we want verbose descriptions
+	// filter:true  :: mapLabel is called from filter and we want to return 'mood_type' values
+	// 					(otherwise we'd return 'type' values from the else-if branch)
+	
 	var extended = (netdeet) ? "_extend" : ""
 	var num_vars = ["sad","stressed","aerobic_per_week"]
 	
@@ -1421,12 +1426,11 @@ function mapLabel(raw, thisvar, netdeet) {
 		if ((thisvar == "sad") || (thisvar == "stressed")) { var type = "mood_type" }
 		else { var type = "exer_type" }
 		var idx = d3.values(master_labels[type]).indexOf( raw )
-		return master_labels[thisvar][idx]
+		var varidx = (filter) ? type : thisvar
+		return master_labels[varidx][idx]
 		
 	} else {
-	
 		return raw
-		
 	}
 }
 
@@ -1729,7 +1733,7 @@ function setNetworkDetails(d, isedge) {
 	// here we loop through source/target objects, and display their attribute values in the appropriate table cells		
 	d3.entries(sourcedata).forEach( function(el) {
 		if (cats.indexOf(el.key) > -1) {
-			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key, true) )
+			d3.select("#td-s-"+el.key).html( mapLabel(el.value, el.key, true, false) )
 		}
 		// get the current time
 		// get the pair
@@ -1739,7 +1743,7 @@ function setNetworkDetails(d, isedge) {
 	
 	d3.entries(targetdata).forEach( function(el) {
 		if (cats.indexOf(el.key) > -1) {
-			d3.select("#td-t-"+el.key).html( mapLabel(el.value, el.key, true) )
+			d3.select("#td-t-"+el.key).html( mapLabel(el.value, el.key, true, false) )
 		}
 	})
 	
