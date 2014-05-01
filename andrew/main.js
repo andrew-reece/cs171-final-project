@@ -1573,7 +1573,7 @@ function renderForceGraph() {
 			.enter()
 			.append("text")
 				.attr("id", function(d) {return "txt"+d.name})
-				.attr("class", ".text")
+				.attr("class", "text")
 				.attr("x", 12)
 				.attr("y", 3)
 				.style("font-size", "12pt")
