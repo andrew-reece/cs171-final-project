@@ -688,9 +688,9 @@ function changeTab(tabname) {
 //////////////////////////////////////////////////////////////////////////////////////
 
 function chordKey(data) {
-   return (data.source.index < data.target.index) ?
-       data.source.index  + "-" + data.target.index:
-       data.target.index  + "-" + data.source.index;
+   return (users[data.source.index] < users[data.target.index]) ?
+       users[data.source.index]  + "-" + users[data.target.index]:
+       users[data.target.index]  + "-" + users[data.source.index];
    
    //create a key that will represent the relationship
    //between these two groups *regardless*
