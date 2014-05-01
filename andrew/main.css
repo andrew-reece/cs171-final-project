@@ -186,8 +186,23 @@ h4 {
 	}
 	
 	div#graph-reader img {
+		display: block; 
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	div#graph-reader img.large {
 		width:90%;
 	}
+	
+	div#graph-reader img.med {
+		width:70%;
+	}
+	
+	div#graph-reader img.small {
+		width:50%;
+	}
+
 	
 	span.header {
 		font-size:14pt;
