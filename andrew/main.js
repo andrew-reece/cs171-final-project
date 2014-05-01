@@ -268,7 +268,8 @@ function getSubjectData() {
 								 libcon:			d.libcon,
 								 sad:				d.sad,
 								 stressed:			d.stressed,
-								 aerobic_per_week: 	d.aerobic_per_week
+								 aerobic_per_week: 	d.aerobic_per_week,
+								 shown:				true
 								}
 		})
 		getRelationsData(); 
@@ -384,6 +385,7 @@ function renderPage(vardata) {
 		links.forEach(function(link) {
 		  link.source = nodes[link.source];
 		  link.target = nodes[link.target];
+		  link.shown  = true;
 		});	
 		
 // sets filter checkbox functionality based on node data
@@ -440,7 +442,7 @@ function renderPage(vardata) {
 		/* draw actual layout */
  		if (current_graph == 'force-tab') {renderForceGraph()}
  		if (current_graph == 'chord-tab') {
-      d3.selectAll(".group").remove();
+      	  d3.selectAll(".group").remove();
  		  d3.selectAll(".chord").remove();
  		  filterComm(chData);
  	  }
@@ -1198,99 +1200,52 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	// the node label (ie. '34') visibility is controlled within the node display setting
 	// edges only display if both endpoint-nodes are also visible.
 	
-	d3.selectAll(".node")
-	  .style("display", function(d) {
-
-		 if (reset) {	// if reset button is clicked
-		 
+	d3.selectAll(".node").style("display", function(d) {
+		// if reset button is clicked
+		 if (reset) {	
 			d3.select("#txt"+d.name).style("display", "inline") // update label text
+		    d3.select(".edge"+d.name).style("display", "inline") // update edge
+			d.shown = true
 		 	return "inline"
 		 	
 		 // does the calling filter apply to this node?
 		 } else if (mapLabel( d[filname], filname, false, true) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
-		 	
 				d3.select("#txt"+d.name).style("display", "none")
+		  		d3.select(".edge"+d.name).style("display", "none") 
+				d.shown = false
 				return "none"
-				
 		 	} else {		// else checkbox is unchecked, ie. drop the filter
-	
 				d3.select("#txt"+d.name).style("display", "inline")
+		  		d3.select(".edge"+d.name).style("display", "inline") 
+				d.shown = true
 				return "inline"
 		 	}
-		 } 
-		 // otherwise, just stick with what we've already got
-		 else { return d3.select(this).style("display") }
-		 
+		 	// otherwise, just stick with what we've already got
+		 } else { return d3.select(this).style("display") }
 	  })
-	  		
-	d3.selectAll(".link")
-		.style("display", function(d,i) {
-		
-			if (reset) { return "inline" } // reset makes all edges visible
-			
-			else {
-			
-				// check to ensure both node-endings are visible
-				if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
-					(d3.select("#id"+d.target.name).style("display") == "inline")) {
-					
-					return "inline"
-				} 
-				
-				// otherwise hide the edge between them	
-				else { return "none" }
-			}
-		})	 
-		
-  // filter chord groups/arcs
-  for(var node in nodes) {
-    var d = nodes[node];
-    if (reset) {	// if reset button is clicked
-		 
-		  d3.select("#txt"+d.name).style("display", "inline") // update label text
-			d3.select("#id"+d.name).style("display", "inline") // update node
-		  d3.select(".edge"+d.name).style("display", "inline") // update edge
-
-		 // does the calling filter apply to this node?
-		} else if (mapLabel( d[filname], filname, false, true) == filval) { 
-		 
-		 	if (selected) {	// selected = checkbox is checked
-		 	
-				d3.select("#txt"+d.name).style("display", "none")
-				d3.select("#id"+d.name).style("display", "none")
-				
-		 	} else {		// else checkbox is unchecked, ie. drop the filter
+	 
+	var edge_class = (current_graph=="force-tab") ? "link" : "chord" 		
 	
-				d3.select("#txt"+d.name).style("display", "inline")
-				d3.select("#id"+d.name).style("display", "inline")
-		 	}
-		} 
-  }
-  
-  // filter chord edges/paths
-	d3.selectAll(".chord")
-		.style("display", function(d,i) {
-
-			if (reset) { return "inline" } // reset makes all edges visible
-			
-			else {
-			
-				// check to ensure both node-endings are visible
-				if ((d3.select("#id"+users[d.source.index]).style("display") == "inline") && 
-					(d3.select("#id"+users[d.target.index]).style("display") == "inline")) {
-					
-					return "inline"
-				} 
-				
-				// otherwise hide the edge between them	
-				else { return "none" }
-			}
-		})	 
+	d3.selectAll("."+edge_class).style("display", function(d,i) {
+		// reset makes all edges visible
+		if (reset) { return "inline" } 
+		
+		else {
+			// check to ensure both node-endings are visible
+			if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
+			 	(d3.select("#id"+d.target.name).style("display") == "inline")) { 
+			 	d.shown = true
+			 	return "inline" 
+			// otherwise hide the edge between them	
+			 } else { 
+			 	d.shown = false
+			 	return "none" 
+			 }
+		}
+	})	 
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1570,14 +1525,8 @@ function renderForceGraph() {
 		
 		text = svg.append("g").selectAll("text")
 			.data(force.nodes())
-			.enter()
-			.append("text")
-				.attr("id", function(d) {return "txt"+d.name})
-				.attr("class", ".text")
-				.attr("x", 12)
-				.attr("y", 3)
-				.style("font-size", "12pt")
-				.text(function(d) { return d.name; });
+			
+		renderForceText()
 	}
 }
 	
@@ -1596,6 +1545,7 @@ function renderForceLinks() {
 			var e2 = "edge"+d.target.name
 			return "link "+e1+" "+e2
 		})
+		.style("display", function(d) { return (d.shown) ? "inline" : "none" })
 		.on("mouseover", function(d) {
 			d3.select(this).style("stroke", "purple")
 			d3.select(this).style("fill", "purple")
@@ -1623,6 +1573,7 @@ function renderForceNodes() {
 			.attr("id", function(d) {return "id"+d.name})
 			.attr("r", r)
 			.style("fill", function(d) {return "steelblue"})
+			.style("display", function(d) { return (d.shown) ? "inline" : "none" })
 			.on("mouseover", function(d) {
 				d3.select(this).style("fill", "purple")
 				setNetworkDetails(d,false) 
@@ -1633,6 +1584,17 @@ function renderForceNodes() {
 			});
 }
 
+function renderForceText() {
+	text.enter()
+		.append("text")
+			.attr("id", function(d) {return "txt"+d.name})
+			.attr("class", "force-text")
+			.attr("x", 12)
+			.attr("y", 3)
+			.style("font-size", "12pt")
+			.style("display", function(d) { return (d.shown) ? "inline" : "none" })
+			.text(function(d) { return d.name; });
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1924,6 +1886,7 @@ function updateChord(matrix) {
    //create the arc paths and set the constant attributes
    //(those based on the group index, not on the value)
    newGroups.append("path")
+   	   .attr("class", "chord-node")
        .attr("id", function (d) {
           // return "group" + users[d.index];
           return "id" + users[d.index];
@@ -1953,6 +1916,7 @@ function updateChord(matrix) {
            return "#group" + users[d.index];
        })
        .attr("id", function(d) { return "txt" + users[d.index]; })
+       .attr("class", "chord-text")
        .attr("dy", ".35em")
        .attr("color", "#fff")
        .text(function (d) {
@@ -1988,7 +1952,7 @@ function updateChord(matrix) {
        .attr("id", function(d) { return getPairName(d); })
        // .attr("class", "chord")
        .attr("class", function(d, i) {
-         return "chord " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
+         return "chord chord-edge " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
        })
        .on("mouseover", function(d, i) {
          var pairName = getPairName(d);
