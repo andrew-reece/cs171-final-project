@@ -434,9 +434,9 @@ function renderPage(vardata) {
       	chDataByPair[pairName] = d;
     	});
 
-		/* draw actual force layout */
+		/* draw actual layout */
  		if (current_graph == 'force-tab') {renderForceGraph()}
- 		// if (current_graph == 'chord-tab') {filterComm(chData)}
+ 		if (current_graph == 'chord-tab') {filterComm(chData)}
 
 		
 	}) // end d3.csv()
