@@ -415,6 +415,11 @@ function renderPage(vardata) {
 //
 		numkeys = keys.length
 
+    // initialize date
+    datebox.html(function() {
+  		var thisdate = keys[elapse_seed].substr(0);
+  		return thisdate
+    })
 
 		// set domain for edge weight scale, based on freqmax (see top of this function)
 
