@@ -445,6 +445,7 @@ function renderPage(vardata) {
  		  d3.selectAll(".chord").remove();
  		  filterComm(chData);
  	  }
+ 	  
 		
 	}) // end d3.csv()
 }
