@@ -1200,7 +1200,9 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	// the node label (ie. '34') visibility is controlled within the node display setting
 	// edges only display if both endpoint-nodes are also visible.
 	
-	d3.selectAll(".node").style("display", function(d) {
+	var node_class = (current_graph=="force-tab") ? "node" : "chord-node"
+	
+	d3.selectAll("."+node_class).style("display", function(d) {
 		// if reset button is clicked
 		 if (reset) {	
 			d3.select("#txt"+d.name).style("display", "inline") // update label text
@@ -1226,7 +1228,7 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		 } else { return d3.select(this).style("display") }
 	  })
 	 
-	var edge_class = (current_graph=="force-tab") ? "link" : "chord" 		
+	var edge_class = (current_graph=="force-tab") ? "link" : "chord" 	
 	
 	d3.selectAll("."+edge_class).style("display", function(d,i) {
 		// reset makes all edges visible
