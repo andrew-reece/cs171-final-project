@@ -1849,7 +1849,7 @@ function updateChord(matrix) {
   
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
-
+    
    var fill = d3.scale.ordinal()
      	 .domain(d3.range(1,80))
      	 .range(colorbrewer.Paired[11]);  
@@ -1896,6 +1896,12 @@ function updateChord(matrix) {
        })
        // .style("fill", function(d) { return fill(d.index); });
        .style("fill", function(d) { return fill(users[d.index]); })
+       .style("display", function(d) {
+       	for (var key in nodes) {
+       		if (key == users[d.index]) {
+       		return (nodes[key]["shown"]) ? "inline" : "none" }
+       		}
+       })
        .on("mouseover", function(d, i) {
          var infoObject = getInfoObject(d);
          setNetworkDetails(infoObject,false);
@@ -1955,6 +1961,11 @@ function updateChord(matrix) {
        .attr("class", function(d, i) {
          return "chord chord-edge " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
        })
+       .style("display", function(d) {
+       		for (j=0; j<links.length; j++) {
+       		if (links[j].source.name == users[d.source.index] && links[j].target.name == users[d.target.index]) 
+       		return (links[j].shown) ? "inline" : "none" }
+		 })
        .on("mouseover", function(d, i) {
          var pairName = getPairName(d);
          var infoObject = chDataByPair[pairName];
