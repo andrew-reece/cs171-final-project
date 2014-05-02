@@ -1228,25 +1228,50 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 		 } else { return d3.select(this).style("display") }
 	  })
 	 
-	var edge_class = (current_graph=="force-tab") ? "link" : "chord" 	
+	var edge_class = (current_graph=="force-tab") ? "link" : "chord"
 	
-	d3.selectAll("."+edge_class).style("display", function(d,i) {
-		// reset makes all edges visible
-		if (reset) { return "inline" } 
-		
-		else {
-			// check to ensure both node-endings are visible
-			if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
-			 	(d3.select("#id"+d.target.name).style("display") == "inline")) { 
-			 	d.shown = true
-			 	return "inline" 
-			// otherwise hide the edge between them	
-			 } else { 
-			 	d.shown = false
-			 	return "none" 
-			 }
-		}
-	})	 
+		d3.selectAll("."+edge_class).style("display", function(d,i) {
+			// reset makes all edges visible
+			if (reset) { return "inline" } 
+			
+			else {
+				if (current_graph=="force-tab") {
+				// check to ensure both node-endings are visible
+				if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
+					(d3.select("#id"+d.target.name).style("display") == "inline")) { 
+					d.shown = true
+					return "inline" 
+				// otherwise hide the edge between them	
+				 } else { 
+					d.shown = false
+					return "none" 
+				 }
+				}
+				else {
+					console.log(d)
+					var e
+					for (j=0; j<links.length; j++) {
+					if (links[j].source.name == users[d.source.index] && links[j].target.name == users[d.target.index])
+					e = links[j]
+					}
+					console.log("e = ")
+					console.log(e)
+				// check to ensure both node-endings are visible
+				if ((d3.select("#id"+e.source.name).style("display") == "inline") && 
+					(d3.select("#id"+e.target.name).style("display") == "inline")) { 
+					e.shown = true
+					return "inline" 
+				// otherwise hide the edge between them	
+				 } else { 
+					e.shown = false
+					return "none" 
+				 }
+				}
+			}
+		})
+	
+	
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1848,6 +1873,8 @@ function summonFilterBox() {
 // and http://stackoverflow.com/questions/21813723/change-and-transition-dataset-in-chord-diagram-with-d3
 
 function updateChord(matrix) {
+
+console.log(users)
   
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
@@ -1911,7 +1938,7 @@ function updateChord(matrix) {
        .on("mouseout", function(d) {
          clearNetworkDetails()
       });
-
+      
 
  //update the paths to match the layout
   groupG.select("path") 
@@ -1924,7 +1951,8 @@ function updateChord(matrix) {
        .attr("xlink:href", function (d) {
            return "#group" + users[d.index];
        })
-       .attr("id", function(d) { return "txt" + users[d.index]; })
+       .attr("id", function(d) { 
+       return "txt" + users[d.index]; })
        .attr("class", "chord-text")
        .attr("dy", ".35em")
        .attr("color", "#fff")
