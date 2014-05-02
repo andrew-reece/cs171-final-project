@@ -268,7 +268,8 @@ function getSubjectData() {
 								 libcon:			d.libcon,
 								 sad:				d.sad,
 								 stressed:			d.stressed,
-								 aerobic_per_week: 	d.aerobic_per_week
+								 aerobic_per_week: 	d.aerobic_per_week,
+								 shown:				true
 								}
 		})
 		getRelationsData(); 
@@ -376,7 +377,6 @@ function renderPage(vardata) {
 			freqmax = (freqmax < parseInt(d.total_freq)) ? parseInt(d.total_freq) : freqmax 
 		})
 		links = data
-		
 	/* this is standard usage in many bostock examples of force graphs
 		such as https://gist.github.com/mbostock/2706022 
 		and we used it in HW2. */
@@ -384,6 +384,7 @@ function renderPage(vardata) {
 		links.forEach(function(link) {
 		  link.source = nodes[link.source];
 		  link.target = nodes[link.target];
+		  link.shown  = true;
 		});	
 		
 // sets filter checkbox functionality based on node data
@@ -395,8 +396,8 @@ function renderPage(vardata) {
 //
 
 	// keeps track of time series checkpoints in an array
-	keys = d3.keys(data[0])
-	dateRange = d3.keys(data[0]).slice(4)
+	keys = d3.keys(data[0]).slice(0,-1)
+	dateRange = d3.keys(data[0]).slice(4,-1)
 		
 	// The order of object keys is not guaranteed in JS, so we must sort to be absolutely sure.
     dateRange.sort(function(a,b) {
@@ -429,7 +430,7 @@ function renderPage(vardata) {
 		edgeArcScale.domain([0,freqmax])
 		
 	    /* store data for chord diagram */
-    	chData = data
+    	chData = links		
     	data.map(function(d,i) {
     	 var pairName = (+d.source.name < +d.target.name) ?
                    "user" + +d.source.name  + "-" + "user" + +d.target.name:
@@ -440,10 +441,11 @@ function renderPage(vardata) {
 		/* draw actual layout */
  		if (current_graph == 'force-tab') {renderForceGraph()}
  		if (current_graph == 'chord-tab') {
-      d3.selectAll(".group").remove();
+      	  d3.selectAll(".group").remove();
  		  d3.selectAll(".chord").remove();
  		  filterComm(chData);
  	  }
+ 	  
 		
 	}) // end d3.csv()
 }
@@ -665,7 +667,6 @@ function renderReader(doc) {
 		var reader = d3.select("#graph-reader").style("z-index", 10)
 		d3.text("docs/about.html")
 		.get(function(error,data) {reader.html(data) })
-		d3.selectAll(".btt-link").on("click", function() {d3.select('#graph-reader').property('scrollTop',0)})
 	} else if (doc == "screencast") {
 		var reader = d3.select("#graph-reader").style("z-index", 10)
 		reader.html('<iframe style="margin-left:45px;margin-top:20px;" width="640" height="480" src="//www.youtube.com/embed/BRtt9BqJdZo" frameborder="1" allowfullscreen></iframe>')
@@ -1199,99 +1200,98 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	// the node label (ie. '34') visibility is controlled within the node display setting
 	// edges only display if both endpoint-nodes are also visible.
 	
-	d3.selectAll(".node")
-	  .style("display", function(d) {
-
-		 if (reset) {	// if reset button is clicked
-		 
-			d3.select("#txt"+d.name).style("display", "inline") // update label text
+	var node_class = (current_graph=="force-tab") ? "node" : "chord-node"
+	
+	d3.selectAll("."+node_class).style("display", function(d) {
+	
+		var node_name = (node_class=="node") 
+			? d.name
+			: users[d.index]
+		var node_obj = (node_class=="node")
+			? d
+			: nodes[users[d.index]]	
+			
+		// if reset button is clicked
+		 if (reset) {	
+			d3.select("#txt"+node_name).style("display", "inline") // update label text
+		    d3.select(".edge"+node_name).style("display", "inline") // update edge
+			if (node_class=="node") {
+					d.shown = false
+			} else {
+				nodes[users[d.index]].shown = false
+			}
 		 	return "inline"
 		 	
 		 // does the calling filter apply to this node?
-		 } else if (mapLabel( d[filname], filname, false, true) == filval) { 
+		 } else if (mapLabel( node_obj[filname], filname, false, true) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
-		 	
-				d3.select("#txt"+d.name).style("display", "none")
+				d3.select("#txt"+node_name).style("display", "none")
+		  		d3.select(".edge"+node_name).style("display", "none") 
+				if (node_class=="node") {
+					d.shown = false
+				} else {
+					nodes[users[d.index]].shown = false
+				}
 				return "none"
-				
 		 	} else {		// else checkbox is unchecked, ie. drop the filter
-	
-				d3.select("#txt"+d.name).style("display", "inline")
+				d3.select("#txt"+node_name).style("display", "inline")
+		  		d3.select(".edge"+node_name).style("display", "inline") 
+				if (node_class=="node") {
+					d.shown = true
+				} else {
+					nodes[users[d.index]].shown = true
+				}
 				return "inline"
 		 	}
-		 } 
-		 // otherwise, just stick with what we've already got
-		 else { return d3.select(this).style("display") }
-		 
+		 	// otherwise, just stick with what we've already got
+		 } else { return d3.select(this).style("display") }
 	  })
-	  		
-	d3.selectAll(".link")
-		.style("display", function(d,i) {
-		
-			if (reset) { return "inline" } // reset makes all edges visible
-			
-			else {
-			
-				// check to ensure both node-endings are visible
-				if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
-					(d3.select("#id"+d.target.name).style("display") == "inline")) {
-					
-					return "inline"
-				} 
-				
-				// otherwise hide the edge between them	
-				else { return "none" }
-			}
-		})	 
-		
-  // filter chord groups/arcs
-  for(var node in nodes) {
-    var d = nodes[node];
-    if (reset) {	// if reset button is clicked
-		 
-		  d3.select("#txt"+d.name).style("display", "inline") // update label text
-			d3.select("#id"+d.name).style("display", "inline") // update node
-		  d3.select(".edge"+d.name).style("display", "inline") // update edge
-
-		 // does the calling filter apply to this node?
-		} else if (mapLabel( d[filname], filname, false, true) == filval) { 
-		 
-		 	if (selected) {	// selected = checkbox is checked
-		 	
-				d3.select("#txt"+d.name).style("display", "none")
-				d3.select("#id"+d.name).style("display", "none")
-				
-		 	} else {		// else checkbox is unchecked, ie. drop the filter
+	 
+	var edge_class = (current_graph=="force-tab") ? "link" : "chord"
 	
-				d3.select("#txt"+d.name).style("display", "inline")
-				d3.select("#id"+d.name).style("display", "inline")
-		 	}
-		} 
-  }
-  
-  // filter chord edges/paths
-	d3.selectAll(".chord")
-		.style("display", function(d,i) {
-
-			if (reset) { return "inline" } // reset makes all edges visible
+	var chord_edge_shown
+	
+	d3.selectAll("."+edge_class)
+		.style("display", function(d) {
+		var source_name = (edge_class=="link") 
+			? d.source.name
+			: users[d.source.index]
+		var target_name = (edge_class=="link") 
+			? d.target.name
+			: users[d.target.index]
+			
+			// reset makes all edges visible
+			if (reset) { return "inline" } 
 			
 			else {
-			
 				// check to ensure both node-endings are visible
-				if ((d3.select("#id"+users[d.source.index]).style("display") == "inline") && 
-					(d3.select("#id"+users[d.target.index]).style("display") == "inline")) {
-					
-					return "inline"
-				} 
-				
+				if ((d3.select("#id"+source_name).style("display") == "inline") && 
+					(d3.select("#id"+target_name).style("display") == "inline")) { 
+					if (edge_class=="link") {d.shown = true}
+					else {
+						links[source_name].shown = true
+						links[target_name].shown = true
+						chord_edge_shown = true
+					}
+					return "inline" 
 				// otherwise hide the edge between them	
-				else { return "none" }
+				 } else { 
+					if (edge_class=="link") {d.shown = false}
+					else {
+						chord_edge_shown = false
+						links[source_name].shown = false
+						links[target_name].shown = false
+					}
+					return "none" 
+				 }
 			}
-		})	 
+		})
+		.classed("shown", chord_edge_shown)
+	
+	
+
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1571,14 +1571,8 @@ function renderForceGraph() {
 		
 		text = svg.append("g").selectAll("text")
 			.data(force.nodes())
-			.enter()
-			.append("text")
-				.attr("id", function(d) {return "txt"+d.name})
-				.attr("class", "text")
-				.attr("x", 12)
-				.attr("y", 3)
-				.style("font-size", "12pt")
-				.text(function(d) { return d.name; });
+			
+		renderForceText()
 	}
 }
 	
@@ -1596,6 +1590,9 @@ function renderForceLinks() {
 			var e1 = "edge"+d.source.name
 			var e2 = "edge"+d.target.name
 			return "link "+e1+" "+e2
+		})
+		.style("display", function(d) { 
+			return (d.source.shown && d.target.shown) ? "inline" : "none" 
 		})
 		.on("mouseover", function(d) {
 			d3.select(this).style("stroke", "purple")
@@ -1624,6 +1621,7 @@ function renderForceNodes() {
 			.attr("id", function(d) {return "id"+d.name})
 			.attr("r", r)
 			.style("fill", function(d) {return "steelblue"})
+			.style("display", function(d) { return (d.shown) ? "inline" : "none" })
 			.on("mouseover", function(d) {
 				d3.select(this).style("fill", "purple")
 				setNetworkDetails(d,false) 
@@ -1634,6 +1632,17 @@ function renderForceNodes() {
 			});
 }
 
+function renderForceText() {
+	text.enter()
+		.append("text")
+			.attr("id", function(d) {return "txt"+d.name})
+			.attr("class", "force-text")
+			.attr("x", 12)
+			.attr("y", 3)
+			.style("font-size", "12pt")
+			.style("display", function(d) { return (d.shown) ? "inline" : "none" })
+			.text(function(d) { return d.name; });
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1771,6 +1780,7 @@ function setRelationDetails(d, targetdata, isedge) {
 	var current_time = keys[slider.property("value")]
 	var thispair = d.source.name+"-"+targetdata.name
 	var rowidx = d3.values(master_relations.pairs).indexOf(thispair)
+	
 	var s_to_t = master_relations[''+current_time][rowidx]
 	
 	d3.select("#ball-left")
@@ -1887,7 +1897,7 @@ function updateChord(matrix) {
   
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
-
+    
    var fill = d3.scale.ordinal()
      	 .domain(d3.range(1,80))
      	 .range(colorbrewer.Paired[11]);  
@@ -1925,6 +1935,7 @@ function updateChord(matrix) {
    //create the arc paths and set the constant attributes
    //(those based on the group index, not on the value)
    newGroups.append("path")
+   	   .attr("class", "chord-node")
        .attr("id", function (d) {
           // return "group" + users[d.index];
           return "id" + users[d.index];
@@ -1933,6 +1944,9 @@ function updateChord(matrix) {
        })
        // .style("fill", function(d) { return fill(d.index); });
        .style("fill", function(d) { return fill(users[d.index]); })
+       .style("display", function(d) {
+       		return (nodes[users[d.index]].shown) ? "inline" : "none" 
+       })
        .on("mouseover", function(d, i) {
          var infoObject = getInfoObject(d);
          setNetworkDetails(infoObject,false);
@@ -1940,7 +1954,7 @@ function updateChord(matrix) {
        .on("mouseout", function(d) {
          clearNetworkDetails()
       });
-
+      
 
  //update the paths to match the layout
   groupG.select("path") 
@@ -1953,7 +1967,9 @@ function updateChord(matrix) {
        .attr("xlink:href", function (d) {
            return "#group" + users[d.index];
        })
-       .attr("id", function(d) { return "txt" + users[d.index]; })
+       .attr("id", function(d) { 
+       return "txt" + users[d.index]; })
+       .attr("class", "chord-text")
        .attr("dy", ".35em")
        .attr("color", "#fff")
        .text(function (d) {
@@ -1991,6 +2007,11 @@ function updateChord(matrix) {
        .attr("class", function(d, i) {
          return "chord " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
        })
+       .style("display", function(d) {
+       		return (nodes[users[d.source.index]].shown && nodes[users[d.target.index]].shown) 
+       			? "inline" 
+       			: "none"
+		 })
        .on("mouseover", function(d, i) {
          var pairName = getPairName(d);
          var infoObject = chDataByPair[pairName];
