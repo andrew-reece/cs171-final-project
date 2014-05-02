@@ -377,7 +377,6 @@ function renderPage(vardata) {
 			freqmax = (freqmax < parseInt(d.total_freq)) ? parseInt(d.total_freq) : freqmax 
 		})
 		links = data
-		
 	/* this is standard usage in many bostock examples of force graphs
 		such as https://gist.github.com/mbostock/2706022 
 		and we used it in HW2. */
@@ -431,7 +430,7 @@ function renderPage(vardata) {
 		edgeArcScale.domain([0,freqmax])
 		
 	    /* store data for chord diagram */
-    	chData = data
+    	chData = links		
     	data.map(function(d,i) {
     	 var pairName = (+d.source.name < +d.target.name) ?
                    "user" + +d.source.name  + "-" + "user" + +d.target.name:
@@ -1203,25 +1202,45 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	var node_class = (current_graph=="force-tab") ? "node" : "chord-node"
 	
 	d3.selectAll("."+node_class).style("display", function(d) {
+	
+		var node_name = (node_class=="node") 
+			? d.name
+			: users[d.index]
+		var node_obj = (node_class=="node")
+			? d
+			: nodes[users[d.index]]	
+			
 		// if reset button is clicked
 		 if (reset) {	
-			d3.select("#txt"+d.name).style("display", "inline") // update label text
-		    d3.select(".edge"+d.name).style("display", "inline") // update edge
-			d.shown = true
+			d3.select("#txt"+node_name).style("display", "inline") // update label text
+		    d3.select(".edge"+node_name).style("display", "inline") // update edge
+			if (node_class=="node") {
+					d.shown = false
+			} else {
+				nodes[users[d.index]].shown = false
+			}
 		 	return "inline"
 		 	
 		 // does the calling filter apply to this node?
-		 } else if (mapLabel( d[filname], filname, false, true) == filval) { 
+		 } else if (mapLabel( node_obj[filname], filname, false, true) == filval) { 
 		 
 		 	if (selected) {	// selected = checkbox is checked
-				d3.select("#txt"+d.name).style("display", "none")
-		  		d3.select(".edge"+d.name).style("display", "none") 
-				d.shown = false
+				d3.select("#txt"+node_name).style("display", "none")
+		  		d3.select(".edge"+node_name).style("display", "none") 
+				if (node_class=="node") {
+					d.shown = false
+				} else {
+					nodes[users[d.index]].shown = false
+				}
 				return "none"
 		 	} else {		// else checkbox is unchecked, ie. drop the filter
-				d3.select("#txt"+d.name).style("display", "inline")
-		  		d3.select(".edge"+d.name).style("display", "inline") 
-				d.shown = true
+				d3.select("#txt"+node_name).style("display", "inline")
+		  		d3.select(".edge"+node_name).style("display", "inline") 
+				if (node_class=="node") {
+					d.shown = true
+				} else {
+					nodes[users[d.index]].shown = true
+				}
 				return "inline"
 		 	}
 		 	// otherwise, just stick with what we've already got
@@ -1230,45 +1249,44 @@ function filterNodesInner(selected, filname, filval, thisfilter, reset) {
 	 
 	var edge_class = (current_graph=="force-tab") ? "link" : "chord"
 	
-		d3.selectAll("."+edge_class).style("display", function(d,i) {
+	var chord_edge_shown
+	
+	d3.selectAll("."+edge_class)
+		.style("display", function(d) {
+		var source_name = (edge_class=="link") 
+			? d.source.name
+			: users[d.source.index]
+		var target_name = (edge_class=="link") 
+			? d.target.name
+			: users[d.target.index]
+			
 			// reset makes all edges visible
 			if (reset) { return "inline" } 
 			
 			else {
-				if (current_graph=="force-tab") {
 				// check to ensure both node-endings are visible
-				if ((d3.select("#id"+d.source.name).style("display") == "inline") && 
-					(d3.select("#id"+d.target.name).style("display") == "inline")) { 
-					d.shown = true
-					return "inline" 
-				// otherwise hide the edge between them	
-				 } else { 
-					d.shown = false
-					return "none" 
-				 }
-				}
-				else {
-					console.log(d)
-					var e
-					for (j=0; j<links.length; j++) {
-					if (links[j].source.name == users[d.source.index] && links[j].target.name == users[d.target.index])
-					e = links[j]
+				if ((d3.select("#id"+source_name).style("display") == "inline") && 
+					(d3.select("#id"+target_name).style("display") == "inline")) { 
+					if (edge_class=="link") {d.shown = true}
+					else {
+						links[source_name].shown = true
+						links[target_name].shown = true
+						chord_edge_shown = true
 					}
-					console.log("e = ")
-					console.log(e)
-				// check to ensure both node-endings are visible
-				if ((d3.select("#id"+e.source.name).style("display") == "inline") && 
-					(d3.select("#id"+e.target.name).style("display") == "inline")) { 
-					e.shown = true
 					return "inline" 
 				// otherwise hide the edge between them	
 				 } else { 
-					e.shown = false
+					if (edge_class=="link") {d.shown = false}
+					else {
+						chord_edge_shown = false
+						links[source_name].shown = false
+						links[target_name].shown = false
+					}
 					return "none" 
 				 }
-				}
 			}
 		})
+		.classed("shown", chord_edge_shown)
 	
 	
 
@@ -1572,7 +1590,9 @@ function renderForceLinks() {
 			var e2 = "edge"+d.target.name
 			return "link "+e1+" "+e2
 		})
-		.style("display", function(d) { return (d.shown) ? "inline" : "none" })
+		.style("display", function(d) { 
+			return (d.source.shown && d.target.shown) ? "inline" : "none" 
+		})
 		.on("mouseover", function(d) {
 			d3.select(this).style("stroke", "purple")
 			d3.select(this).style("fill", "purple")
@@ -1873,8 +1893,6 @@ function summonFilterBox() {
 // and http://stackoverflow.com/questions/21813723/change-and-transition-dataset-in-chord-diagram-with-d3
 
 function updateChord(matrix) {
-
-console.log(users)
   
   var layout = getDefaultChordLayout();
   layout.matrix(matrix);
@@ -1926,10 +1944,7 @@ console.log(users)
        // .style("fill", function(d) { return fill(d.index); });
        .style("fill", function(d) { return fill(users[d.index]); })
        .style("display", function(d) {
-       	for (var key in nodes) {
-       		if (key == users[d.index]) {
-       		return (nodes[key]["shown"]) ? "inline" : "none" }
-       		}
+       		return (nodes[users[d.index]].shown) ? "inline" : "none" 
        })
        .on("mouseover", function(d, i) {
          var infoObject = getInfoObject(d);
@@ -1989,12 +2004,12 @@ console.log(users)
        .attr("id", function(d) { return getPairName(d); })
        // .attr("class", "chord")
        .attr("class", function(d, i) {
-         return "chord chord-edge " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
+         return "chord " + "edge" + users[d.source.index] + " " + "edge" + users[d.target.index];
        })
        .style("display", function(d) {
-       		for (j=0; j<links.length; j++) {
-       		if (links[j].source.name == users[d.source.index] && links[j].target.name == users[d.target.index]) 
-       		return (links[j].shown) ? "inline" : "none" }
+       		return (nodes[users[d.source.index]].shown && nodes[users[d.target.index]].shown) 
+       			? "inline" 
+       			: "none"
 		 })
        .on("mouseover", function(d, i) {
          var pairName = getPairName(d);
