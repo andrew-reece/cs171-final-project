@@ -669,7 +669,7 @@ function renderReader(doc) {
 		.get(function(error,data) {reader.html(data) })
 	} else if (doc == "screencast") {
 		var reader = d3.select("#graph-reader").style("z-index", 10)
-		reader.html('<iframe style="margin-left:45px;margin-top:20px;" width="640" height="480" src="//www.youtube.com/embed/BRtt9BqJdZo" frameborder="1" allowfullscreen></iframe>')
+		reader.html('<iframe width="420" height="315" src="//www.youtube.com/embed/5vMvluLGuK8" frameborder="0" allowfullscreen></iframe>')
 	}
 }
 
